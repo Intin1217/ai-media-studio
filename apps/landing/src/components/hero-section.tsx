@@ -43,9 +43,7 @@ export function HeroSection() {
 
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <a
-              href="http://localhost:3000"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="/service"
               className={cn(
                 buttonVariants({ variant: 'default', size: 'lg' }),
                 'shadow-primary/25 w-full px-8 shadow-lg sm:w-auto',

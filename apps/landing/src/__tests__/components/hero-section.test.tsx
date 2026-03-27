@@ -80,11 +80,10 @@ describe('HeroSection', () => {
       );
     });
 
-    it('"지금 시작하기" 링크가 새 탭으로 열린다', () => {
+    it('"지금 시작하기" 링크가 /service를 가리킨다', () => {
       render(<HeroSection />);
       const link = screen.getByRole('link', { name: '지금 시작하기' });
-      expect(link).toHaveAttribute('target', '_blank');
-      expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+      expect(link).toHaveAttribute('href', '/service');
     });
   });
 
