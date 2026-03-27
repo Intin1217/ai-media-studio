@@ -1,0 +1,28 @@
+services:
+  service:
+    build:
+      context: .
+      dockerfile: apps/service/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+
+  admin:
+    build:
+      context: .
+      dockerfile: apps/admin/Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+
+  landing:
+    build:
+      context: .
+      dockerfile: apps/landing/Dockerfile
+    ports:
+      - "3002:3002"
+    restart: unless-stopped

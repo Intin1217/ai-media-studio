@@ -1,0 +1,12 @@
+node_modules
+.next
+out
+.turbo
+.git
+.github
+.idea
+.vscode
+.claude
+*.md
+.env*
+.DS_Store
