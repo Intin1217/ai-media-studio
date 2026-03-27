@@ -16,16 +16,16 @@
 
 ## 기술 스택
 
-| 분류 | 기술 |
-|------|------|
-| Framework | Next.js 15 (App Router) |
-| Language | TypeScript 5 (strict mode) |
-| 상태 관리 | React Query + Zustand |
-| 스타일링 | Tailwind CSS, shadcn/ui |
-| AI / Media | TensorFlow.js (COCO-SSD), WebRTC, Canvas API |
-| 모노레포 | Turborepo + pnpm |
-| 코드 품질 | ESLint, Prettier, husky, lint-staged, commitlint |
-| 배포 | Vercel |
+| 분류       | 기술                                             |
+| ---------- | ------------------------------------------------ |
+| Framework  | Next.js 15 (App Router)                          |
+| Language   | TypeScript 5 (strict mode)                       |
+| 상태 관리  | React Query + Zustand                            |
+| 스타일링   | Tailwind CSS, shadcn/ui                          |
+| AI / Media | TensorFlow.js (COCO-SSD), WebRTC, Canvas API     |
+| 모노레포   | Turborepo + pnpm                                 |
+| 코드 품질  | ESLint, Prettier, husky, lint-staged, commitlint |
+| 배포       | Vercel                                           |
 
 ## 프로젝트 구조
 
@@ -89,9 +89,9 @@ pnpm install
 pnpm dev
 
 # 개별 앱 실행
-pnpm dev --filter @ai-media-studio/service    # localhost:3000
-pnpm dev --filter @ai-media-studio/admin      # localhost:3001
-pnpm dev --filter @ai-media-studio/landing    # localhost:3002
+pnpm --filter @ai-media-studio/service dev    # localhost:3000
+pnpm --filter @ai-media-studio/admin dev      # localhost:3001
+pnpm --filter @ai-media-studio/landing dev    # localhost:3002
 ```
 
 ### 빌드
@@ -125,4 +125,3 @@ chore: 기타 변경
 - [ ] Phase 4 — 실시간 통계 대시보드
 - [ ] Phase 5 — 어드민 패널
 - [ ] Phase 6 — 마무리 및 최적화
-
