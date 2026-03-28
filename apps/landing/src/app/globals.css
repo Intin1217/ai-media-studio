@@ -22,6 +22,13 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
     --radius: 0.5rem;
+
+    /* Landing 전용 포인트 색상 */
+    --ai-cyan: 190 95% 50%;
+    --ai-blue: 217 91% 60%;
+    --ai-purple: 270 76% 60%;
+    --ai-gradient-start: 190 95% 50%;
+    --ai-gradient-end: 270 76% 60%;
   }
 
   .dark {
@@ -42,6 +49,10 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
+
+    --ai-cyan: 190 90% 45%;
+    --ai-blue: 217 85% 55%;
+    --ai-purple: 270 70% 55%;
   }
 }
 
@@ -51,5 +62,40 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .scroll-reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition:
+      opacity 0.6s ease-out,
+      transform 0.6s ease-out;
+  }
+
+  .scroll-reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+
+  .animation-delay-4000 {
+    animation-delay: 4s;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-blob {
+    animation: none;
+  }
+
+  .scroll-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
   }
 }
