@@ -1,6 +1,5 @@
-import { defineConfig, mergeConfig } from 'vitest/config';
+import { defineConfig, mergeConfig, type ViteUserConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
-import { fileURLToPath } from 'node:url';
 
 interface CreateVitestConfigOptions {
   /**
@@ -48,8 +47,8 @@ export function createVitestConfig(
 }
 
 export function mergeVitestConfig(
-  base: ReturnType<typeof defineConfig>,
-  overrides: ReturnType<typeof defineConfig>,
-): ReturnType<typeof mergeConfig> {
-  return mergeConfig(base, overrides);
+  base: ViteUserConfig,
+  overrides: ViteUserConfig,
+): ViteUserConfig {
+  return mergeConfig(base, overrides) as ViteUserConfig;
 }
