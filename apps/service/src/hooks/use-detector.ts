@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef } from 'react';
 import type { Detection } from '@ai-media-studio/media-utils';
 import { drawDetections } from '@ai-media-studio/media-utils';
 import { useDetectionStore } from '@/stores/detection-store';
+import { useSettingsStore } from '@/stores/settings-store';
 import {
   saveDetectionLog,
   startSession,
@@ -28,7 +29,8 @@ export function useDetector(
   isActive: boolean,
 ) {
   const { model: modelRef, loadModel } = useModel();
-  const rafRef = useRef<number>(0);
+  const renderRafRef = useRef<number>(0);
+  const detectRafRef = useRef<number>(0);
   const frameCountRef = useRef<number>(0);
   const lastFpsUpdateRef = useRef<number>(0);
   const sessionIdRef = useRef<string | null>(null);
@@ -37,6 +39,7 @@ export function useDetector(
     null,
   );
   const latestDetectionsRef = useRef<Detection[]>([]);
+  const isDetectingRef = useRef<boolean>(false);
 
   const {
     setDetections,
@@ -46,20 +49,38 @@ export function useDetector(
     updatePerSecondCounts,
   } = useDetectionStore();
 
-  const detect = useCallback(async () => {
+  // 렌더링 루프 — ~60fps, 비디오 프레임 + 바운딩 박스 오버레이
+  const renderLoop = useCallback(() => {
     const video = videoRef.current;
     const canvas = canvasRef.current;
-    const model = modelRef.current;
-
-    if (!video || !canvas || !model || video.readyState < 2) return;
+    if (!video || !canvas) return;
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
     syncCanvasSize(canvas, video.videoWidth, video.videoHeight);
+    ctx.drawImage(video, 0, 0);
+    drawDetections(ctx, latestDetectionsRef.current);
 
+    renderRafRef.current = requestAnimationFrame(renderLoop);
+  }, [videoRef, canvasRef]);
+
+  // 추론 루프 — inference 완료 후 즉시 다음 inference (기기 성능에 따라 자동 throttle)
+  const detectLoop = useCallback(async () => {
+    const video = videoRef.current;
+    const model = modelRef.current;
+
+    if (!isDetectingRef.current) return;
+
+    if (!video || !model || video.readyState < 2) {
+      detectRafRef.current = requestAnimationFrame(detectLoop);
+      return;
+    }
+
+    // rAF 루프 내에서 최신 설정값을 리렌더링 없이 참조
+    const threshold = useSettingsStore.getState().confidenceThreshold;
     const startTime = performance.now();
-    const predictions = await model.detect(video);
+    const predictions = await model.detect(video, 20, threshold);
     const inferenceTime = performance.now() - startTime;
 
     const detections: Detection[] = predictions.map((p) => ({
@@ -68,11 +89,8 @@ export function useDetector(
       bbox: { x: p.bbox[0], y: p.bbox[1], width: p.bbox[2], height: p.bbox[3] },
     }));
 
-    ctx.drawImage(video, 0, 0);
-    drawDetections(ctx, detections);
-
-    setDetections(detections);
     latestDetectionsRef.current = detections;
+    setDetections(detections);
 
     // IndexedDB에 1초 간격으로 저장
     const logNow = performance.now();
@@ -100,20 +118,18 @@ export function useDetector(
       frameCountRef.current = 0;
       lastFpsUpdateRef.current = now;
     }
+
+    // 추론 완료 후 바로 다음 추론 시작
+    if (isDetectingRef.current) {
+      detectRafRef.current = requestAnimationFrame(detectLoop);
+    }
   }, [
     videoRef,
-    canvasRef,
     modelRef,
     setDetections,
     updateUniqueDetections,
     updatePerformance,
   ]);
-
-  const detectLoop = useCallback(() => {
-    detect().then(() => {
-      rafRef.current = requestAnimationFrame(detectLoop);
-    });
-  }, [detect]);
 
   useEffect(() => {
     loadModel();
@@ -137,21 +153,33 @@ export function useDetector(
 
   useEffect(() => {
     if (isActive && modelRef.current) {
+      isDetectingRef.current = true;
       setIsDetecting(true);
       lastFpsUpdateRef.current = performance.now();
       frameCountRef.current = 0;
+
       // 세션 시작
       startSession().then((id) => {
         sessionIdRef.current = id;
       });
-      rafRef.current = requestAnimationFrame(detectLoop);
+
+      // 렌더링 루프와 추론 루프를 독립적으로 시작
+      renderRafRef.current = requestAnimationFrame(renderLoop);
+      detectRafRef.current = requestAnimationFrame(detectLoop);
     }
 
     return () => {
-      if (rafRef.current) {
-        cancelAnimationFrame(rafRef.current);
-        rafRef.current = 0;
+      isDetectingRef.current = false;
+
+      if (renderRafRef.current) {
+        cancelAnimationFrame(renderRafRef.current);
+        renderRafRef.current = 0;
       }
+      if (detectRafRef.current) {
+        cancelAnimationFrame(detectRafRef.current);
+        detectRafRef.current = 0;
+      }
+
       // 세션 종료
       if (sessionIdRef.current) {
         endSession(sessionIdRef.current);
@@ -159,7 +187,7 @@ export function useDetector(
       }
       setIsDetecting(false);
     };
-  }, [isActive, detectLoop, setIsDetecting, modelRef]);
+  }, [isActive, renderLoop, detectLoop, setIsDetecting, modelRef]);
 
   return { loadModel, modelRef };
 }
