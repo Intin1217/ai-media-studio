@@ -5,12 +5,14 @@ import type { Detection } from '@ai-media-studio/media-utils';
 import { drawDetections } from '@ai-media-studio/media-utils';
 import { useDetectionStore } from '@/stores/detection-store';
 import { useSettingsStore } from '@/stores/settings-store';
+import { getKoreanLabel } from '@/lib/class-labels';
 import {
   saveDetectionLog,
   startSession,
   endSession,
 } from '@/lib/detection-history';
-import { useModel } from './use-model';
+import { useModel, disposeModelCache } from './use-model';
+import type { ModelType } from '@/stores/settings-store';
 import type { DetectionResult } from '@/workers/detection-worker';
 
 function syncCanvasSize(
@@ -48,6 +50,8 @@ export function useDetector(
   showDetectionsRef: React.MutableRefObject<boolean>,
 ) {
   const { model: modelRef, loadModel } = useModel();
+  const modelType = useSettingsStore((s) => s.modelType);
+  const prevModelTypeRef = useRef<ModelType>(modelType);
 
   const renderRafRef = useRef<number>(0);
   const detectRafRef = useRef<number>(0);
@@ -125,7 +129,9 @@ export function useDetector(
     ctx.drawImage(video, 0, 0);
 
     if (showDetectionsRef.current) {
-      drawDetections(ctx, latestDetectionsRef.current);
+      drawDetections(ctx, latestDetectionsRef.current, {
+        labelFormatter: getKoreanLabel,
+      });
     }
 
     renderRafRef.current = requestAnimationFrame(renderLoop);
@@ -229,8 +235,16 @@ export function useDetector(
         }
       } else if (data.type === 'error') {
         workerPendingRef.current = false;
-        useWorkerRef.current = false;
-        workerReadyRef.current = false;
+        // mediapipe는 Worker 미지원 → 메인 스레드에서 처리
+        if (data.message === 'mediapipe-worker-unsupported') {
+          useWorkerRef.current = false;
+          workerReadyRef.current = false;
+          // 메인 스레드에서 MediaPipe 모델 로드
+          loadModel();
+        } else {
+          useWorkerRef.current = false;
+          workerReadyRef.current = false;
+        }
       }
     };
 
@@ -240,7 +254,8 @@ export function useDetector(
     };
 
     workerRef.current = worker;
-    worker.postMessage({ type: 'load' });
+    const initialModelType = useSettingsStore.getState().modelType;
+    worker.postMessage({ type: 'load', modelType: initialModelType });
 
     return () => {
       worker.postMessage({ type: 'dispose' });
@@ -249,11 +264,33 @@ export function useDetector(
       workerReadyRef.current = false;
       useWorkerRef.current = false;
     };
-  }, [handleDetectionResult, workerDetectLoop]);
+  }, [handleDetectionResult, workerDetectLoop, loadModel]);
 
   useEffect(() => {
     loadModel();
   }, [loadModel]);
+
+  // modelType 변경 감지 — 모델 교체 시 이전 모델 dispose 후 재로드
+  useEffect(() => {
+    const prevModelType = prevModelTypeRef.current;
+    if (prevModelType === modelType) return;
+
+    prevModelTypeRef.current = modelType;
+
+    // 이전 모델 dispose
+    disposeModelCache(prevModelType);
+
+    // Worker에 새 모델 타입으로 재로드 요청
+    const worker = workerRef.current;
+    if (worker) {
+      workerReadyRef.current = false;
+      useWorkerRef.current = false;
+      worker.postMessage({ type: 'load', modelType });
+    }
+
+    // 메인 스레드도 새 모델 로드
+    loadModel();
+  }, [modelType, loadModel]);
 
   // per-second 카운트 업데이트: 1초 간격
   useEffect(() => {
