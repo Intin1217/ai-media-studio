@@ -9,16 +9,6 @@ services:
       - NODE_ENV=production
     restart: unless-stopped
 
-  admin:
-    build:
-      context: .
-      dockerfile: apps/admin/Dockerfile
-    ports:
-      - "3001:3001"
-    environment:
-      - NODE_ENV=production
-    restart: unless-stopped
-
   landing:
     build:
       context: .
