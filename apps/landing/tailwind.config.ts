@@ -18,6 +18,7 @@ const config: Config = {
         'ai-cyan': 'hsl(var(--ai-cyan))',
         'ai-blue': 'hsl(var(--ai-blue))',
         'ai-purple': 'hsl(var(--ai-purple))',
+        'ai-amber': 'hsl(var(--ai-amber))',
       },
       fontFamily: {
         sans: [
