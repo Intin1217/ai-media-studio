@@ -4,6 +4,7 @@ import { useCallback } from 'react';
 import type { Detection } from '@ai-media-studio/media-utils';
 import { useModel } from './use-model';
 import { useDetectionStore } from '@/stores/detection-store';
+import { useSettingsStore } from '@/stores/settings-store';
 import type { ImageAnalysisResult } from '@/stores/detection-store';
 
 export function useImageDetector() {
@@ -28,7 +29,8 @@ export function useImageDetector() {
 
         img.onload = async () => {
           const startTime = performance.now();
-          const predictions = await model!.detect(img);
+          const threshold = useSettingsStore.getState().confidenceThreshold;
+          const predictions = await model!.detect(img, 20, threshold);
           const inferenceTime = performance.now() - startTime;
 
           const detections: Detection[] = predictions.map((p) => ({

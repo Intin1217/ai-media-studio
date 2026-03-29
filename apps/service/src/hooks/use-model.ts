@@ -6,6 +6,8 @@ import { useDetectionStore } from '@/stores/detection-store';
 type CocoSsdModel = {
   detect: (
     input: HTMLVideoElement | HTMLImageElement | HTMLCanvasElement,
+    maxNumBoxes?: number,
+    minScore?: number,
   ) => Promise<
     Array<{
       class: string;
@@ -50,7 +52,7 @@ export function useModel() {
         const tf = await import('@tensorflow/tfjs-core');
         await tf.ready();
         const cocoSsd = await import('@tensorflow-models/coco-ssd');
-        const model = await cocoSsd.load({ base: 'lite_mobilenet_v2' });
+        const model = await cocoSsd.load({ base: 'mobilenet_v2' });
         return model as CocoSsdModel;
       })();
 
