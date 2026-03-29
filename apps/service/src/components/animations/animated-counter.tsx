@@ -20,7 +20,7 @@ export function AnimatedCounter({
   useEffect(() => {
     if (!ref.current) return;
     const obj = { val: prevValue.current };
-    animate(obj, {
+    const anim = animate(obj, {
       val: value,
       duration: 400,
       ease: 'outExpo',
@@ -32,6 +32,9 @@ export function AnimatedCounter({
       },
     });
     prevValue.current = value;
+    return () => {
+      anim?.cancel();
+    };
   }, [value, suffix]);
 
   return (

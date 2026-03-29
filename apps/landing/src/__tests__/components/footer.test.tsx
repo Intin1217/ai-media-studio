@@ -82,7 +82,7 @@ describe('Footer', () => {
       const githubLink = screen.getByRole('link', { name: /GitHub/ });
       expect(githubLink).toHaveAttribute(
         'href',
-        'https://github.com/Intin1217/ai-media-studio',
+        'https://github.com/Intin1217',
       );
     });
 

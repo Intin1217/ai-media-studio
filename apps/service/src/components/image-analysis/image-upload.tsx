@@ -5,6 +5,8 @@ import { Card, CardContent } from '@ai-media-studio/ui';
 import { useImageDetector } from '@/hooks/use-image-detector';
 import { useDetectionStore } from '@/stores/detection-store';
 
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
 export function ImageUpload() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -14,9 +16,20 @@ export function ImageUpload() {
 
   const handleFiles = useCallback(
     async (files: FileList | File[]) => {
-      const imageFiles = Array.from(files).filter((f) =>
+      const allImageFiles = Array.from(files).filter((f) =>
         f.type.startsWith('image/'),
       );
+      const imageFiles = allImageFiles.filter((f) => f.size <= MAX_FILE_SIZE);
+      const oversizedFiles = allImageFiles.filter(
+        (f) => f.size > MAX_FILE_SIZE,
+      );
+
+      if (oversizedFiles.length > 0) {
+        console.warn(
+          `파일 크기 초과 (최대 10MB): ${oversizedFiles.map((f) => f.name).join(', ')}`,
+        );
+      }
+
       if (imageFiles.length === 0) return;
 
       setIsAnalyzing(true);

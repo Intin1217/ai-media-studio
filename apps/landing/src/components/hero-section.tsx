@@ -33,9 +33,11 @@ export function HeroSection() {
             <SplitText text="AI로 영상을 분석하는" delay={0} />
             <br />
             <SplitText text="가장 " delay={400} />
-            <span className="from-ai-cyan to-ai-purple bg-gradient-to-r bg-clip-text text-transparent">
-              <SplitText text="스마트한" delay={600} />
-            </span>
+            <SplitText
+              text="스마트한"
+              delay={600}
+              charClassName="from-ai-cyan to-ai-purple bg-gradient-to-r bg-clip-text text-transparent"
+            />
             <SplitText text=" 방법" delay={900} />
           </h1>
 
