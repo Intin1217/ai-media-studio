@@ -4,51 +4,40 @@ import { useCallback, useEffect, useRef } from 'react';
 import type { Detection } from '@ai-media-studio/media-utils';
 import { drawDetections } from '@ai-media-studio/media-utils';
 import { useDetectionStore } from '@/stores/detection-store';
+import { useModel } from './use-model';
 
-type CocoSsdModel = {
-  detect: (video: HTMLVideoElement) => Promise<
-    Array<{
-      class: string;
-      score: number;
-      bbox: [number, number, number, number];
-    }>
-  >;
-};
+function syncCanvasSize(
+  canvas: HTMLCanvasElement,
+  width: number,
+  height: number,
+): void {
+  if (canvas.width !== width || canvas.height !== height) {
+    canvas.width = width;
+    canvas.height = height;
+  }
+}
 
 export function useDetector(
   videoRef: React.RefObject<HTMLVideoElement | null>,
   canvasRef: React.RefObject<HTMLCanvasElement | null>,
   isActive: boolean,
 ) {
-  const modelRef = useRef<CocoSsdModel | null>(null);
+  const { model: modelRef, loadModel } = useModel();
   const rafRef = useRef<number>(0);
   const frameCountRef = useRef<number>(0);
   const lastFpsUpdateRef = useRef<number>(0);
+  const perSecondIntervalRef = useRef<ReturnType<typeof setInterval> | null>(
+    null,
+  );
+  const latestDetectionsRef = useRef<Detection[]>([]);
 
   const {
-    setModelStatus,
     setDetections,
     setIsDetecting,
     updatePerformance,
-    incrementDetectionCounts,
+    updateUniqueDetections,
+    updatePerSecondCounts,
   } = useDetectionStore();
-
-  const loadModel = useCallback(async () => {
-    if (modelRef.current) return;
-
-    try {
-      setModelStatus('loading');
-      await import('@tensorflow/tfjs-backend-webgl');
-      const tf = await import('@tensorflow/tfjs-core');
-      await tf.ready();
-      const cocoSsd = await import('@tensorflow-models/coco-ssd');
-      const model = await cocoSsd.load({ base: 'lite_mobilenet_v2' });
-      modelRef.current = model;
-      setModelStatus('ready');
-    } catch {
-      setModelStatus('error');
-    }
-  }, [setModelStatus]);
 
   const detect = useCallback(async () => {
     const video = videoRef.current;
@@ -60,35 +49,28 @@ export function useDetector(
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Canvas 크기를 video에 맞춤
-    if (
-      canvas.width !== video.videoWidth ||
-      canvas.height !== video.videoHeight
-    ) {
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-    }
+    syncCanvasSize(canvas, video.videoWidth, video.videoHeight);
 
     const startTime = performance.now();
     const predictions = await model.detect(video);
     const inferenceTime = performance.now() - startTime;
 
-    // COCO-SSD 결과를 Detection 타입으로 변환
     const detections: Detection[] = predictions.map((p) => ({
       class: p.class,
       score: p.score,
       bbox: { x: p.bbox[0], y: p.bbox[1], width: p.bbox[2], height: p.bbox[3] },
     }));
 
-    // Canvas에 video 프레임 + 바운딩 박스 그리기
     ctx.drawImage(video, 0, 0);
     drawDetections(ctx, detections);
 
-    // Store 업데이트
     setDetections(detections);
-    incrementDetectionCounts(detections);
+    latestDetectionsRef.current = detections;
 
-    // FPS 계산 (100ms 간격으로 업데이트)
+    // unique 모드: 매 프레임 새로운 객체 감지
+    updateUniqueDetections(detections);
+
+    // FPS 계산
     frameCountRef.current++;
     const now = performance.now();
     if (now - lastFpsUpdateRef.current >= 100) {
@@ -101,8 +83,9 @@ export function useDetector(
   }, [
     videoRef,
     canvasRef,
+    modelRef,
     setDetections,
-    incrementDetectionCounts,
+    updateUniqueDetections,
     updatePerformance,
   ]);
 
@@ -115,6 +98,22 @@ export function useDetector(
   useEffect(() => {
     loadModel();
   }, [loadModel]);
+
+  // per-second 카운트 업데이트: 1초 간격
+  useEffect(() => {
+    if (isActive) {
+      perSecondIntervalRef.current = setInterval(() => {
+        updatePerSecondCounts(latestDetectionsRef.current);
+      }, 1000);
+    }
+
+    return () => {
+      if (perSecondIntervalRef.current) {
+        clearInterval(perSecondIntervalRef.current);
+        perSecondIntervalRef.current = null;
+      }
+    };
+  }, [isActive, updatePerSecondCounts]);
 
   useEffect(() => {
     if (isActive && modelRef.current) {
@@ -131,7 +130,7 @@ export function useDetector(
       }
       setIsDetecting(false);
     };
-  }, [isActive, detectLoop, setIsDetecting]);
+  }, [isActive, detectLoop, setIsDetecting, modelRef]);
 
   return { loadModel, modelRef };
 }
