@@ -20,6 +20,9 @@ export function DashboardTabs() {
         <TabsTrigger value="image-analysis" className="flex-1">
           이미지 분석
         </TabsTrigger>
+        <TabsTrigger value="statistics" className="flex-1">
+          통계
+        </TabsTrigger>
       </TabsList>
     </Tabs>
   );
