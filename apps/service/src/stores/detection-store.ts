@@ -130,12 +130,24 @@ export const useDetectionStore = create<DetectionState>((set) => ({
       imageAnalysisResults: [...state.imageAnalysisResults, result],
     })),
   removeImageAnalysisResult: (id) =>
-    set((state) => ({
-      imageAnalysisResults: state.imageAnalysisResults.filter(
-        (r) => r.id !== id,
-      ),
-    })),
-  clearImageAnalysisResults: () => set({ imageAnalysisResults: [] }),
+    set((state) => {
+      const target = state.imageAnalysisResults.find((r) => r.id === id);
+      if (target) {
+        URL.revokeObjectURL(target.imageUrl);
+      }
+      return {
+        imageAnalysisResults: state.imageAnalysisResults.filter(
+          (r) => r.id !== id,
+        ),
+      };
+    }),
+  clearImageAnalysisResults: () =>
+    set((state) => {
+      state.imageAnalysisResults.forEach((r) =>
+        URL.revokeObjectURL(r.imageUrl),
+      );
+      return { imageAnalysisResults: [] };
+    }),
 
   reset: () => set(initialState),
 }));

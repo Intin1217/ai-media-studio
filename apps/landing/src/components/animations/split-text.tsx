@@ -7,9 +7,15 @@ interface SplitTextProps {
   text: string;
   className?: string;
   delay?: number;
+  charClassName?: string;
 }
 
-export function SplitText({ text, className, delay = 0 }: SplitTextProps) {
+export function SplitText({
+  text,
+  className,
+  delay = 0,
+  charClassName,
+}: SplitTextProps) {
   const containerRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
@@ -43,7 +49,7 @@ export function SplitText({ text, className, delay = 0 }: SplitTextProps) {
       {text.split('').map((char, i) => (
         <span
           key={`${char}-${i}`}
-          className="split-char inline-block"
+          className={`split-char inline-block${charClassName ? ` ${charClassName}` : ''}`}
           style={{ opacity: 0 }}
           aria-hidden="true"
         >

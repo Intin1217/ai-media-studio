@@ -17,12 +17,15 @@ export function GradientBg({ className }: GradientBgProps) {
     ).matches;
     if (prefersReducedMotion) return;
 
-    animate(ref.current, {
+    const anim = animate(ref.current, {
       backgroundPositionX: ['0%', '100%', '0%'],
       duration: 8000,
       ease: 'inOutSine',
       loop: true,
     });
+    return () => {
+      anim?.cancel();
+    };
   }, []);
 
   return (

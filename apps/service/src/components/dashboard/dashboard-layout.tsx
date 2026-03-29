@@ -7,7 +7,15 @@ import { ModelLoader } from '@/components/detection/model-loader';
 import { PerformanceMonitor } from '@/components/dashboard/performance-monitor';
 import { DashboardTabs } from '@/components/dashboard/dashboard-tabs';
 import { ImageAnalysisView } from '@/components/image-analysis/image-analysis-view';
-import { StatisticsView } from '@/components/statistics/statistics-view';
+import dynamic from 'next/dynamic';
+
+const StatisticsView = dynamic(
+  () =>
+    import('@/components/statistics/statistics-view').then((m) => ({
+      default: m.StatisticsView,
+    })),
+  { ssr: false },
+);
 import { useDetectionStore } from '@/stores/detection-store';
 import { Badge } from '@ai-media-studio/ui';
 import { ThemeToggle } from '@/components/theme-toggle';
@@ -38,7 +46,7 @@ export function DashboardLayout() {
               카메라: {webcamStatus === 'active' ? '활성' : '비활성'}
             </Badge>
             <a
-              href="https://github.com/Intin1217/ai-media-studio"
+              href="https://github.com/Intin1217"
               target="_blank"
               rel="noopener noreferrer"
               className="border-border bg-background text-foreground hover:bg-muted inline-flex h-9 w-9 items-center justify-center rounded-md border transition-colors"

@@ -109,7 +109,7 @@ export function Header() {
         {/* 데스크톱 CTA */}
         <div className="hidden items-center gap-2 lg:flex">
           <a
-            href="https://github.com/Intin1217/ai-media-studio"
+            href="https://github.com/Intin1217"
             target="_blank"
             rel="noopener noreferrer"
             className="border-border bg-background text-foreground hover:bg-muted inline-flex h-9 w-9 items-center justify-center rounded-md border transition-colors"
