@@ -48,3 +48,9 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh pr review ${{ github.event.pull_request.number }} --approve --body "Claude Code Review 완료 - 자동 승인"
+
+      - name: Auto merge PR (dev 브랜치 대상만)
+        if: success() && github.event.pull_request.base.ref == 'dev'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh pr merge ${{ github.event.pull_request.number }} --merge --delete-branch
