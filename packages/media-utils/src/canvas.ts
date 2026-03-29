@@ -79,8 +79,6 @@ export function drawDetections(
     defaultColor = '#FFFFFF',
   } = options;
 
-  clearCanvas(ctx);
-
   for (const detection of detections) {
     const color = getColorForClass(detection.class, colorMap, defaultColor);
     const label = `${detection.class} ${Math.round(detection.score * 100)}%`;
