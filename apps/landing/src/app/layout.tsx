@@ -92,7 +92,12 @@ export default function RootLayout({
         >
           본문으로 바로가기
         </a>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          storageKey="ams-theme"
+        >
           {children}
         </ThemeProvider>
       </body>

@@ -126,9 +126,9 @@ export function FeaturesSection() {
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {FEATURES.map((feature, index) => (
             <ScrollReveal key={feature.id} delay={DELAYS[index]}>
-              <div className="border-border bg-card hover:shadow-ai-cyan/5 hover:border-ai-cyan/30 group relative h-full rounded-xl border p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg md:p-8">
+              <div className="border-border bg-card hover:border-ai-cyan/50 group relative h-full rounded-xl border p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_15px_rgba(0,245,255,0.1)] md:p-8">
                 {/* 아이콘 */}
-                <div className="bg-ai-cyan/10 text-ai-cyan mb-4 flex h-12 w-12 items-center justify-center rounded-lg">
+                <div className="from-ai-cyan/20 to-ai-purple/20 text-ai-cyan mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br">
                   {feature.icon}
                 </div>
                 {/* 텍스트 */}
