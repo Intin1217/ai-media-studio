@@ -62,16 +62,43 @@ export function StatisticsView() {
         <>
           {/* 차트 그리드 */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <DetectionFrequencyChart logs={logs} />
-            <CategoryPieChart logs={logs} />
-            <DetectionTrendChart logs={logs} />
-            <PerformanceHistoryChart logs={logs} />
+            <div className="chart-card-enter" style={{ animationDelay: '0ms' }}>
+              <DetectionFrequencyChart logs={logs} />
+            </div>
+            <div
+              className="chart-card-enter"
+              style={{ animationDelay: '80ms' }}
+            >
+              <CategoryPieChart logs={logs} />
+            </div>
+            <div
+              className="chart-card-enter"
+              style={{ animationDelay: '160ms' }}
+            >
+              <DetectionTrendChart logs={logs} />
+            </div>
+            <div
+              className="chart-card-enter"
+              style={{ animationDelay: '240ms' }}
+            >
+              <PerformanceHistoryChart logs={logs} />
+            </div>
           </div>
 
           {/* 설정 + 내보내기 */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <SettingsPanel />
-            <ExportPanel logs={logs} />
+            <div
+              className="chart-card-enter"
+              style={{ animationDelay: '320ms' }}
+            >
+              <SettingsPanel />
+            </div>
+            <div
+              className="chart-card-enter"
+              style={{ animationDelay: '400ms' }}
+            >
+              <ExportPanel logs={logs} />
+            </div>
           </div>
         </>
       )}

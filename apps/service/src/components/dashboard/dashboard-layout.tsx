@@ -42,7 +42,14 @@ export function DashboardLayout() {
                     ? '오류'
                     : '대기'}
             </Badge>
-            <Badge variant={webcamStatus === 'active' ? 'default' : 'outline'}>
+            <Badge
+              variant={webcamStatus === 'active' ? 'default' : 'outline'}
+              className={
+                webcamStatus === 'active'
+                  ? 'ring-primary/30 animate-pulse ring-2'
+                  : ''
+              }
+            >
               카메라: {webcamStatus === 'active' ? '활성' : '비활성'}
             </Badge>
             <a
@@ -70,7 +77,10 @@ export function DashboardLayout() {
 
         {/* 실시간 감지 탭 */}
         {dashboardTab === 'realtime' && (
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
+          <div
+            key="realtime"
+            className="tab-content-fade grid grid-cols-1 gap-6 lg:grid-cols-5"
+          >
             <div className="flex flex-col gap-4 lg:col-span-3">
               <WebcamView />
               <ModelLoader />
@@ -84,10 +94,18 @@ export function DashboardLayout() {
         )}
 
         {/* 이미지 분석 탭 */}
-        {dashboardTab === 'image-analysis' && <ImageAnalysisView />}
+        {dashboardTab === 'image-analysis' && (
+          <div key="image-analysis" className="tab-content-fade">
+            <ImageAnalysisView />
+          </div>
+        )}
 
         {/* 통계 탭 */}
-        {dashboardTab === 'statistics' && <StatisticsView />}
+        {dashboardTab === 'statistics' && (
+          <div key="statistics" className="tab-content-fade">
+            <StatisticsView />
+          </div>
+        )}
       </main>
 
       <footer className="border-border mt-auto border-t px-6 py-4">

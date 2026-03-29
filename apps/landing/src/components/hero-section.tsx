@@ -41,18 +41,21 @@ export function HeroSection() {
             <SplitText text=" 방법" delay={900} />
           </h1>
 
-          <p className="text-muted-foreground mx-auto mt-6 max-w-2xl text-base leading-relaxed md:text-lg lg:text-xl">
+          <p className="hero-subtitle text-muted-foreground mx-auto mt-6 max-w-2xl text-base leading-relaxed md:text-lg lg:text-xl">
             웹캠 하나로 실시간 객체 감지부터 통계 시각화까지,
             <br className="hidden sm:block" />
             브라우저에서 모두 해결하세요.
           </p>
 
-          <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+          <div
+            className="hero-subtitle mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row"
+            style={{ animationDelay: '1.3s' }}
+          >
             <a
               href="/service"
               className={cn(
                 buttonVariants({ variant: 'default', size: 'lg' }),
-                'shadow-primary/25 w-full px-8 shadow-lg sm:w-auto',
+                'shadow-primary/25 w-full px-8 shadow-lg transition-all duration-200 hover:scale-[1.05] hover:shadow-xl sm:w-auto',
               )}
             >
               지금 시작하기
@@ -61,13 +64,34 @@ export function HeroSection() {
               href="#features"
               className={cn(
                 buttonVariants({ variant: 'outline', size: 'lg' }),
-                'w-full px-8 sm:w-auto',
+                'w-full px-8 transition-all duration-200 hover:scale-[1.05] hover:shadow-md sm:w-auto',
               )}
             >
               자세히 보기
             </a>
           </div>
         </div>
+
+        {/* 스크롤 다운 인디케이터 */}
+        <a
+          href="#features"
+          className="text-muted-foreground hover:text-ai-cyan absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce transition-colors duration-200"
+          aria-label="아래로 스크롤"
+        >
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M12 5v14M5 12l7 7 7-7" />
+          </svg>
+        </a>
       </div>
     </section>
   );

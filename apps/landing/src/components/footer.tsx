@@ -133,7 +133,7 @@ export function Footer() {
                       {...(link.external
                         ? { target: '_blank', rel: 'noopener noreferrer' }
                         : {})}
-                      className="rounded-sm text-sm text-gray-400 transition-colors hover:text-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-500"
+                      className="hover:text-ai-cyan rounded-sm text-sm text-gray-400 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-500"
                     >
                       {link.label}
                       {link.external && (
