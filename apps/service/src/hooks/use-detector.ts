@@ -4,6 +4,11 @@ import { useCallback, useEffect, useRef } from 'react';
 import type { Detection } from '@ai-media-studio/media-utils';
 import { drawDetections } from '@ai-media-studio/media-utils';
 import { useDetectionStore } from '@/stores/detection-store';
+import {
+  saveDetectionLog,
+  startSession,
+  endSession,
+} from '@/lib/detection-history';
 import { useModel } from './use-model';
 
 function syncCanvasSize(
@@ -26,6 +31,8 @@ export function useDetector(
   const rafRef = useRef<number>(0);
   const frameCountRef = useRef<number>(0);
   const lastFpsUpdateRef = useRef<number>(0);
+  const sessionIdRef = useRef<string | null>(null);
+  const lastLogTimeRef = useRef<number>(0);
   const perSecondIntervalRef = useRef<ReturnType<typeof setInterval> | null>(
     null,
   );
@@ -66,6 +73,19 @@ export function useDetector(
 
     setDetections(detections);
     latestDetectionsRef.current = detections;
+
+    // IndexedDB에 1초 간격으로 저장
+    const logNow = performance.now();
+    if (sessionIdRef.current && logNow - lastLogTimeRef.current >= 1000) {
+      lastLogTimeRef.current = logNow;
+      saveDetectionLog({
+        sessionId: sessionIdRef.current,
+        timestamp: Date.now(),
+        detections: detections.map((d) => ({ class: d.class, score: d.score })),
+        fps: useDetectionStore.getState().performance.fps,
+        inferenceTime: Math.round(inferenceTime),
+      });
+    }
 
     // unique 모드: 매 프레임 새로운 객체 감지
     updateUniqueDetections(detections);
@@ -120,6 +140,10 @@ export function useDetector(
       setIsDetecting(true);
       lastFpsUpdateRef.current = performance.now();
       frameCountRef.current = 0;
+      // 세션 시작
+      startSession().then((id) => {
+        sessionIdRef.current = id;
+      });
       rafRef.current = requestAnimationFrame(detectLoop);
     }
 
@@ -127,6 +151,11 @@ export function useDetector(
       if (rafRef.current) {
         cancelAnimationFrame(rafRef.current);
         rafRef.current = 0;
+      }
+      // 세션 종료
+      if (sessionIdRef.current) {
+        endSession(sessionIdRef.current);
+        sessionIdRef.current = null;
       }
       setIsDetecting(false);
     };

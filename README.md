@@ -14,8 +14,14 @@
 **이미지 분석**
 다중 이미지 드래그 앤 드롭 업로드를 지원하며, 업로드된 각 이미지에 동일한 모델로 객체 감지를 수행합니다. 결과는 바운딩 박스 오버레이가 적용된 갤러리 뷰로 확인할 수 있습니다.
 
+**통계 대시보드**
+IndexedDB(Dexie)에 누적된 감지 히스토리를 Recharts로 시각화합니다. 객체 빈도 바차트, 카테고리 파이차트, 감지 추이 라인차트, 성능 히스토리 차트를 제공하며, 감지 임계값 설정과 CSV/JSON 내보내기 기능도 포함되어 있습니다.
+
+**다크모드**
+next-themes 기반으로 다크/라이트 테마 토글을 지원합니다. 시스템 설정을 자동으로 감지하며, 선택한 테마는 localStorage에 유지됩니다.
+
 **서비스 소개 랜딩 페이지**
-히어로 섹션, 기능 소개, CTA로 구성된 정적 랜딩 페이지입니다. SSG로 빌드되어 SEO에 최적화되어 있습니다.
+히어로 섹션, 기능 소개, CTA로 구성된 정적 랜딩 페이지입니다. SSG로 빌드되어 SEO에 최적화되어 있으며, anime.js v4 기반 애니메이션이 적용되어 있습니다.
 
 ---
 
@@ -25,8 +31,11 @@
 | -------------------- | ---------------------------------------------------------------- |
 | Framework            | Next.js 15 (App Router), React 19                                |
 | Language             | TypeScript 5 (strict mode)                                       |
-| 서버 상태 관리       | TanStack React Query                                             |
 | 클라이언트 상태 관리 | Zustand 5                                                        |
+| 다크모드             | next-themes                                                      |
+| 클라이언트 DB        | Dexie (IndexedDB)                                                |
+| 차트                 | Recharts                                                         |
+| 애니메이션           | anime.js v4                                                      |
 | 스타일링             | Tailwind CSS + cva 기반 커스텀 UI                                |
 | AI / Media           | TensorFlow.js COCO-SSD (lite_mobilenet_v2), WebRTC, Canvas API   |
 | 모노레포             | Turborepo + pnpm 10                                              |
@@ -40,13 +49,12 @@
 
 ## 프로젝트 구조
 
-Turborepo 기반 모노레포입니다. 3개의 앱이 공유 패키지를 참조합니다.
+Turborepo 기반 모노레포입니다. 2개의 앱이 공유 패키지를 참조합니다.
 
 ```
 ai-media-studio/
 ├── apps/
 │   ├── service/        사용자용 AI 분석 서비스 (SSR, port 3000)
-│   ├── admin/          관리자 어드민 패널 (SSG + CSR, port 3001)
 │   └── landing/        서비스 소개 랜딩 페이지 (SSG, port 3002)
 │
 └── packages/
@@ -59,7 +67,6 @@ ai-media-studio/
 앱별 렌더링 전략을 목적에 맞게 분리했습니다.
 
 - **service**: SSR — 사용자별 동적 콘텐츠를 서버에서 렌더링
-- **admin**: SSG + CSR — 정적 쉘을 미리 빌드하고, 데이터는 클라이언트에서 페칭
 - **landing**: SSG — 완전 정적 페이지로 SEO 최적화
 
 ---
@@ -74,13 +81,13 @@ ai-media-studio/
 
 COCO-SSD lite_mobilenet_v2 모델은 약 5MB로 가볍고, 모델 인스턴스를 싱글톤으로 관리하여 웹캠 감지와 이미지 분석이 동일한 인스턴스를 공유합니다. 덕분에 모델 로딩이 한 번만 발생하고, 페이지 이동 후에도 이전에 로드된 모델을 즉시 재사용합니다.
 
-### 왜 React Query + Zustand인가
+### 왜 Zustand인가
 
-서버에서 오는 데이터(분석 이력, 설정값 등)는 React Query로, 브라우저에서만 존재하는 데이터(실시간 감지 결과, UI 상태)는 Zustand로 관리합니다. 역할이 명확히 나뉘어 있어 "이 상태를 어디에 둘 것인가"를 매번 고민할 필요가 없습니다.
+서버 API 호출이 없는 프론트엔드 전용 프로젝트에서 React Query는 불필요한 의존성입니다. 실시간 감지 결과, UI 상태 등 브라우저에서만 존재하는 클라이언트 상태는 Zustand로 관리하고, 세션 간 유지가 필요한 영속 데이터(감지 히스토리)는 Dexie(IndexedDB)로 분리했습니다. "안 쓰는 기술을 제거하는 것도 설계 결정"이라는 판단 하에 React Query를 제거했습니다.
 
 ### 왜 모노레포인가
 
-3개 앱이 Button, Card 같은 UI 컴포넌트와 API 타입을 공유합니다. 모노레포를 쓰면 공유 코드 수정이 모든 앱에 즉시 반영되고, 하나의 PR에서 패키지 변경과 앱 변경을 함께 리뷰할 수 있습니다. Turborepo의 빌드 캐싱으로 CI 시간도 단축됩니다.
+2개 앱이 Button, Card 같은 UI 컴포넌트와 API 타입을 공유합니다. 모노레포를 쓰면 공유 코드 수정이 모든 앱에 즉시 반영되고, 하나의 PR에서 패키지 변경과 앱 변경을 함께 리뷰할 수 있습니다. Turborepo의 빌드 캐싱으로 CI 시간도 단축됩니다.
 
 ### 왜 React Compiler인가
 
@@ -105,12 +112,11 @@ cd ai-media-studio
 # 의존성 설치
 pnpm install
 
-# 전체 개발 서버 실행 (3개 앱 동시)
+# 전체 개발 서버 실행 (2개 앱 동시)
 pnpm dev
 
 # 개별 앱 실행
 pnpm --filter @ai-media-studio/service dev    # localhost:3000
-pnpm --filter @ai-media-studio/admin dev      # localhost:3001
 pnpm --filter @ai-media-studio/landing dev    # localhost:3002
 ```
 
@@ -127,7 +133,7 @@ pnpm format       # Prettier 포맷팅
 ### Docker로 실행
 
 ```bash
-# 전체 서비스 실행 (service + admin + landing)
+# 전체 서비스 실행 (service + landing)
 docker compose up --build
 
 # 백그라운드 실행
@@ -137,7 +143,7 @@ docker compose up --build -d
 docker compose down
 ```
 
-Docker Compose로 3개 앱이 동시에 컨테이너로 실행됩니다. service와 admin은 Node.js standalone 이미지(multi-stage build), landing은 nginx:alpine으로 정적 파일을 서빙합니다.
+Docker Compose로 2개 앱(service + landing)이 동시에 컨테이너로 실행됩니다. service는 Node.js standalone 이미지(multi-stage build), landing은 nginx:alpine으로 정적 파일을 서빙합니다.
 
 ---
 
@@ -163,5 +169,5 @@ chore: 기타 변경
 - [x] Phase 1 — 랜딩 페이지 + Docker 인프라 + 테스트 환경
 - [x] Phase 2 — 실시간 웹캠 객체 감지 대시보드
 - [x] Phase 3 — 감지 통계 3종 모드 + 이미지 분석
-- [ ] Phase 4 — 어드민 패널
-- [ ] Phase 5 — 마무리 및 최적화
+- [x] Phase 4 — 통계 대시보드 + 다크모드 + UI 개선
+- [x] Phase 5 — 마무리 정리 (admin 제거, 테스트, 최적화)

@@ -16,16 +16,17 @@
     "@ai-media-studio/api-client": "workspace:*",
     "@ai-media-studio/media-utils": "workspace:*",
     "@ai-media-studio/ui": "workspace:*",
-    "@tanstack/react-query": "^5.68.0",
     "@tensorflow-models/coco-ssd": "^2.2.3",
     "@tensorflow/tfjs-backend-webgl": "^4.22.0",
     "@tensorflow/tfjs-core": "^4.22.0",
+    "animejs": "^4.0.0",
+    "dexie": "^4.4.1",
     "next": "^15.3.0",
     "next-themes": "^0.4.6",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "zustand": "^5.0.0",
-    "animejs": "^4.0.0"
+    "recharts": "^3.8.1",
+    "zustand": "^5.0.0"
   },
   "devDependencies": {
     "@ai-media-studio/config": "workspace:*",
