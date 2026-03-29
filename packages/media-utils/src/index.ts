@@ -1,4 +1,14 @@
-// Media utilities will be implemented in Phase 3
-// WebRTC, MediaStream, Canvas utilities
-
-export {};
+export type {
+  BoundingBox,
+  Detection,
+  DrawOptions,
+  WebcamConfig,
+} from './types';
+export { isWebcamSupported, startWebcam, stopWebcam } from './webcam';
+export {
+  clearCanvas,
+  getColorForClass,
+  drawBoundingBox,
+  drawLabel,
+  drawDetections,
+} from './canvas';
