@@ -6,6 +6,17 @@ import { drawDetections } from '@ai-media-studio/media-utils';
 import { useDetectionStore } from '@/stores/detection-store';
 import { useModel } from './use-model';
 
+function syncCanvasSize(
+  canvas: HTMLCanvasElement,
+  width: number,
+  height: number,
+): void {
+  if (canvas.width !== width || canvas.height !== height) {
+    canvas.width = width;
+    canvas.height = height;
+  }
+}
+
 export function useDetector(
   videoRef: React.RefObject<HTMLVideoElement | null>,
   canvasRef: React.RefObject<HTMLCanvasElement | null>,
@@ -38,13 +49,7 @@ export function useDetector(
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    if (
-      canvas.width !== video.videoWidth ||
-      canvas.height !== video.videoHeight
-    ) {
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-    }
+    syncCanvasSize(canvas, video.videoWidth, video.videoHeight);
 
     const startTime = performance.now();
     const predictions = await model.detect(video);
