@@ -2,6 +2,7 @@ import type { Config } from 'tailwindcss';
 import tailwindcssAnimate from 'tailwindcss-animate';
 
 const baseConfig: Omit<Config, 'content'> = {
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {

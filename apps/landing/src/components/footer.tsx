@@ -149,7 +149,7 @@ export function Footer() {
 
         {/* 구분선 + 저작권 */}
         <div className="border-primary-foreground/20 text-primary-foreground/60 mt-8 flex flex-col items-center justify-between gap-4 border-t pt-8 text-sm md:flex-row">
-          <p>© 2026 AI Media Studio. All rights reserved.</p>
+          <p>© 2026 Intin1217. All rights reserved.</p>
           <p>Built with Next.js, TensorFlow.js</p>
         </div>
       </div>
