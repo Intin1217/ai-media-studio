@@ -66,11 +66,11 @@ describe('drawLabel', () => {
 });
 
 describe('drawDetections', () => {
-  it('빈 배열이면 clearCanvas만 호출', () => {
+  it('빈 배열이면 strokeRect/fillText 호출 안 함', () => {
     const ctx = createMockCtx();
     drawDetections(ctx, []);
-    expect(ctx.clearRect).toHaveBeenCalled();
     expect(ctx.strokeRect).not.toHaveBeenCalled();
+    expect(ctx.fillText).not.toHaveBeenCalled();
   });
 
   it('detection 수만큼 바운딩 박스와 레이블 그리기', () => {
