@@ -104,7 +104,7 @@ describe('Footer', () => {
     it('저작권 텍스트가 표시된다', () => {
       render(<Footer />);
       expect(
-        screen.getByText('© 2026 AI Media Studio. All rights reserved.'),
+        screen.getByText('© 2026 Intin1217. All rights reserved.'),
       ).toBeInTheDocument();
     });
 
