@@ -7,6 +7,7 @@ import { ModelLoader } from '@/components/detection/model-loader';
 import { PerformanceMonitor } from '@/components/dashboard/performance-monitor';
 import { DashboardTabs } from '@/components/dashboard/dashboard-tabs';
 import { ImageAnalysisView } from '@/components/image-analysis/image-analysis-view';
+import { StatisticsView } from '@/components/statistics/statistics-view';
 import { useDetectionStore } from '@/stores/detection-store';
 import { Badge } from '@ai-media-studio/ui';
 
@@ -63,6 +64,9 @@ export function DashboardLayout() {
 
         {/* 이미지 분석 탭 */}
         {dashboardTab === 'image-analysis' && <ImageAnalysisView />}
+
+        {/* 통계 탭 */}
+        {dashboardTab === 'statistics' && <StatisticsView />}
       </main>
     </div>
   );

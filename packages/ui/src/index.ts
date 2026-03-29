@@ -6,3 +6,4 @@ export { Progress, type ProgressProps } from './components/progress';
 export { Skeleton } from './components/skeleton';
 export { cn } from './lib/utils';
 export { Tabs, TabsList, TabsTrigger, TabsContent } from './components/tabs';
+export { Slider, type SliderProps } from './components/slider';
