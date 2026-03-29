@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://ai-media-studio.vercel.app/sitemap.xml

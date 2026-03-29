@@ -11,17 +11,22 @@
     "build": "turbo run build",
     "lint": "turbo run lint",
     "type-check": "turbo run type-check",
+    "test": "turbo run test",
     "clean": "turbo run clean && rm -rf node_modules",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "prepare": "husky"
   },
   "devDependencies": {
-    "turbo": "^2.5.0",
-    "prettier": "^3.5.0",
-    "prettier-plugin-tailwindcss": "^0.6.12",
+    "@commitlint/cli": "^19.8.0",
+    "@commitlint/config-conventional": "^19.8.0",
+    "@vitest/coverage-v8": "^4.1.2",
+    "eslint": "^9.39.4",
+    "eslint-plugin-react-compiler": "19.1.0-rc.2",
     "husky": "^9.1.0",
     "lint-staged": "^15.4.0",
-    "@commitlint/cli": "^19.8.0",
-    "@commitlint/config-conventional": "^19.8.0"
+    "prettier": "^3.5.0",
+    "prettier-plugin-tailwindcss": "^0.6.12",
+    "turbo": "^2.5.0",
+    "vitest": "^4.1.2"
   }
 }
