@@ -10,6 +10,8 @@ COPY packages/config/package.json packages/config/
 COPY packages/ui/package.json packages/ui/
 COPY packages/api-client/package.json packages/api-client/
 COPY packages/media-utils/package.json packages/media-utils/
+COPY packages/pdf-engine/package.json packages/pdf-engine/
+COPY packages/ocr/package.json packages/ocr/
 COPY apps/service/package.json apps/service/
 RUN pnpm install --frozen-lockfile
 
@@ -20,6 +22,8 @@ COPY --from=deps /app/packages/config/node_modules ./packages/config/node_module
 COPY --from=deps /app/packages/ui/node_modules ./packages/ui/node_modules
 COPY --from=deps /app/packages/api-client/node_modules ./packages/api-client/node_modules
 COPY --from=deps /app/packages/media-utils/node_modules ./packages/media-utils/node_modules
+COPY --from=deps /app/packages/pdf-engine/node_modules ./packages/pdf-engine/node_modules
+COPY --from=deps /app/packages/ocr/node_modules ./packages/ocr/node_modules
 COPY --from=deps /app/apps/service/node_modules ./apps/service/node_modules
 COPY . .
 RUN pnpm turbo run build --filter=@ai-media-studio/service

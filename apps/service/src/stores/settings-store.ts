@@ -13,6 +13,8 @@ interface SettingsState {
   ollamaEndpoint: string;
   ollamaModel: string;
   ollamaEnabled: boolean;
+  ollamaCustomPrompt: string;
+  ollamaPromptMode: 'all' | 'per-image';
   setConfidenceThreshold: (value: number) => void;
   setBboxColor: (className: string, color: string) => void;
   resetBboxColors: () => void;
@@ -20,6 +22,8 @@ interface SettingsState {
   setOllamaEndpoint: (url: string) => void;
   setOllamaModel: (model: string) => void;
   setOllamaEnabled: (enabled: boolean) => void;
+  setOllamaCustomPrompt: (prompt: string) => void;
+  setOllamaPromptMode: (mode: 'all' | 'per-image') => void;
 }
 
 export const useSettingsStore = create<SettingsState>()(
@@ -31,6 +35,9 @@ export const useSettingsStore = create<SettingsState>()(
       ollamaEndpoint: 'http://localhost:11434',
       ollamaModel: 'qwen3-vl:8b',
       ollamaEnabled: false,
+      ollamaCustomPrompt:
+        '이 이미지에서 보이는 모든 객체와 장면을 한국어로 자세히 설명해주세요.',
+      ollamaPromptMode: 'all',
       setConfidenceThreshold: (confidenceThreshold) =>
         set({ confidenceThreshold }),
       setBboxColor: (className, color) =>
@@ -54,6 +61,9 @@ export const useSettingsStore = create<SettingsState>()(
       },
       setOllamaModel: (ollamaModel) => set({ ollamaModel }),
       setOllamaEnabled: (ollamaEnabled) => set({ ollamaEnabled }),
+      setOllamaCustomPrompt: (ollamaCustomPrompt) =>
+        set({ ollamaCustomPrompt }),
+      setOllamaPromptMode: (ollamaPromptMode) => set({ ollamaPromptMode }),
     }),
     { name: 'ams-settings' },
   ),

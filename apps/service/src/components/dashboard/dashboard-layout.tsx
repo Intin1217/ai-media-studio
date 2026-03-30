@@ -5,7 +5,7 @@ import { DetectionList } from '@/components/detection/detection-list';
 import { DetectionStats } from '@/components/detection/detection-stats';
 import { ModelLoader } from '@/components/detection/model-loader';
 import { PerformanceMonitor } from '@/components/dashboard/performance-monitor';
-import { DashboardTabs } from '@/components/dashboard/dashboard-tabs';
+import { Sidebar, NAV_ITEMS } from '@/components/dashboard/sidebar';
 import { ImageAnalysisView } from '@/components/image-analysis/image-analysis-view';
 import { PdfTranslatorView } from '@/components/pdf/pdf-translator-view';
 import dynamic from 'next/dynamic';
@@ -17,42 +17,21 @@ const StatisticsView = dynamic(
     })),
   { ssr: false },
 );
+
 import { useDetectionStore } from '@/stores/detection-store';
-import { Badge } from '@ai-media-studio/ui';
 import { ThemeToggle } from '@/components/theme-toggle';
 
 export function DashboardLayout() {
-  const modelStatus = useDetectionStore((s) => s.modelStatus);
-  const webcamStatus = useDetectionStore((s) => s.webcamStatus);
   const dashboardTab = useDetectionStore((s) => s.dashboardTab);
+  const setDashboardTab = useDetectionStore((s) => s.setDashboardTab);
 
   return (
-    <div className="bg-background min-h-screen">
+    <div className="bg-background flex min-h-screen flex-col">
       {/* Header */}
-      <header className="border-border border-b px-6 py-4">
-        <div className="mx-auto flex max-w-7xl items-center justify-between">
+      <header className="border-border border-b px-6 py-3 backdrop-blur-sm">
+        <div className="flex items-center justify-between">
           <h1 className="text-foreground text-xl font-bold">AI Media Studio</h1>
           <div className="flex items-center gap-2">
-            <Badge variant={modelStatus === 'ready' ? 'default' : 'secondary'}>
-              모델:{' '}
-              {modelStatus === 'ready'
-                ? '준비됨'
-                : modelStatus === 'loading'
-                  ? '로딩 중'
-                  : modelStatus === 'error'
-                    ? '오류'
-                    : '대기'}
-            </Badge>
-            <Badge
-              variant={webcamStatus === 'active' ? 'default' : 'outline'}
-              className={
-                webcamStatus === 'active'
-                  ? 'ring-primary/30 animate-pulse ring-2'
-                  : ''
-              }
-            >
-              카메라: {webcamStatus === 'active' ? '활성' : '비활성'}
-            </Badge>
             <a
               href="https://github.com/Intin1217"
               target="_blank"
@@ -69,58 +48,72 @@ export function DashboardLayout() {
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="mx-auto max-w-7xl p-6">
-        {/* 탭 전환 */}
-        <div className="mb-6">
-          <DashboardTabs />
-        </div>
+      <div className="flex flex-1 overflow-hidden">
+        {/* Sidebar */}
+        <Sidebar />
 
-        {/* 실시간 감지 탭 */}
-        {dashboardTab === 'realtime' && (
-          <div
-            key="realtime"
-            className="tab-content-fade grid grid-cols-1 gap-6 lg:grid-cols-5"
+        {/* Main Content */}
+        <main className="flex-1 overflow-y-auto p-6 pb-20 lg:pb-6">
+          {/* 실시간 감지 탭 */}
+          {dashboardTab === 'realtime' && (
+            <div
+              key="realtime"
+              className="tab-content-fade grid grid-cols-1 gap-6 lg:grid-cols-5"
+            >
+              <div className="flex flex-col gap-4 lg:col-span-3">
+                <WebcamView />
+                <ModelLoader />
+              </div>
+              <div className="flex flex-col gap-4 lg:col-span-2">
+                <PerformanceMonitor />
+                <DetectionStats />
+                <DetectionList />
+              </div>
+            </div>
+          )}
+
+          {/* 이미지 분석 탭 */}
+          {dashboardTab === 'image-analysis' && (
+            <div key="image-analysis" className="tab-content-fade">
+              <ImageAnalysisView />
+            </div>
+          )}
+
+          {/* 통계 탭 */}
+          {dashboardTab === 'statistics' && (
+            <div key="statistics" className="tab-content-fade">
+              <StatisticsView />
+            </div>
+          )}
+
+          {/* PDF 번역 탭 */}
+          {dashboardTab === 'pdf' && (
+            <div key="pdf" className="tab-content-fade">
+              <PdfTranslatorView />
+            </div>
+          )}
+        </main>
+      </div>
+
+      {/* 모바일 하단 탭바 */}
+      <nav className="border-border bg-card fixed bottom-0 left-0 right-0 z-10 flex border-t lg:hidden">
+        {NAV_ITEMS.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            aria-current={dashboardTab === item.id ? 'page' : undefined}
+            onClick={() => setDashboardTab(item.id)}
+            className={`flex flex-1 flex-col items-center gap-0.5 py-2 text-xs font-medium transition-colors ${
+              dashboardTab === item.id
+                ? 'text-foreground'
+                : 'text-muted-foreground'
+            }`}
           >
-            <div className="flex flex-col gap-4 lg:col-span-3">
-              <WebcamView />
-              <ModelLoader />
-            </div>
-            <div className="flex flex-col gap-4 lg:col-span-2">
-              <PerformanceMonitor />
-              <DetectionStats />
-              <DetectionList />
-            </div>
-          </div>
-        )}
-
-        {/* 이미지 분석 탭 */}
-        {dashboardTab === 'image-analysis' && (
-          <div key="image-analysis" className="tab-content-fade">
-            <ImageAnalysisView />
-          </div>
-        )}
-
-        {/* 통계 탭 */}
-        {dashboardTab === 'statistics' && (
-          <div key="statistics" className="tab-content-fade">
-            <StatisticsView />
-          </div>
-        )}
-
-        {/* PDF 번역 탭 */}
-        {dashboardTab === 'pdf' && (
-          <div key="pdf" className="tab-content-fade">
-            <PdfTranslatorView />
-          </div>
-        )}
-      </main>
-
-      <footer className="border-border mt-auto border-t px-6 py-4">
-        <div className="text-muted-foreground mx-auto max-w-7xl text-center text-xs">
-          © 2026 Intin1217. All rights reserved.
-        </div>
-      </footer>
+            {item.icon}
+            {item.label}
+          </button>
+        ))}
+      </nav>
     </div>
   );
 }
