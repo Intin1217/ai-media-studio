@@ -277,10 +277,17 @@ export function useDetector(
 
     prevModelTypeRef.current = modelType;
 
-    // 이전 모델 dispose
+    // 1. 현재 감지 루프 즉시 중단
+    isDetectingRef.current = false;
+    if (detectRafRef.current) {
+      cancelAnimationFrame(detectRafRef.current);
+      detectRafRef.current = 0;
+    }
+
+    // 2. 이전 모델 dispose
     disposeModelCache(prevModelType);
 
-    // Worker에 새 모델 타입으로 재로드 요청
+    // 3. Worker에 새 모델 타입으로 재로드 요청
     const worker = workerRef.current;
     if (worker) {
       workerReadyRef.current = false;
@@ -288,9 +295,19 @@ export function useDetector(
       worker.postMessage({ type: 'load', modelType });
     }
 
-    // 메인 스레드도 새 모델 로드
-    loadModel();
-  }, [modelType, loadModel]);
+    // 4. 메인 스레드 새 모델 로드 완료 후 isActive이면 detectLoop 재시작
+    loadModel().then(() => {
+      if (isActive) {
+        isDetectingRef.current = true;
+        workerPendingRef.current = false;
+        if (workerReadyRef.current) {
+          detectRafRef.current = requestAnimationFrame(workerDetectLoop);
+        } else {
+          detectRafRef.current = requestAnimationFrame(mainThreadDetectLoop);
+        }
+      }
+    });
+  }, [modelType, loadModel, isActive, workerDetectLoop, mainThreadDetectLoop]);
 
   // per-second 카운트 업데이트: 1초 간격
   useEffect(() => {

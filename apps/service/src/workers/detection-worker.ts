@@ -64,6 +64,8 @@ let model: CocoSsdModel | null = null;
 async function loadModel(modelType: ModelType = 'coco-ssd'): Promise<void> {
   // MediaPipe는 Worker 환경에서 지원하지 않음 → 메인 스레드 폴백 유도
   if (modelType !== 'coco-ssd') {
+    // 기존 모델 참조 해제 (모델 전환 시 메모리 누수 방지)
+    model = null;
     const msg: WorkerOutMessage = {
       type: 'error',
       message: 'mediapipe-worker-unsupported',
@@ -71,6 +73,9 @@ async function loadModel(modelType: ModelType = 'coco-ssd'): Promise<void> {
     self.postMessage(msg);
     return;
   }
+
+  // 기존 모델 참조 해제 후 새 모델 로드 (재로드 시 메모리 누수 방지)
+  model = null;
 
   try {
     // WASM 백엔드 로딩 — Worker 환경에서 안정적으로 동작
