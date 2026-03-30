@@ -276,6 +276,7 @@ export function useDetector(
     if (prevModelType === modelType) return;
 
     prevModelTypeRef.current = modelType;
+    let cancelled = false;
 
     // 1. 현재 감지 루프 즉시 중단
     isDetectingRef.current = false;
@@ -296,17 +297,26 @@ export function useDetector(
     }
 
     // 4. 메인 스레드 새 모델 로드 완료 후 isActive이면 detectLoop 재시작
-    loadModel().then(() => {
-      if (isActive) {
-        isDetectingRef.current = true;
-        workerPendingRef.current = false;
-        if (workerReadyRef.current) {
-          detectRafRef.current = requestAnimationFrame(workerDetectLoop);
-        } else {
-          detectRafRef.current = requestAnimationFrame(mainThreadDetectLoop);
+    loadModel()
+      .then(() => {
+        if (cancelled) return;
+        if (isActive) {
+          isDetectingRef.current = true;
+          workerPendingRef.current = false;
+          if (workerReadyRef.current) {
+            detectRafRef.current = requestAnimationFrame(workerDetectLoop);
+          } else {
+            detectRafRef.current = requestAnimationFrame(mainThreadDetectLoop);
+          }
         }
-      }
-    });
+      })
+      .catch((err) => {
+        console.error('[useDetector] 모델 재로드 실패:', err);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [modelType, loadModel, isActive, workerDetectLoop, mainThreadDetectLoop]);
 
   // per-second 카운트 업데이트: 1초 간격

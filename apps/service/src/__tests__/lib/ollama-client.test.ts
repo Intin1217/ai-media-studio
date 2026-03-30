@@ -155,4 +155,26 @@ describe('ollama-client', () => {
       ).rejects.toThrow('Ollama 응답 오류: 500');
     });
   });
+
+  describe('URL 검증', () => {
+    it('localhost가 아닌 외부 URL은 차단된다', async () => {
+      const { checkOllamaConnection } = await import('@/lib/ollama-client');
+      const result = await checkOllamaConnection('http://evil.com:11434');
+      expect(result).toBe(false);
+      expect(globalThis.fetch).not.toHaveBeenCalled();
+    });
+
+    it('file:// 프로토콜은 차단된다', async () => {
+      const { checkOllamaConnection } = await import('@/lib/ollama-client');
+      const result = await checkOllamaConnection('file:///etc/passwd');
+      expect(result).toBe(false);
+    });
+
+    it('사설 IP는 허용된다', async () => {
+      vi.mocked(globalThis.fetch).mockResolvedValue({ ok: true } as Response);
+      const { checkOllamaConnection } = await import('@/lib/ollama-client');
+      const result = await checkOllamaConnection('http://192.168.1.100:11434');
+      expect(result).toBe(true);
+    });
+  });
 });
