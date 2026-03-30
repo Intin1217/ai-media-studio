@@ -8,11 +8,3 @@ services:
     environment:
       - NODE_ENV=production
     restart: unless-stopped
-
-  landing:
-    build:
-      context: .
-      dockerfile: apps/landing/Dockerfile
-    ports:
-      - "3002:3002"
-    restart: unless-stopped

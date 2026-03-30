@@ -6,7 +6,7 @@ import type { Detection } from '@ai-media-studio/media-utils';
 type ModelStatus = 'idle' | 'loading' | 'ready' | 'error';
 type WebcamStatus = 'idle' | 'requesting' | 'active' | 'denied' | 'error';
 type StatsMode = 'unique' | 'per-second' | 'current-frame';
-type DashboardTab = 'realtime' | 'image-analysis' | 'statistics';
+type DashboardTab = 'realtime' | 'image-analysis' | 'statistics' | 'pdf';
 
 interface PerformanceMetrics {
   fps: number;
