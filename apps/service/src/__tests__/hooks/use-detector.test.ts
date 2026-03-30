@@ -63,9 +63,17 @@ vi.mock('@/stores/detection-store', () => ({
 
 vi.mock('@/stores/settings-store', () => ({
   useSettingsStore: Object.assign(
-    vi.fn(() => ({})),
+    vi.fn((selector: (s: unknown) => unknown) => {
+      const store = { modelType: 'mediapipe-lite0', confidenceThreshold: 0.5 };
+      if (typeof selector === 'function') return selector(store);
+      return store;
+    }),
     {
-      getState: vi.fn(() => ({ confidenceThreshold: 0.5 })),
+      getState: vi.fn(() => ({
+        confidenceThreshold: 0.5,
+        modelType: 'mediapipe-lite0',
+      })),
+      subscribe: vi.fn(() => () => {}),
     },
   ),
 }));
@@ -80,6 +88,7 @@ vi.mock('@/hooks/use-model', () => ({
   useModel: () => ({
     model: { current: { detect: mockDetect } },
     loadModel: vi.fn().mockResolvedValue({ detect: mockDetect }),
+    disposeModel: vi.fn(),
     modelStatus: 'ready',
   }),
 }));

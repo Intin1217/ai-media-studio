@@ -21,12 +21,13 @@ describe('DetectionStats', () => {
 
     render(<DetectionStats />);
 
-    expect(screen.getByText('person')).toBeInTheDocument();
-    expect(screen.getByText('car')).toBeInTheDocument();
+    // 한국어 라벨로 표시됨
+    expect(screen.getByText('사람')).toBeInTheDocument();
+    expect(screen.getByText('자동차')).toBeInTheDocument();
 
-    // person이 2회로 더 많으니 먼저 표시
+    // person(사람)이 2회로 더 많으니 먼저 표시
     const items = screen.getAllByRole('listitem');
-    expect(items[0]).toHaveTextContent('person');
+    expect(items[0]).toHaveTextContent('사람');
   });
 
   it('per-second 모드에서 초당 카운트 표시', () => {
@@ -37,12 +38,13 @@ describe('DetectionStats', () => {
 
     render(<DetectionStats />);
 
-    expect(screen.getByText('bicycle')).toBeInTheDocument();
-    expect(screen.getByText('dog')).toBeInTheDocument();
+    // 한국어 라벨로 표시됨
+    expect(screen.getByText('자전거')).toBeInTheDocument();
+    expect(screen.getByText('강아지')).toBeInTheDocument();
 
     // 단위 suffix 확인
     const items = screen.getAllByRole('listitem');
-    expect(items[0]).toHaveTextContent('bicycle');
+    expect(items[0]).toHaveTextContent('자전거');
     expect(items[0]).toHaveTextContent('개/초');
   });
 
@@ -70,12 +72,13 @@ describe('DetectionStats', () => {
 
     render(<DetectionStats />);
 
-    expect(screen.getByText('cat')).toBeInTheDocument();
-    expect(screen.getByText('bird')).toBeInTheDocument();
+    // 한국어 라벨로 표시됨
+    expect(screen.getByText('고양이')).toBeInTheDocument();
+    expect(screen.getByText('새')).toBeInTheDocument();
 
     const items = screen.getAllByRole('listitem');
-    // cat이 2개로 더 많으니 먼저 표시
-    expect(items[0]).toHaveTextContent('cat');
+    // cat(고양이)이 2개로 더 많으니 먼저 표시
+    expect(items[0]).toHaveTextContent('고양이');
     expect(items[0]).toHaveTextContent('개');
   });
 

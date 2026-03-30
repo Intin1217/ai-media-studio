@@ -9,6 +9,7 @@ import {
 } from '@ai-media-studio/ui';
 import { useDetectionStore } from '@/stores/detection-store';
 import { StatsModeSelector } from './stats-mode-selector';
+import { getKoreanLabel } from '@/lib/class-labels';
 
 export function DetectionStats() {
   const statsMode = useDetectionStore((s) => s.statsMode);
@@ -63,7 +64,7 @@ export function DetectionStats() {
                 key={cls}
                 className="flex items-center justify-between text-sm"
               >
-                <Badge>{cls}</Badge>
+                <Badge>{getKoreanLabel(cls)}</Badge>
                 <span className="text-muted-foreground font-mono tabular-nums">
                   {count.toLocaleString()}
                   {suffix}

@@ -6,8 +6,12 @@
  * WASM 백엔드로 TF.js 추론을 메인 스레드와 분리하여 실행합니다.
  * WebGL 백엔드는 Worker 환경에서 불안정하므로 WASM 백엔드를 사용합니다.
  *
+ * MediaPipe는 Worker 환경에서 지원하지 않습니다.
+ * mediapipe 모델 요청 시 'mediapipe-worker-unsupported' 에러를 전송하고,
+ * use-detector.ts에서 메인 스레드 폴백으로 전환합니다.
+ *
  * 메시지 프로토콜:
- *   → { type: 'load' }
+ *   → { type: 'load', modelType?: ModelType }
  *   ← { type: 'loaded' } | { type: 'error', message: string }
  *
  *   → { type: 'detect', bitmap: ImageBitmap, maxBoxes: number, threshold: number }
@@ -24,8 +28,10 @@ export interface DetectionResult {
   bbox: { x: number; y: number; width: number; height: number };
 }
 
+type ModelType = 'coco-ssd' | 'mediapipe-lite0' | 'mediapipe-lite2';
+
 type WorkerInMessage =
-  | { type: 'load' }
+  | { type: 'load'; modelType?: ModelType }
   | {
       type: 'detect';
       bitmap: ImageBitmap;
@@ -55,7 +61,17 @@ type CocoSsdModel = {
 
 let model: CocoSsdModel | null = null;
 
-async function loadModel(): Promise<void> {
+async function loadModel(modelType: ModelType = 'coco-ssd'): Promise<void> {
+  // MediaPipe는 Worker 환경에서 지원하지 않음 → 메인 스레드 폴백 유도
+  if (modelType !== 'coco-ssd') {
+    const msg: WorkerOutMessage = {
+      type: 'error',
+      message: 'mediapipe-worker-unsupported',
+    };
+    self.postMessage(msg);
+    return;
+  }
+
   try {
     // WASM 백엔드 로딩 — Worker 환경에서 안정적으로 동작
     await import('@tensorflow/tfjs-backend-wasm');
@@ -142,7 +158,7 @@ self.onmessage = (event: MessageEvent<WorkerInMessage>) => {
 
   switch (data.type) {
     case 'load':
-      loadModel();
+      loadModel(data.modelType ?? 'coco-ssd');
       break;
 
     case 'detect':

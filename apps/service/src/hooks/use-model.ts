@@ -2,67 +2,163 @@
 
 import { useCallback, useRef } from 'react';
 import { useDetectionStore } from '@/stores/detection-store';
+import { useSettingsStore, type ModelType } from '@/stores/settings-store';
 
-type CocoSsdModel = {
-  detect: (
+export interface ModelProvider {
+  detect(
     input: HTMLVideoElement | HTMLImageElement | HTMLCanvasElement,
-    maxNumBoxes?: number,
-    minScore?: number,
-  ) => Promise<
+    maxBoxes?: number,
+    threshold?: number,
+  ): Promise<
     Array<{
       class: string;
       score: number;
       bbox: [number, number, number, number];
     }>
   >;
+  dispose?(): void;
+}
+
+// 모델 타입별 싱글톤 캐시
+const modelCache: Partial<Record<ModelType, ModelProvider>> = {};
+const loadingPromises: Partial<Record<ModelType, Promise<ModelProvider>>> = {};
+
+async function loadCocoSsd(): Promise<ModelProvider> {
+  await import('@tensorflow/tfjs-backend-webgl');
+  const tf = await import('@tensorflow/tfjs-core');
+  await tf.ready();
+  const cocoSsd = await import('@tensorflow-models/coco-ssd');
+  const model = await cocoSsd.load({ base: 'mobilenet_v2' });
+  return model as ModelProvider;
+}
+
+const MEDIAPIPE_WASM_URL =
+  'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm';
+
+const MEDIAPIPE_MODEL_URLS: Record<
+  'mediapipe-lite0' | 'mediapipe-lite2',
+  string
+> = {
+  'mediapipe-lite0':
+    'https://storage.googleapis.com/mediapipe-models/object_detector/efficientdet_lite0/float32/latest/efficientdet_lite0.tflite',
+  'mediapipe-lite2':
+    'https://storage.googleapis.com/mediapipe-models/object_detector/efficientdet_lite2/float32/latest/efficientdet_lite2.tflite',
 };
 
-// 모듈 레벨 싱글톤 — 여러 hook 인스턴스가 같은 모델 공유
-let globalModel: CocoSsdModel | null = null;
-let loadingPromise: Promise<CocoSsdModel> | null = null;
+async function loadMediaPipe(
+  modelType: 'mediapipe-lite0' | 'mediapipe-lite2',
+): Promise<ModelProvider> {
+  const { ObjectDetector, FilesetResolver } =
+    await import('@mediapipe/tasks-vision');
+
+  const vision = await FilesetResolver.forVisionTasks(MEDIAPIPE_WASM_URL);
+
+  const detector = await ObjectDetector.createFromOptions(vision, {
+    baseOptions: {
+      modelAssetPath: MEDIAPIPE_MODEL_URLS[modelType],
+      delegate: 'GPU',
+    },
+    scoreThreshold: 0.3,
+    runningMode: 'VIDEO',
+  });
+
+  return {
+    detect(
+      input: HTMLVideoElement | HTMLImageElement | HTMLCanvasElement,
+      maxBoxes = 20,
+      threshold = 0.5,
+    ) {
+      const result = detector.detectForVideo(
+        input as HTMLVideoElement,
+        performance.now(),
+      );
+      return Promise.resolve(
+        result.detections
+          .filter(
+            (d) =>
+              (d.categories[0]?.score ?? 0) >= threshold &&
+              d.boundingBox !== undefined,
+          )
+          .slice(0, maxBoxes)
+          .map((d) => ({
+            class: d.categories[0]?.categoryName ?? 'unknown',
+            score: d.categories[0]?.score ?? 0,
+            bbox: [
+              d.boundingBox!.originX,
+              d.boundingBox!.originY,
+              d.boundingBox!.width,
+              d.boundingBox!.height,
+            ] as [number, number, number, number],
+          })),
+      );
+    },
+    dispose() {
+      detector.close();
+    },
+  };
+}
+
+async function loadModelByType(modelType: ModelType): Promise<ModelProvider> {
+  // 캐시에 있으면 반환
+  const cached = modelCache[modelType];
+  if (cached) return cached;
+
+  // 이미 로딩 중이면 기존 Promise 재사용
+  const inFlight = loadingPromises[modelType];
+  if (inFlight) return inFlight;
+
+  const promise = (async () => {
+    let provider: ModelProvider;
+    if (modelType === 'coco-ssd') {
+      provider = await loadCocoSsd();
+    } else {
+      provider = await loadMediaPipe(modelType);
+    }
+    modelCache[modelType] = provider;
+    return provider;
+  })();
+
+  loadingPromises[modelType] = promise;
+
+  try {
+    const model = await promise;
+    return model;
+  } finally {
+    delete loadingPromises[modelType];
+  }
+}
+
+// 모듈 레벨 함수 — React Compiler가 훅 외부 mutation 검사를 적용하지 않음
+export function disposeModelCache(modelType: ModelType): void {
+  const cached = modelCache[modelType];
+  if (cached?.dispose) {
+    cached.dispose();
+  }
+  delete modelCache[modelType];
+}
 
 export function useModel() {
-  const modelRef = useRef<CocoSsdModel | null>(globalModel);
+  const modelRef = useRef<ModelProvider | null>(null);
   const { setModelStatus, modelStatus } = useDetectionStore();
 
-  const loadModel = useCallback(async (): Promise<CocoSsdModel | null> => {
-    // 이미 로드된 경우
-    if (globalModel) {
-      modelRef.current = globalModel;
+  const loadModel = useCallback(async (): Promise<ModelProvider | null> => {
+    const modelType = useSettingsStore.getState().modelType;
+
+    // 이미 로드된 캐시가 있으면 즉시 반환
+    const cached = modelCache[modelType];
+    if (cached) {
+      modelRef.current = cached;
       setModelStatus('ready');
-      return globalModel;
+      return cached;
     }
 
-    // 이미 로딩 중인 경우 — 기존 Promise 재사용
-    if (loadingPromise) {
-      try {
-        const model = await loadingPromise;
-        modelRef.current = model;
-        return model;
-      } catch {
-        return null;
-      }
-    }
-
-    // 새로 로딩
     try {
       setModelStatus('loading');
-      loadingPromise = (async () => {
-        await import('@tensorflow/tfjs-backend-webgl');
-        const tf = await import('@tensorflow/tfjs-core');
-        await tf.ready();
-        const cocoSsd = await import('@tensorflow-models/coco-ssd');
-        const model = await cocoSsd.load({ base: 'mobilenet_v2' });
-        return model as CocoSsdModel;
-      })();
-
-      const model = await loadingPromise;
-      globalModel = model;
+      const model = await loadModelByType(modelType);
       modelRef.current = model;
       setModelStatus('ready');
       return model;
     } catch {
-      loadingPromise = null;
       setModelStatus('error');
       return null;
     }
@@ -72,3 +168,6 @@ export function useModel() {
 }
 
 export type { CocoSsdModel };
+
+// 하위 호환을 위한 타입 alias
+type CocoSsdModel = ModelProvider;
