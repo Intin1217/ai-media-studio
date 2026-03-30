@@ -25,9 +25,7 @@ export function ImageUpload() {
       );
 
       if (oversizedFiles.length > 0) {
-        console.warn(
-          `파일 크기 초과 (최대 10MB): ${oversizedFiles.map((f) => f.name).join(', ')}`,
-        );
+        // 파일 크기 초과 항목은 무시하고 유효한 파일만 처리
       }
 
       if (imageFiles.length === 0) return;

@@ -310,8 +310,8 @@ export function useDetector(
           }
         }
       })
-      .catch((err) => {
-        console.error('[useDetector] 모델 재로드 실패:', err);
+      .catch((_err) => {
+        // 모델 재로드 실패 — 다음 modelType 변경 시 재시도
       });
 
     return () => {
