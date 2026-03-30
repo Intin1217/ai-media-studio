@@ -28,7 +28,11 @@ export function OllamaSettings() {
       toast.success('Ollama 연결 성공');
       const models = await getOllamaModels(ollamaEndpoint);
       setAvailableModels(models);
-      if (models.length > 0 && !models.includes(ollamaModel)) {
+      if (models.length === 0) {
+        toast.warning('설치된 모델이 없습니다', {
+          description: 'ollama pull qwen3-vl:8b 명령으로 모델을 설치해주세요.',
+        });
+      } else if (!models.includes(ollamaModel)) {
         setOllamaModel(models[0]!);
       }
     } else {
@@ -87,11 +91,15 @@ export function OllamaSettings() {
 
           {/* 서버 주소 */}
           <div className="flex flex-col gap-1">
-            <label className="text-muted-foreground text-xs">
+            <label
+              htmlFor="ollama-endpoint"
+              className="text-muted-foreground text-xs"
+            >
               Ollama 서버 주소
             </label>
             <div className="flex gap-1.5">
               <input
+                id="ollama-endpoint"
                 type="text"
                 value={ollamaEndpoint}
                 onChange={(e) => {
@@ -119,11 +127,15 @@ export function OllamaSettings() {
 
           {/* Vision 모델 */}
           <div className="flex flex-col gap-1">
-            <label className="text-muted-foreground text-xs">
+            <label
+              htmlFor="ollama-model"
+              className="text-muted-foreground text-xs"
+            >
               Vision 모델명 (예: qwen3-vl:8b, llava)
             </label>
             {ollamaStatus === 'connected' && availableModels.length > 0 ? (
               <select
+                id="ollama-model"
                 value={ollamaModel}
                 onChange={(e) => setOllamaModel(e.target.value)}
                 className="bg-background border-border text-foreground focus:ring-ring w-full rounded-md border px-2 py-1 text-xs focus:outline-none focus:ring-1"
@@ -136,6 +148,7 @@ export function OllamaSettings() {
               </select>
             ) : (
               <input
+                id="ollama-model"
                 type="text"
                 value={ollamaModel}
                 onChange={(e) => setOllamaModel(e.target.value)}

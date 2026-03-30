@@ -4,7 +4,7 @@ interface OllamaResponse {
   done: boolean;
 }
 
-function validateOllamaUrl(url: string): boolean {
+export function validateOllamaUrl(url: string): boolean {
   try {
     const parsed = new URL(url);
     if (!['http:', 'https:'].includes(parsed.protocol)) return false;
@@ -18,6 +18,8 @@ function validateOllamaUrl(url: string): boolean {
   }
 }
 
+const MODEL_NAME_PATTERN = /^[a-zA-Z0-9._:/-]{1,100}$/;
+
 export async function analyzeImageWithOllama(
   imageBase64: string,
   endpoint: string,
@@ -26,6 +28,10 @@ export async function analyzeImageWithOllama(
 ): Promise<string> {
   if (!validateOllamaUrl(endpoint)) {
     throw new Error('허용되지 않는 Ollama 엔드포인트 URL입니다');
+  }
+
+  if (!MODEL_NAME_PATTERN.test(model)) {
+    throw new Error('유효하지 않은 모델명입니다');
   }
 
   const response = await fetch(`${endpoint}/api/generate`, {

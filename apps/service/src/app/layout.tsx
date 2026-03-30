@@ -23,15 +23,15 @@ export default function RootLayout({
           storageKey="ams-theme"
         >
           {children}
+          <Toaster
+            position="bottom-right"
+            theme="system"
+            richColors
+            toastOptions={{
+              className: 'text-sm',
+            }}
+          />
         </ThemeProvider>
-        <Toaster
-          position="bottom-right"
-          theme="dark"
-          richColors
-          toastOptions={{
-            className: 'text-sm',
-          }}
-        />
       </body>
     </html>
   );
