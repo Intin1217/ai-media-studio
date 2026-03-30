@@ -1,1 +1,8 @@
+# .claude 폴더 유출 방지
+if git diff --cached --name-only | grep -q "^\.claude/"; then
+  echo "❌ .claude/ 폴더의 파일이 staging되어 있습니다."
+  echo "   git rm --cached .claude/<파일명> 으로 제거해주세요."
+  exit 1
+fi
+
 pnpm lint-staged

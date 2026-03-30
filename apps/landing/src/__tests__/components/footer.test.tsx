@@ -30,7 +30,7 @@ describe('Footer', () => {
     it('서비스 설명 문구가 렌더링된다', () => {
       render(<Footer />);
       expect(
-        screen.getByText(/웹캠으로 실시간 AI 분석을 경험하세요/),
+        screen.getByText(/내 컴퓨터에서 실행하는 프라이빗 AI 미디어 분석/),
       ).toBeInTheDocument();
     });
   });
@@ -104,7 +104,7 @@ describe('Footer', () => {
     it('저작권 텍스트가 표시된다', () => {
       render(<Footer />);
       expect(
-        screen.getByText('© 2026 AI Media Studio. All rights reserved.'),
+        screen.getByText('© 2026 Intin1217. All rights reserved.'),
       ).toBeInTheDocument();
     });
 

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
-import { QueryProvider } from '@/components/providers/query-provider';
+import { ThemeProvider } from 'next-themes';
+import { Toaster } from 'sonner';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -7,11 +8,30 @@ export const metadata: Metadata = {
   description: '웹캠과 TensorFlow.js를 활용한 실시간 객체 감지 대시보드',
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="ko" className="dark">
+    <html lang="ko" suppressHydrationWarning>
       <body>
-        <QueryProvider>{children}</QueryProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          storageKey="ams-theme"
+        >
+          {children}
+          <Toaster
+            position="bottom-right"
+            theme="system"
+            richColors
+            toastOptions={{
+              className: 'text-sm',
+            }}
+          />
+        </ThemeProvider>
       </body>
     </html>
   );

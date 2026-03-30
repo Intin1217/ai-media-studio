@@ -17,7 +17,7 @@ export function Footer() {
   return (
     <footer
       role="contentinfo"
-      className="bg-primary text-primary-foreground py-12 md:py-16"
+      className="bg-gray-900 py-12 text-gray-100 md:py-16 dark:bg-gray-950 dark:text-gray-200"
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         {/* 메인 푸터 콘텐츠 */}
@@ -95,10 +95,10 @@ export function Footer() {
               </svg>
               <span className="text-lg font-bold">AI Media Studio</span>
             </div>
-            <p className="mt-2 max-w-xs text-sm opacity-70">
-              웹캠으로 실시간 AI 분석을 경험하세요.
+            <p className="mt-2 max-w-xs text-sm text-gray-400">
+              내 컴퓨터에서 실행하는 프라이빗 AI 미디어 분석.
               <br />
-              브라우저에서 바로 시작할 수 있습니다.
+              Docker 또는 Node.js로 설치하세요.
             </p>
           </div>
 
@@ -111,7 +111,7 @@ export function Footer() {
                   <li key={link.href}>
                     <a
                       href={link.href}
-                      className="text-primary-foreground/70 hover:text-primary-foreground focus-visible:ring-primary-foreground/50 rounded-sm text-sm transition-colors focus-visible:outline-none focus-visible:ring-2"
+                      className="rounded-sm text-sm text-gray-400 transition-colors hover:text-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-500"
                     >
                       {link.label}
                     </a>
@@ -133,7 +133,7 @@ export function Footer() {
                       {...(link.external
                         ? { target: '_blank', rel: 'noopener noreferrer' }
                         : {})}
-                      className="text-primary-foreground/70 hover:text-primary-foreground focus-visible:ring-primary-foreground/50 rounded-sm text-sm transition-colors focus-visible:outline-none focus-visible:ring-2"
+                      className="hover:text-ai-cyan rounded-sm text-sm text-gray-400 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-500"
                     >
                       {link.label}
                       {link.external && (
@@ -148,8 +148,8 @@ export function Footer() {
         </div>
 
         {/* 구분선 + 저작권 */}
-        <div className="border-primary-foreground/20 text-primary-foreground/60 mt-8 flex flex-col items-center justify-between gap-4 border-t pt-8 text-sm md:flex-row">
-          <p>© 2026 AI Media Studio. All rights reserved.</p>
+        <div className="mt-8 flex flex-col items-center justify-between gap-4 border-t border-gray-700 pt-8 text-sm text-gray-500 md:flex-row">
+          <p>© 2026 Intin1217. All rights reserved.</p>
           <p>Built with Next.js, TensorFlow.js</p>
         </div>
       </div>

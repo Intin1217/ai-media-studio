@@ -24,35 +24,37 @@
     --radius: 0.5rem;
 
     /* Landing 전용 포인트 색상 */
-    --ai-cyan: 190 95% 50%;
+    --ai-cyan: 185 100% 50%;
     --ai-blue: 217 91% 60%;
-    --ai-purple: 270 76% 60%;
-    --ai-gradient-start: 190 95% 50%;
-    --ai-gradient-end: 270 76% 60%;
+    --ai-purple: 258 90% 66%;
+    --ai-amber: 38 92% 50%;
+    --ai-gradient-start: 185 100% 50%;
+    --ai-gradient-end: 258 90% 66%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
+    --background: 240 33% 7%;
     --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
+    --card: 240 40% 11%;
     --card-foreground: 210 40% 98%;
     --primary: 210 40% 98%;
     --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
+    --secondary: 240 30% 18%;
     --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
+    --muted: 240 30% 18%;
     --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
+    --accent: 240 30% 18%;
     --accent-foreground: 210 40% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
+    --border: 240 25% 20%;
+    --input: 240 25% 20%;
     --ring: 212.7 26.8% 83.9%;
 
-    --ai-cyan: 190 90% 45%;
+    --ai-cyan: 185 100% 50%;
     --ai-blue: 217 85% 55%;
-    --ai-purple: 270 70% 55%;
+    --ai-purple: 258 90% 66%;
+    --ai-amber: 38 92% 50%;
   }
 }
 
@@ -86,6 +88,23 @@
   .animation-delay-4000 {
     animation-delay: 4s;
   }
+
+  /* Hero 서브텍스트 fade-in */
+  .hero-subtitle {
+    opacity: 0;
+    animation: heroSubtitleFade 0.8s ease-out 1.1s forwards;
+  }
+}
+
+@keyframes heroSubtitleFade {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -97,5 +116,10 @@
     opacity: 1;
     transform: none;
     transition: none;
+  }
+
+  .hero-subtitle {
+    opacity: 1;
+    animation: none;
   }
 }

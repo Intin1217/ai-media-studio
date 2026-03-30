@@ -77,13 +77,15 @@ export function drawDetections(
     lineWidth = 2,
     fontSize = 14,
     defaultColor = '#FFFFFF',
+    labelFormatter,
   } = options;
-
-  clearCanvas(ctx);
 
   for (const detection of detections) {
     const color = getColorForClass(detection.class, colorMap, defaultColor);
-    const label = `${detection.class} ${Math.round(detection.score * 100)}%`;
+    const displayName = labelFormatter
+      ? labelFormatter(detection.class)
+      : detection.class;
+    const label = `${displayName} ${Math.round(detection.score * 100)}%`;
 
     drawBoundingBox(ctx, detection.bbox, color, lineWidth);
     drawLabel(ctx, label, detection.bbox.x, detection.bbox.y, color, fontSize);

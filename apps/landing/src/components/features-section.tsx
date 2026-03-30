@@ -2,34 +2,10 @@ import { ScrollReveal } from './scroll-reveal';
 
 const FEATURES = [
   {
-    id: 'realtime-ai',
-    title: '실시간 AI 분석',
-    description:
-      '웹캠 영상을 TensorFlow.js가 실시간으로 분석합니다. 서버 없이 브라우저에서 직접 처리합니다.',
-    icon: (
-      <svg
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        aria-hidden="true"
-      >
-        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
-        <circle cx="12" cy="13" r="4" />
-        <path d="M18 5l1-2" strokeWidth="1.5" />
-        <circle cx="19.5" cy="2.5" r="0.5" fill="currentColor" />
-      </svg>
-    ),
-  },
-  {
     id: 'privacy',
     title: '완전한 프라이버시',
     description:
-      '모든 데이터가 브라우저 내에서 처리됩니다. 영상이 외부 서버로 전송되지 않아 안심할 수 있습니다.',
+      '모든 데이터가 내 컴퓨터에서만 처리됩니다. 영상, 이미지, 문서가 외부 서버로 전송되지 않습니다.',
     icon: (
       <svg
         width="24"
@@ -48,10 +24,10 @@ const FEATURES = [
     ),
   },
   {
-    id: 'dashboard',
-    title: '실시간 통계 대시보드',
+    id: 'local-ai',
+    title: '로컬 AI 엔진',
     description:
-      '감지된 객체를 실시간 차트와 통계로 시각화합니다. 분석 결과를 한눈에 파악하세요.',
+      'Ollama 기반 Vision 모델로 이미지 분석, PDF 번역, OCR을 로컬에서 실행합니다. API 비용 없이 무제한.',
     icon: (
       <svg
         width="24"
@@ -64,19 +40,24 @@ const FEATURES = [
         strokeLinejoin="round"
         aria-hidden="true"
       >
-        <line x1="18" y1="20" x2="18" y2="10" />
-        <line x1="12" y1="20" x2="12" y2="4" />
-        <line x1="6" y1="20" x2="6" y2="14" />
-        <line x1="2" y1="20" x2="22" y2="20" />
-        <polyline points="2 10 7 5 12 8 17 3" strokeWidth="1.5" />
+        <rect x="4" y="4" width="16" height="16" rx="2" />
+        <rect x="9" y="9" width="6" height="6" />
+        <line x1="9" y1="1" x2="9" y2="4" />
+        <line x1="15" y1="1" x2="15" y2="4" />
+        <line x1="9" y1="20" x2="9" y2="23" />
+        <line x1="15" y1="20" x2="15" y2="23" />
+        <line x1="20" y1="9" x2="23" y2="9" />
+        <line x1="20" y1="14" x2="23" y2="14" />
+        <line x1="1" y1="9" x2="4" y2="9" />
+        <line x1="1" y1="14" x2="4" y2="14" />
       </svg>
     ),
   },
   {
-    id: 'performance',
-    title: '빠른 성능',
+    id: 'offline',
+    title: '오프라인 동작',
     description:
-      'WebGL 가속을 활용한 최적화된 추론 엔진으로 부드러운 실시간 분석을 제공합니다.',
+      '인터넷 연결 없이도 핵심 기능이 동작합니다. 브라우저 AI 모델로 실시간 객체 감지가 가능합니다.',
     icon: (
       <svg
         width="24"
@@ -89,8 +70,35 @@ const FEATURES = [
         strokeLinejoin="round"
         aria-hidden="true"
       >
-        <circle cx="12" cy="12" r="10" />
-        <polyline points="13 2 13 9 17 9 11 22 11 15 7 15" />
+        <line x1="1" y1="1" x2="23" y2="23" />
+        <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55" />
+        <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39" />
+        <path d="M10.71 5.05A16 16 0 0 1 22.56 9" />
+        <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88" />
+        <path d="M8.53 16.11a6 6 0 0 1 6.95 0" />
+        <circle cx="12" cy="20" r="1" fill="currentColor" />
+      </svg>
+    ),
+  },
+  {
+    id: 'easy-setup',
+    title: '간편한 설치',
+    description:
+      'Docker 한 줄 또는 Node.js로 즉시 실행. 복잡한 서버 설정 없이 3분이면 시작합니다.',
+    icon: (
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden="true"
+      >
+        <polyline points="4 17 10 11 4 5" />
+        <line x1="12" y1="19" x2="20" y2="19" />
       </svg>
     ),
   },
@@ -118,7 +126,7 @@ export function FeaturesSection() {
             강력하고 직관적인 AI 분석
           </h2>
           <p className="text-muted-foreground mt-4 text-sm md:text-base lg:text-lg">
-            복잡한 설정 없이, 브라우저만으로 시작하세요
+            내 컴퓨터에 설치하고, 내 데이터를 안전하게 지키세요
           </p>
         </ScrollReveal>
 
@@ -126,9 +134,9 @@ export function FeaturesSection() {
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {FEATURES.map((feature, index) => (
             <ScrollReveal key={feature.id} delay={DELAYS[index]}>
-              <div className="border-border bg-card hover:shadow-ai-cyan/5 hover:border-ai-cyan/30 group relative h-full rounded-xl border p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg md:p-8">
+              <div className="border-border bg-card hover:border-ai-cyan/50 group relative h-full rounded-xl border p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_15px_rgba(0,245,255,0.1)] md:p-8">
                 {/* 아이콘 */}
-                <div className="bg-ai-cyan/10 text-ai-cyan mb-4 flex h-12 w-12 items-center justify-center rounded-lg">
+                <div className="from-ai-cyan/20 to-ai-purple/20 text-ai-cyan mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br">
                   {feature.icon}
                 </div>
                 {/* 텍스트 */}

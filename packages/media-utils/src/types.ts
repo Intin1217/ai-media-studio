@@ -17,6 +17,7 @@ export interface DrawOptions {
   fontSize?: number;
   fontFamily?: string;
   defaultColor?: string;
+  labelFormatter?: (className: string) => string;
 }
 
 export interface WebcamConfig {

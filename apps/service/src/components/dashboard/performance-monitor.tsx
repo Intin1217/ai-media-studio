@@ -2,6 +2,7 @@
 
 import { Card, CardHeader, CardTitle, CardContent } from '@ai-media-studio/ui';
 import { usePerformance } from '@/hooks/use-performance';
+import { AnimatedCounter } from '@/components/animations/animated-counter';
 
 export function PerformanceMonitor() {
   const { fps, inferenceTime, isDetecting, getFpsColor } = usePerformance();
@@ -14,18 +15,31 @@ export function PerformanceMonitor() {
       <CardContent>
         <div className="grid grid-cols-2 gap-4">
           <div className="flex flex-col gap-1">
-            <span className="text-xs text-muted-foreground">FPS</span>
-            <span
-              className={`text-2xl font-bold tabular-nums ${isDetecting ? getFpsColor() : 'text-muted-foreground'}`}
-            >
-              {isDetecting ? fps : '-'}
-            </span>
+            <span className="text-muted-foreground text-xs">FPS</span>
+            {isDetecting ? (
+              <AnimatedCounter
+                value={fps}
+                className={`text-2xl font-bold tabular-nums ${getFpsColor()}`}
+              />
+            ) : (
+              <span className="text-muted-foreground text-2xl font-bold tabular-nums">
+                -
+              </span>
+            )}
           </div>
           <div className="flex flex-col gap-1">
-            <span className="text-xs text-muted-foreground">추론 시간</span>
-            <span className="text-2xl font-bold tabular-nums text-foreground">
-              {isDetecting ? `${inferenceTime}ms` : '-'}
-            </span>
+            <span className="text-muted-foreground text-xs">추론 시간</span>
+            {isDetecting ? (
+              <AnimatedCounter
+                value={inferenceTime}
+                suffix="ms"
+                className="text-foreground text-2xl font-bold tabular-nums"
+              />
+            ) : (
+              <span className="text-muted-foreground text-2xl font-bold tabular-nums">
+                -
+              </span>
+            )}
           </div>
         </div>
       </CardContent>

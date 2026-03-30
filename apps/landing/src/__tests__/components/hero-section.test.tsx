@@ -42,26 +42,26 @@ describe('HeroSection', () => {
       expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument();
     });
 
-    it('h1이 "AI로 영상을 분석하는" 텍스트를 포함한다', () => {
+    it('h1이 "내 컴퓨터에서 실행하는" 텍스트를 포함한다', () => {
       render(<HeroSection />);
       expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
-        'AI로 영상을 분석하는',
+        '내 컴퓨터에서 실행하는',
       );
     });
 
-    it('h1이 "스마트한" 텍스트를 포함한다', () => {
+    it('h1이 "프라이빗" 텍스트를 포함한다', () => {
       render(<HeroSection />);
       expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
-        '스마트한',
+        '프라이빗',
       );
     });
   });
 
   describe('CTA 링크', () => {
-    it('"지금 시작하기" 링크가 렌더링된다', () => {
+    it('"설치 가이드" 링크가 렌더링된다', () => {
       render(<HeroSection />);
       expect(
-        screen.getByRole('link', { name: '지금 시작하기' }),
+        screen.getByRole('link', { name: '설치 가이드' }),
       ).toBeInTheDocument();
     });
 
@@ -80,10 +80,10 @@ describe('HeroSection', () => {
       );
     });
 
-    it('"지금 시작하기" 링크가 /service를 가리킨다', () => {
+    it('"설치 가이드" 링크가 #how-it-works를 가리킨다', () => {
       render(<HeroSection />);
-      const link = screen.getByRole('link', { name: '지금 시작하기' });
-      expect(link).toHaveAttribute('href', '/service');
+      const link = screen.getByRole('link', { name: '설치 가이드' });
+      expect(link).toHaveAttribute('href', '#how-it-works');
     });
   });
 
@@ -100,7 +100,7 @@ describe('HeroSection', () => {
     it('서비스 설명 문구가 렌더링된다', () => {
       render(<HeroSection />);
       expect(
-        screen.getByText(/웹캠 하나로 실시간 객체 감지부터 통계 시각화까지/),
+        screen.getByText(/외부 서버 없이, 당신의 데이터는 당신의 컴퓨터에/),
       ).toBeInTheDocument();
     });
   });

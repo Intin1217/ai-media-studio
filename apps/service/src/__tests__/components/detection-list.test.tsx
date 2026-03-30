@@ -13,7 +13,7 @@ describe('DetectionList', () => {
     expect(screen.getByText('감지된 객체가 없습니다')).toBeInTheDocument();
   });
 
-  it('감지 결과를 목록으로 표시', () => {
+  it('감지 결과를 한국어 라벨로 표시', () => {
     useDetectionStore.getState().setDetections([
       {
         class: 'person',
@@ -27,8 +27,8 @@ describe('DetectionList', () => {
       },
     ]);
     render(<DetectionList />);
-    expect(screen.getByText('person')).toBeInTheDocument();
-    expect(screen.getByText('car')).toBeInTheDocument();
+    expect(screen.getByText('사람')).toBeInTheDocument();
+    expect(screen.getByText('자동차')).toBeInTheDocument();
     expect(screen.getByText('95%')).toBeInTheDocument();
     expect(screen.getByText('80%')).toBeInTheDocument();
   });
