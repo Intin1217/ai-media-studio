@@ -28,7 +28,7 @@ export const useSettingsStore = create<SettingsState>()(
       bboxColors: {},
       modelType: 'mediapipe-lite0',
       ollamaEndpoint: 'http://localhost:11434',
-      ollamaModel: 'llava',
+      ollamaModel: 'qwen3-vl:8b',
       ollamaEnabled: false,
       setConfidenceThreshold: (confidenceThreshold) =>
         set({ confidenceThreshold }),
