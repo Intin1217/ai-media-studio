@@ -23,6 +23,9 @@ export function DashboardTabs() {
         <TabsTrigger value="statistics" className="flex-1">
           통계
         </TabsTrigger>
+        <TabsTrigger value="pdf" className="flex-1">
+          PDF 번역
+        </TabsTrigger>
       </TabsList>
     </Tabs>
   );

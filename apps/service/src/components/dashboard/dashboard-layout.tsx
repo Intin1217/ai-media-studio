@@ -7,6 +7,7 @@ import { ModelLoader } from '@/components/detection/model-loader';
 import { PerformanceMonitor } from '@/components/dashboard/performance-monitor';
 import { DashboardTabs } from '@/components/dashboard/dashboard-tabs';
 import { ImageAnalysisView } from '@/components/image-analysis/image-analysis-view';
+import { PdfTranslatorView } from '@/components/pdf/pdf-translator-view';
 import dynamic from 'next/dynamic';
 
 const StatisticsView = dynamic(
@@ -104,6 +105,13 @@ export function DashboardLayout() {
         {dashboardTab === 'statistics' && (
           <div key="statistics" className="tab-content-fade">
             <StatisticsView />
+          </div>
+        )}
+
+        {/* PDF 번역 탭 */}
+        {dashboardTab === 'pdf' && (
+          <div key="pdf" className="tab-content-fade">
+            <PdfTranslatorView />
           </div>
         )}
       </main>

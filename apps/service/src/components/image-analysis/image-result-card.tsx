@@ -8,6 +8,7 @@ import type { ImageAnalysisResult } from '@/stores/detection-store';
 import { useDetectionStore } from '@/stores/detection-store';
 import { useSettingsStore } from '@/stores/settings-store';
 import { analyzeImageWithOllama } from '@/lib/ollama-client';
+import { OcrResultPanel } from './ocr-result-panel';
 
 interface ImageResultCardProps {
   result: ImageAnalysisResult;
@@ -115,6 +116,11 @@ export function ImageResultCard({ result }: ImageResultCardProps) {
             ))}
           </div>
         )}
+
+        {/* OCR 텍스트 추출 */}
+        <div className="border-border mt-3 border-t pt-3">
+          <OcrResultPanel imageUrl={result.imageUrl} />
+        </div>
 
         {ollamaEnabled && (
           <div className="border-border mt-3 border-t pt-3">
