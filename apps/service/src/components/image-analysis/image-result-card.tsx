@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
 import { Card, CardContent, Badge } from '@ai-media-studio/ui';
 import { drawDetections } from '@ai-media-studio/media-utils';
 import type { ImageAnalysisResult } from '@/stores/detection-store';
@@ -39,6 +40,9 @@ export function ImageResultCard({ result }: ImageResultCardProps) {
       setOllamaResult(response);
     } catch {
       setOllamaError('Ollama가 실행 중인지 확인해주세요');
+      toast.error('AI 상세 분석에 실패했습니다', {
+        description: 'Ollama 서버가 실행 중인지 확인해주세요.',
+      });
     } finally {
       setOllamaLoading(false);
     }

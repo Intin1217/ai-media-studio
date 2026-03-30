@@ -310,8 +310,8 @@ export function useDetector(
           }
         }
       })
-      .catch((err) => {
-        console.error('[useDetector] 모델 재로드 실패:', err);
+      .catch(() => {
+        // toast는 use-model.ts에서 처리
       });
 
     return () => {

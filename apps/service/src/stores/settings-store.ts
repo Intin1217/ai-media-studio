@@ -2,6 +2,7 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { validateOllamaUrl } from '@/lib/ollama-client';
 
 export type ModelType = 'coco-ssd' | 'mediapipe-lite0' | 'mediapipe-lite2';
 
@@ -38,7 +39,19 @@ export const useSettingsStore = create<SettingsState>()(
         })),
       resetBboxColors: () => set({ bboxColors: {} }),
       setModelType: (modelType) => set({ modelType }),
-      setOllamaEndpoint: (ollamaEndpoint) => set({ ollamaEndpoint }),
+      setOllamaEndpoint: (url) => {
+        try {
+          new URL(url);
+          // 완전한 URL이면 보안 검증 후 저장
+          if (validateOllamaUrl(url)) {
+            set({ ollamaEndpoint: url });
+          }
+          // 유효하지 않은 완전한 URL은 저장하지 않음
+        } catch {
+          // URL parse 실패 = 아직 타이핑 중 → 저장 허용
+          set({ ollamaEndpoint: url });
+        }
+      },
       setOllamaModel: (ollamaModel) => set({ ollamaModel }),
       setOllamaEnabled: (ollamaEnabled) => set({ ollamaEnabled }),
     }),
