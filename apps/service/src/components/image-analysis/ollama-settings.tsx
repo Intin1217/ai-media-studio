@@ -77,7 +77,7 @@ export function OllamaSettings() {
               onChange={(e) => setOllamaEnabled(e.target.checked)}
               className="peer sr-only"
             />
-            <div className="bg-muted peer h-4 w-8 rounded-full transition-colors after:absolute after:left-0.5 after:top-0.5 after:h-3 after:w-3 after:rounded-full after:bg-white after:transition-transform after:content-[''] peer-checked:bg-violet-500 peer-checked:after:translate-x-4" />
+            <div className="bg-muted peer h-4 w-8 rounded-full transition-colors after:absolute after:left-0.5 after:top-0.5 after:h-3 after:w-3 after:rounded-full after:bg-white after:transition-transform after:content-[''] peer-checked:bg-emerald-500 peer-checked:after:translate-x-4" />
           </label>
         </div>
       </CardHeader>
@@ -114,7 +114,7 @@ export function OllamaSettings() {
                 type="button"
                 onClick={handleCheckConnection}
                 disabled={ollamaStatus === 'checking'}
-                className="rounded-md bg-violet-500/10 px-2 py-1 text-xs text-violet-400 transition-colors hover:bg-violet-500/20 disabled:opacity-50"
+                className="rounded-md bg-emerald-500/10 px-2 py-1 text-xs text-emerald-400 transition-colors hover:bg-emerald-500/20 disabled:opacity-50"
               >
                 연결 확인
               </button>

@@ -109,7 +109,7 @@ export function Header() {
         {/* 데스크톱 CTA */}
         <div className="hidden items-center gap-2 lg:flex">
           <a
-            href="https://github.com/Intin1217"
+            href="https://github.com/Intin1217/ai-media-studio"
             target="_blank"
             rel="noopener noreferrer"
             className="border-border bg-background text-foreground hover:bg-muted inline-flex h-9 w-9 items-center justify-center rounded-md border transition-colors"
@@ -121,11 +121,11 @@ export function Header() {
           </a>
           <ThemeToggle />
           <a
-            href="http://localhost:3000"
+            href="https://github.com/Intin1217/ai-media-studio"
             target="_blank"
             rel="noopener noreferrer"
           >
-            <Button size="sm">시작하기</Button>
+            <Button size="sm">설치하기</Button>
           </a>
         </div>
 
@@ -226,12 +226,12 @@ export function Header() {
               </a>
             ))}
             <a
-              href="http://localhost:3000"
+              href="https://github.com/Intin1217/ai-media-studio"
               target="_blank"
               rel="noopener noreferrer"
               onClick={handleNavClick}
             >
-              <Button className="w-full">시작하기</Button>
+              <Button className="w-full">설치하기</Button>
             </a>
           </nav>
         </div>

@@ -67,13 +67,6 @@ describe('FeaturesSection', () => {
       expect(h3Elements).toHaveLength(4);
     });
 
-    it('"실시간 AI 분석" 카드가 렌더링된다', () => {
-      render(<FeaturesSection />);
-      expect(
-        screen.getByRole('heading', { name: '실시간 AI 분석' }),
-      ).toBeInTheDocument();
-    });
-
     it('"완전한 프라이버시" 카드가 렌더링된다', () => {
       render(<FeaturesSection />);
       expect(
@@ -81,33 +74,38 @@ describe('FeaturesSection', () => {
       ).toBeInTheDocument();
     });
 
-    it('"실시간 통계 대시보드" 카드가 렌더링된다', () => {
+    it('"로컬 AI 엔진" 카드가 렌더링된다', () => {
       render(<FeaturesSection />);
       expect(
-        screen.getByRole('heading', { name: '실시간 통계 대시보드' }),
+        screen.getByRole('heading', { name: '로컬 AI 엔진' }),
       ).toBeInTheDocument();
     });
 
-    it('"빠른 성능" 카드가 렌더링된다', () => {
+    it('"오프라인 동작" 카드가 렌더링된다', () => {
       render(<FeaturesSection />);
       expect(
-        screen.getByRole('heading', { name: '빠른 성능' }),
+        screen.getByRole('heading', { name: '오프라인 동작' }),
+      ).toBeInTheDocument();
+    });
+
+    it('"간편한 설치" 카드가 렌더링된다', () => {
+      render(<FeaturesSection />);
+      expect(
+        screen.getByRole('heading', { name: '간편한 설치' }),
       ).toBeInTheDocument();
     });
 
     it('각 카드의 설명 텍스트가 렌더링된다', () => {
       render(<FeaturesSection />);
       expect(
-        screen.getByText(/TensorFlow\.js가 실시간으로 분석합니다/),
+        screen.getByText(/모든 데이터가 내 컴퓨터에서만 처리됩니다/),
+      ).toBeInTheDocument();
+      expect(screen.getByText(/Ollama 기반 Vision 모델로/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/인터넷 연결 없이도 핵심 기능이 동작합니다/),
       ).toBeInTheDocument();
       expect(
-        screen.getByText(/모든 데이터가 브라우저 내에서 처리됩니다/),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText(/감지된 객체를 실시간 차트와 통계로 시각화합니다/),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText(/WebGL 가속을 활용한 최적화된 추론 엔진/),
+        screen.getByText(/Docker 한 줄 또는 Node\.js로 즉시 실행/),
       ).toBeInTheDocument();
     });
   });

@@ -7,7 +7,7 @@ const SERVICE_LINKS = [
 const DEV_LINKS = [
   {
     label: 'GitHub',
-    href: 'https://github.com/Intin1217',
+    href: 'https://github.com/Intin1217/ai-media-studio',
     external: true,
   },
   { label: '포트폴리오', href: '#', external: false },
@@ -96,9 +96,9 @@ export function Footer() {
               <span className="text-lg font-bold">AI Media Studio</span>
             </div>
             <p className="mt-2 max-w-xs text-sm text-gray-400">
-              웹캠으로 실시간 AI 분석을 경험하세요.
+              내 컴퓨터에서 실행하는 프라이빗 AI 미디어 분석.
               <br />
-              브라우저에서 바로 시작할 수 있습니다.
+              Docker 또는 Node.js로 설치하세요.
             </p>
           </div>
 

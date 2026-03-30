@@ -16,27 +16,27 @@ interface StatItem {
 
 const STATS: StatItem[] = [
   {
-    id: 'fps',
-    value: 60,
-    suffix: 'fps',
-    label: '실시간 감지 속도',
-    description: '부드러운 실시간 영상 분석',
+    id: 'external-transfer',
+    value: 0,
+    suffix: '건',
+    label: '외부 데이터 전송',
+    description: '모든 처리가 로컬에서 완결',
     color: 'cyan',
   },
   {
     id: 'classes',
     value: 80,
     suffix: '+',
-    label: '객체 클래스',
-    description: '다양한 객체를 정확하게 인식',
+    label: '감지 가능 객체',
+    description: 'COCO-SSD, MediaPipe로 정확한 인식',
     color: 'purple',
   },
   {
     id: 'cost',
     value: 0,
     suffix: '원',
-    label: '서버 비용',
-    description: '브라우저에서 완전히 무료로 실행',
+    label: 'API 비용',
+    description: '로컬 실행으로 완전 무료',
     color: 'amber',
   },
 ];
@@ -157,7 +157,7 @@ export function StatsSection() {
             숫자로 증명하는 성능
           </h2>
           <p className="mt-4 text-sm text-gray-400 md:text-base lg:text-lg dark:text-gray-300">
-            브라우저 하나로 이 모든 것이 가능합니다
+            온프레미스로 이 모든 것이 가능합니다
           </p>
         </ScrollReveal>
 

@@ -74,35 +74,33 @@ describe('StatsSection', () => {
   describe('통계 카드', () => {
     it('3개의 통계 카드가 렌더링된다', () => {
       render(<StatsSection />);
-      expect(screen.getByText('실시간 감지 속도')).toBeInTheDocument();
-      expect(screen.getByText('객체 클래스')).toBeInTheDocument();
-      expect(screen.getByText('서버 비용')).toBeInTheDocument();
+      expect(screen.getByText('외부 데이터 전송')).toBeInTheDocument();
+      expect(screen.getByText('감지 가능 객체')).toBeInTheDocument();
+      expect(screen.getByText('API 비용')).toBeInTheDocument();
     });
 
-    it('fps 카드의 suffix가 렌더링된다', () => {
+    it('외부 데이터 전송 카드의 suffix "건"이 렌더링된다', () => {
       render(<StatsSection />);
-      expect(screen.getByText('fps')).toBeInTheDocument();
+      expect(screen.getByText('건')).toBeInTheDocument();
     });
 
-    it('객체 클래스 카드의 suffix "+"가 렌더링된다', () => {
+    it('감지 가능 객체 카드의 suffix "+"가 렌더링된다', () => {
       render(<StatsSection />);
       expect(screen.getByText('+')).toBeInTheDocument();
     });
 
-    it('서버 비용 카드의 suffix "원"이 렌더링된다', () => {
+    it('API 비용 카드의 suffix "원"이 렌더링된다', () => {
       render(<StatsSection />);
       expect(screen.getByText('원')).toBeInTheDocument();
     });
 
     it('각 카드의 설명 텍스트가 렌더링된다', () => {
       render(<StatsSection />);
-      expect(screen.getByText('부드러운 실시간 영상 분석')).toBeInTheDocument();
+      expect(screen.getByText('모든 처리가 로컬에서 완결')).toBeInTheDocument();
       expect(
-        screen.getByText('다양한 객체를 정확하게 인식'),
+        screen.getByText('COCO-SSD, MediaPipe로 정확한 인식'),
       ).toBeInTheDocument();
-      expect(
-        screen.getByText('브라우저에서 완전히 무료로 실행'),
-      ).toBeInTheDocument();
+      expect(screen.getByText('로컬 실행으로 완전 무료')).toBeInTheDocument();
     });
   });
 });

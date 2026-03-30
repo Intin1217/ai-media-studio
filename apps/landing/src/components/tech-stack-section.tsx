@@ -150,7 +150,55 @@ const TECH_STACK = [
       </svg>
     ),
   },
-] as const;
+  {
+    name: 'Ollama',
+    label: 'Local AI',
+    icon: (
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        aria-hidden="true"
+      >
+        <rect x="4" y="4" width="16" height="16" rx="2" />
+        <rect x="9" y="9" width="6" height="6" />
+        <line x1="9" y1="1" x2="9" y2="4" />
+        <line x1="15" y1="1" x2="15" y2="4" />
+        <line x1="9" y1="20" x2="9" y2="23" />
+        <line x1="15" y1="20" x2="15" y2="23" />
+        <line x1="20" y1="9" x2="23" y2="9" />
+        <line x1="20" y1="14" x2="23" y2="14" />
+        <line x1="1" y1="9" x2="4" y2="9" />
+        <line x1="1" y1="14" x2="4" y2="14" />
+      </svg>
+    ),
+  },
+  {
+    name: 'Docker',
+    label: 'Container',
+    icon: (
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        aria-hidden="true"
+      >
+        <rect x="1" y="10" width="4" height="3" rx="0.5" />
+        <rect x="6" y="10" width="4" height="3" rx="0.5" />
+        <rect x="11" y="10" width="4" height="3" rx="0.5" />
+        <rect x="6" y="6" width="4" height="3" rx="0.5" />
+        <rect x="11" y="6" width="4" height="3" rx="0.5" />
+        <path d="M17.5 12.5c.5-1.5 2-2 3.5-1.5.5 2-1 4-3.5 4H4a3 3 0 0 1-3-3" />
+      </svg>
+    ),
+  },
+];
 
 export function TechStackSection() {
   return (

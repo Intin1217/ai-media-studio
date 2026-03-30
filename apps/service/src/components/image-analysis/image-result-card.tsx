@@ -8,9 +8,12 @@ import { drawDetections } from '@ai-media-studio/media-utils';
 import type { ImageAnalysisResult } from '@/stores/detection-store';
 import { useDetectionStore } from '@/stores/detection-store';
 import { useSettingsStore } from '@/stores/settings-store';
+import { MarkdownRenderer } from '../markdown-renderer';
 import { analyzeImageWithOllama } from '@/lib/ollama-client';
-import { imageUrlToBase64 } from '@/lib/image-utils';
+import { imageUrlToBase64, cropImageToBase64 } from '@/lib/image-utils';
 import { OcrResultPanel } from './ocr-result-panel';
+import { useRegionSelect } from '@/hooks/use-region-select';
+import { RegionSelectOverlay } from './region-select-overlay';
 
 interface ImageResultCardProps {
   result: ImageAnalysisResult;
@@ -22,7 +25,15 @@ export function ImageResultCard({
   externalOllamaResult,
 }: ImageResultCardProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const canvasContainerRef = useRef<HTMLDivElement>(null);
   const resultRef = useRef<HTMLDivElement>(null);
+
+  const [regionSelectMode, setRegionSelectMode] = useState(false);
+
+  const { region, isSelecting, resetRegion, displayRegion } = useRegionSelect({
+    canvasRef,
+    enabled: regionSelectMode,
+  });
 
   const removeImageAnalysisResult = useDetectionStore(
     (s) => s.removeImageAnalysisResult,
@@ -66,7 +77,9 @@ export function ImageResultCard({
     setOllamaLoading(true);
     setOllamaError(null);
     try {
-      const base64 = await imageUrlToBase64(result.imageUrl);
+      const base64 = region
+        ? await cropImageToBase64(result.imageUrl, region)
+        : await imageUrlToBase64(result.imageUrl);
       const prompt =
         ollamaPromptMode === 'per-image' && localPrompt.trim()
           ? localPrompt
@@ -121,12 +134,19 @@ export function ImageResultCard({
   return (
     <Card className="overflow-hidden transition-shadow duration-200 hover:shadow-md">
       <div className="relative aspect-video bg-black">
-        <canvas
-          ref={canvasRef}
-          className="h-full w-full object-contain"
-          aria-label={`${result.file.name} 감지 결과`}
-          role="img"
-        />
+        <div ref={canvasContainerRef} className="relative h-full w-full">
+          <canvas
+            ref={canvasRef}
+            className={`h-full w-full object-contain${regionSelectMode ? 'cursor-crosshair' : ''}`}
+            aria-label={`${result.file.name} 감지 결과`}
+            role="img"
+          />
+          <RegionSelectOverlay
+            displayRegion={displayRegion}
+            isSelecting={isSelecting}
+            containerRef={canvasContainerRef}
+          />
+        </div>
         <button
           type="button"
           onClick={() => removeImageAnalysisResult(result.id)}
@@ -198,41 +218,75 @@ export function ImageResultCard({
               </div>
             )}
 
-            <button
-              type="button"
-              onClick={handleOllamaAnalyze}
-              disabled={ollamaLoading}
-              className="flex items-center gap-1.5 rounded-md bg-violet-500/10 px-3 py-1.5 text-xs font-medium text-violet-400 transition-colors hover:bg-violet-500/20 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {ollamaLoading ? (
-                <>
-                  <svg
-                    className="h-3 w-3 animate-spin"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                    />
-                  </svg>
-                  분석 중...
-                </>
-              ) : displayResult ? (
-                '재분석'
-              ) : (
-                'AI 상세 분석'
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={handleOllamaAnalyze}
+                disabled={ollamaLoading}
+                className="flex items-center gap-1.5 rounded-md bg-emerald-500/10 px-3 py-1.5 text-xs font-medium text-emerald-400 transition-colors hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {ollamaLoading ? (
+                  <>
+                    <svg
+                      className="h-3 w-3 animate-spin"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                      />
+                    </svg>
+                    분석 중...
+                  </>
+                ) : region ? (
+                  '선택 영역 분석'
+                ) : displayResult ? (
+                  '재분석'
+                ) : (
+                  'AI 상세 분석'
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  if (regionSelectMode) {
+                    setRegionSelectMode(false);
+                    resetRegion();
+                  } else {
+                    setRegionSelectMode(true);
+                  }
+                }}
+                className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+                  regionSelectMode
+                    ? 'bg-emerald-500/30 text-emerald-300 hover:bg-emerald-500/40'
+                    : 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20'
+                }`}
+                aria-pressed={regionSelectMode}
+              >
+                {regionSelectMode ? '선택 모드 종료' : '영역 선택'}
+              </button>
+
+              {region && (
+                <button
+                  type="button"
+                  onClick={resetRegion}
+                  className="flex items-center gap-1.5 rounded-md bg-zinc-500/10 px-3 py-1.5 text-xs font-medium text-zinc-400 transition-colors hover:bg-zinc-500/20"
+                >
+                  영역 초기화
+                </button>
               )}
-            </button>
+            </div>
 
             {ollamaError && (
               <p className="mt-2 text-xs text-red-400">{ollamaError}</p>
@@ -240,9 +294,7 @@ export function ImageResultCard({
 
             {displayResult && !ollamaError && (
               <div ref={resultRef} className="bg-muted/50 mt-2 rounded-md p-2">
-                <p className="text-foreground whitespace-pre-wrap text-xs leading-relaxed">
-                  {displayResult}
-                </p>
+                <MarkdownRenderer content={displayResult} />
               </div>
             )}
           </div>
