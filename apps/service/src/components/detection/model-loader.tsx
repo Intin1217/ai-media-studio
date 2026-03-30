@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Progress } from '@ai-media-studio/ui';
+import { Progress, cn } from '@ai-media-studio/ui';
 import { useDetectionStore } from '@/stores/detection-store';
 import { useSettingsStore, type ModelType } from '@/stores/settings-store';
 import { checkOllamaConnection, getOllamaModels } from '@/lib/ollama-client';
@@ -100,57 +100,75 @@ export function ModelLoader() {
 
       {ollamaEnabled && (
         <div className="flex flex-col gap-2">
-          <div className="flex gap-1.5">
-            <input
-              type="text"
-              value={ollamaEndpoint}
-              onChange={(e) => {
-                setOllamaEndpoint(e.target.value);
-                setOllamaStatus('idle');
-                setAvailableModels([]);
-              }}
-              placeholder="http://localhost:11434"
-              className="bg-background border-border text-foreground focus:ring-ring min-w-0 flex-1 rounded-md border px-2 py-1 text-xs focus:outline-none focus:ring-1"
-            />
-            <button
-              type="button"
-              onClick={handleCheckOllamaConnection}
-              disabled={ollamaStatus === 'checking'}
-              className="rounded-md bg-violet-500/10 px-2 py-1 text-xs text-violet-400 transition-colors hover:bg-violet-500/20 disabled:opacity-50"
-            >
-              연결 확인
-            </button>
+          <div className="flex flex-col gap-1.5">
+            <label className="text-muted-foreground text-xs">
+              Ollama 서버 주소
+            </label>
+            <div className="flex gap-1.5">
+              <input
+                type="text"
+                value={ollamaEndpoint}
+                onChange={(e) => {
+                  setOllamaEndpoint(e.target.value);
+                  setOllamaStatus('idle');
+                  setAvailableModels([]);
+                }}
+                placeholder="http://localhost:11434"
+                className="bg-background border-border text-foreground focus:ring-ring min-w-0 flex-1 rounded-md border px-2 py-1 text-xs focus:outline-none focus:ring-1"
+              />
+              <button
+                type="button"
+                onClick={handleCheckOllamaConnection}
+                disabled={ollamaStatus === 'checking'}
+                className="rounded-md bg-violet-500/10 px-2 py-1 text-xs text-violet-400 transition-colors hover:bg-violet-500/20 disabled:opacity-50"
+              >
+                연결 확인
+              </button>
+            </div>
           </div>
 
           {ollamaStatusBadge && (
             <div className="flex items-center gap-1.5">{ollamaStatusBadge}</div>
           )}
 
-          {ollamaStatus === 'connected' && availableModels.length > 0 ? (
-            <select
-              value={ollamaModel}
-              onChange={(e) => setOllamaModel(e.target.value)}
-              className="bg-background border-border text-foreground focus:ring-ring w-full rounded-md border px-2 py-1 text-xs focus:outline-none focus:ring-1"
-            >
-              {availableModels.map((m) => (
-                <option key={m} value={m}>
-                  {m}
-                </option>
-              ))}
-            </select>
-          ) : (
-            <input
-              type="text"
-              value={ollamaModel}
-              onChange={(e) => setOllamaModel(e.target.value)}
-              placeholder="llava"
-              className="bg-background border-border text-foreground focus:ring-ring w-full rounded-md border px-2 py-1 text-xs focus:outline-none focus:ring-1"
-            />
-          )}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-muted-foreground text-xs">
+              Vision 모델명 (예: qwen3-vl:8b, llava)
+            </label>
+            {ollamaStatus === 'connected' && availableModels.length > 0 ? (
+              <select
+                value={ollamaModel}
+                onChange={(e) => setOllamaModel(e.target.value)}
+                className="bg-background border-border text-foreground focus:ring-ring w-full rounded-md border px-2 py-1 text-xs focus:outline-none focus:ring-1"
+              >
+                {availableModels.map((m) => (
+                  <option key={m} value={m}>
+                    {m}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input
+                type="text"
+                value={ollamaModel}
+                onChange={(e) => setOllamaModel(e.target.value)}
+                placeholder="qwen3-vl:8b"
+                className="bg-background border-border text-foreground focus:ring-ring w-full rounded-md border px-2 py-1 text-xs focus:outline-none focus:ring-1"
+              />
+            )}
+          </div>
 
-          <p className="text-muted-foreground text-xs">
-            이미지 분석 탭에서 &quot;AI 상세 분석&quot; 버튼이 활성화됩니다
-          </p>
+          <div className="text-muted-foreground flex flex-col gap-0.5 text-xs">
+            <p>
+              이미지 분석 탭에서 &quot;AI 상세 분석&quot; 버튼이 활성화됩니다.
+            </p>
+            <p>
+              Ollama 설치:{' '}
+              <code className="bg-muted rounded px-1 py-0.5 text-[10px]">
+                ollama pull qwen3-vl:8b
+              </code>
+            </p>
+          </div>
         </div>
       )}
     </div>
@@ -163,14 +181,20 @@ export function ModelLoader() {
   };
 
   const modelSelector = (
-    <div className="border-border bg-card rounded-lg border p-3">
+    <div
+      className={cn(
+        'border-border bg-card rounded-lg border p-3',
+        ollamaEnabled && 'opacity-50',
+      )}
+    >
       <label className="text-muted-foreground mb-2 block text-xs font-medium">
-        AI 모델 선택
+        브라우저 AI 모델 선택
       </label>
       <select
         value={modelType}
         onChange={(e) => setModelType(e.target.value as ModelType)}
-        className="bg-background border-border text-foreground focus:ring-ring w-full rounded-md border px-3 py-1.5 text-sm focus:outline-none focus:ring-1"
+        disabled={ollamaEnabled}
+        className="bg-background border-border text-foreground focus:ring-ring w-full rounded-md border px-3 py-1.5 text-sm focus:outline-none focus:ring-1 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {MODEL_OPTIONS.map((opt) => (
           <option key={opt.value} value={opt.value}>
@@ -179,7 +203,9 @@ export function ModelLoader() {
         ))}
       </select>
       <p className="text-muted-foreground mt-1.5 text-xs">
-        {selectedOption.description}
+        {ollamaEnabled
+          ? '로컬 AI 활성화 중 — 브라우저 모델 비활성화됨'
+          : selectedOption.description}
       </p>
     </div>
   );
