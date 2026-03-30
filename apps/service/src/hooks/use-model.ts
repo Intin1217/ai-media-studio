@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useRef } from 'react';
+import { toast } from 'sonner';
 import { useDetectionStore } from '@/stores/detection-store';
 import { useSettingsStore, type ModelType } from '@/stores/settings-store';
 
@@ -160,6 +161,9 @@ export function useModel() {
       return model;
     } catch {
       setModelStatus('error');
+      toast.error('AI 모델을 불러올 수 없습니다', {
+        description: '네트워크 연결을 확인하고 페이지를 새로고침해주세요.',
+      });
       return null;
     }
   }, [setModelStatus]);

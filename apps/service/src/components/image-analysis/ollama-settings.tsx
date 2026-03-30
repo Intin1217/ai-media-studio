@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { Card, CardHeader, CardTitle, CardContent } from '@ai-media-studio/ui';
 import { useSettingsStore } from '@/stores/settings-store';
 import { checkOllamaConnection, getOllamaModels } from '@/lib/ollama-client';
@@ -24,6 +25,7 @@ export function OllamaSettings() {
     const connected = await checkOllamaConnection(ollamaEndpoint);
     if (connected) {
       setOllamaStatus('connected');
+      toast.success('Ollama 연결 성공');
       const models = await getOllamaModels(ollamaEndpoint);
       setAvailableModels(models);
       if (models.length > 0 && !models.includes(ollamaModel)) {
@@ -32,6 +34,9 @@ export function OllamaSettings() {
     } else {
       setOllamaStatus('failed');
       setAvailableModels([]);
+      toast.error('Ollama에 연결할 수 없습니다', {
+        description: 'Ollama가 실행 중인지 확인해주세요.',
+      });
     }
   }
 

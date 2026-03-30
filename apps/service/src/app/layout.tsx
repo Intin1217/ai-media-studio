@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { ThemeProvider } from 'next-themes';
+import { Toaster } from 'sonner';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -23,6 +24,14 @@ export default function RootLayout({
         >
           {children}
         </ThemeProvider>
+        <Toaster
+          position="bottom-right"
+          theme="dark"
+          richColors
+          toastOptions={{
+            className: 'text-sm',
+          }}
+        />
       </body>
     </html>
   );

@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef } from 'react';
+import { toast } from 'sonner';
 import type { Detection } from '@ai-media-studio/media-utils';
 import { drawDetections } from '@ai-media-studio/media-utils';
 import { useDetectionStore } from '@/stores/detection-store';
@@ -310,8 +311,10 @@ export function useDetector(
           }
         }
       })
-      .catch((_err) => {
-        // 모델 재로드 실패 — 다음 modelType 변경 시 재시도
+      .catch(() => {
+        toast.error('모델 로드에 실패했습니다', {
+          description: '네트워크 연결을 확인하고 다시 시도해주세요.',
+        });
       });
 
     return () => {

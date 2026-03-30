@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useRef, useState } from 'react';
+import { toast } from 'sonner';
 import { Card, CardContent } from '@ai-media-studio/ui';
 import { useImageDetector } from '@/hooks/use-image-detector';
 import { useDetectionStore } from '@/stores/detection-store';
@@ -25,7 +26,12 @@ export function ImageUpload() {
       );
 
       if (oversizedFiles.length > 0) {
-        // 파일 크기 초과 항목은 무시하고 유효한 파일만 처리
+        toast.warning(
+          `${oversizedFiles.length}개 파일이 크기 제한을 초과했습니다`,
+          {
+            description: '10MB 이하의 파일만 업로드할 수 있습니다.',
+          },
+        );
       }
 
       if (imageFiles.length === 0) return;
