@@ -2,20 +2,28 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
+import { animate } from 'animejs';
 import { Card, CardContent, Badge } from '@ai-media-studio/ui';
 import { drawDetections } from '@ai-media-studio/media-utils';
 import type { ImageAnalysisResult } from '@/stores/detection-store';
 import { useDetectionStore } from '@/stores/detection-store';
 import { useSettingsStore } from '@/stores/settings-store';
 import { analyzeImageWithOllama } from '@/lib/ollama-client';
+import { imageUrlToBase64 } from '@/lib/image-utils';
 import { OcrResultPanel } from './ocr-result-panel';
 
 interface ImageResultCardProps {
   result: ImageAnalysisResult;
+  externalOllamaResult?: string;
 }
 
-export function ImageResultCard({ result }: ImageResultCardProps) {
+export function ImageResultCard({
+  result,
+  externalOllamaResult,
+}: ImageResultCardProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const resultRef = useRef<HTMLDivElement>(null);
+
   const removeImageAnalysisResult = useDetectionStore(
     (s) => s.removeImageAnalysisResult,
   );
@@ -23,20 +31,51 @@ export function ImageResultCard({ result }: ImageResultCardProps) {
   const ollamaEnabled = useSettingsStore((s) => s.ollamaEnabled);
   const ollamaEndpoint = useSettingsStore((s) => s.ollamaEndpoint);
   const ollamaModel = useSettingsStore((s) => s.ollamaModel);
+  const ollamaCustomPrompt = useSettingsStore((s) => s.ollamaCustomPrompt);
+  const ollamaPromptMode = useSettingsStore((s) => s.ollamaPromptMode);
+
   const [ollamaResult, setOllamaResult] = useState<string | null>(null);
   const [ollamaLoading, setOllamaLoading] = useState(false);
   const [ollamaError, setOllamaError] = useState<string | null>(null);
+  const [localPrompt, setLocalPrompt] = useState('');
+  const [hasEdited, setHasEdited] = useState(false);
+
+  // 글로벌 프롬프트 변경 시 로컬 프롬프트 동기화 (사용자가 직접 수정한 경우 덮어쓰지 않음)
+  useEffect(() => {
+    if (!hasEdited) {
+      setLocalPrompt(ollamaCustomPrompt);
+    }
+  }, [ollamaCustomPrompt, hasEdited]);
+
+  // 분석 결과 fade-in 애니메이션
+  useEffect(() => {
+    if (resultRef.current && ollamaResult) {
+      const prefersReduced = window.matchMedia(
+        '(prefers-reduced-motion: reduce)',
+      ).matches;
+      if (prefersReduced) return;
+      animate(resultRef.current, {
+        opacity: [0, 1],
+        duration: 400,
+        easing: 'easeOutQuart',
+      });
+    }
+  }, [ollamaResult]);
 
   async function handleOllamaAnalyze() {
     setOllamaLoading(true);
     setOllamaError(null);
     try {
-      // data URL에서 base64 부분 추출
-      const base64 = result.imageUrl.split(',')[1] ?? result.imageUrl;
+      const base64 = await imageUrlToBase64(result.imageUrl);
+      const prompt =
+        ollamaPromptMode === 'per-image' && localPrompt.trim()
+          ? localPrompt
+          : ollamaCustomPrompt;
       const response = await analyzeImageWithOllama(
         base64,
         ollamaEndpoint,
         ollamaModel,
+        prompt,
       );
       setOllamaResult(response);
     } catch {
@@ -56,12 +95,18 @@ export function ImageResultCard({ result }: ImageResultCardProps) {
     const img = new Image();
     img.src = result.imageUrl;
     img.onload = () => {
-      canvas.width = img.naturalWidth;
-      canvas.height = img.naturalHeight;
-      const ctx = canvas.getContext('2d');
+      const cvs = canvasRef.current;
+      if (!cvs) return;
+      cvs.width = img.naturalWidth;
+      cvs.height = img.naturalHeight;
+      const ctx = cvs.getContext('2d');
       if (!ctx) return;
       ctx.drawImage(img, 0, 0);
       drawDetections(ctx, result.detections);
+    };
+
+    return () => {
+      img.onload = null;
     };
   }, [result.imageUrl, result.detections]);
 
@@ -71,10 +116,17 @@ export function ImageResultCard({ result }: ImageResultCardProps) {
     classCounts[d.class] = (classCounts[d.class] ?? 0) + 1;
   }
 
+  const displayResult = ollamaResult ?? externalOllamaResult ?? null;
+
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden transition-shadow duration-200 hover:shadow-md">
       <div className="relative aspect-video bg-black">
-        <canvas ref={canvasRef} className="h-full w-full object-contain" />
+        <canvas
+          ref={canvasRef}
+          className="h-full w-full object-contain"
+          aria-label={`${result.file.name} 감지 결과`}
+          role="img"
+        />
         <button
           type="button"
           onClick={() => removeImageAnalysisResult(result.id)}
@@ -124,6 +176,28 @@ export function ImageResultCard({ result }: ImageResultCardProps) {
 
         {ollamaEnabled && (
           <div className="border-border mt-3 border-t pt-3">
+            {/* per-image 모드: 이미지별 프롬프트 입력 */}
+            {ollamaPromptMode === 'per-image' && (
+              <div className="mb-2">
+                <label
+                  htmlFor={`prompt-${result.id}`}
+                  className="text-muted-foreground mb-1 block text-xs"
+                >
+                  이미지별 프롬프트
+                </label>
+                <textarea
+                  id={`prompt-${result.id}`}
+                  value={localPrompt}
+                  onChange={(e) => {
+                    setHasEdited(true);
+                    setLocalPrompt(e.target.value);
+                  }}
+                  rows={2}
+                  className="bg-background border-border text-foreground focus:ring-ring w-full resize-none rounded-md border px-2 py-1 text-xs focus:outline-none focus:ring-1"
+                />
+              </div>
+            )}
+
             <button
               type="button"
               onClick={handleOllamaAnalyze}
@@ -153,6 +227,8 @@ export function ImageResultCard({ result }: ImageResultCardProps) {
                   </svg>
                   분석 중...
                 </>
+              ) : displayResult ? (
+                '재분석'
               ) : (
                 'AI 상세 분석'
               )}
@@ -162,10 +238,10 @@ export function ImageResultCard({ result }: ImageResultCardProps) {
               <p className="mt-2 text-xs text-red-400">{ollamaError}</p>
             )}
 
-            {ollamaResult && !ollamaError && (
-              <div className="bg-muted/50 mt-2 rounded-md p-2">
+            {displayResult && !ollamaError && (
+              <div ref={resultRef} className="bg-muted/50 mt-2 rounded-md p-2">
                 <p className="text-foreground whitespace-pre-wrap text-xs leading-relaxed">
-                  {ollamaResult}
+                  {displayResult}
                 </p>
               </div>
             )}

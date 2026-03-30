@@ -69,10 +69,21 @@ describe('use-model', () => {
       modelType: 'coco-ssd',
       confidenceThreshold: 0.5,
       bboxColors: {},
+      ollamaEndpoint: 'http://localhost:11434',
+      ollamaModel: 'qwen3-vl:8b',
+      ollamaEnabled: false,
+      ollamaCustomPrompt:
+        '이 이미지에서 보이는 모든 객체와 장면을 한국어로 자세히 설명해주세요.',
+      ollamaPromptMode: 'all' as const,
       setConfidenceThreshold: vi.fn(),
       setBboxColor: vi.fn(),
       resetBboxColors: vi.fn(),
       setModelType: vi.fn(),
+      setOllamaEndpoint: vi.fn(),
+      setOllamaModel: vi.fn(),
+      setOllamaEnabled: vi.fn(),
+      setOllamaCustomPrompt: vi.fn(),
+      setOllamaPromptMode: vi.fn(),
     });
 
     const { useModel } = await import('@/hooks/use-model');
@@ -90,10 +101,21 @@ describe('use-model', () => {
       modelType: 'coco-ssd',
       confidenceThreshold: 0.5,
       bboxColors: {},
+      ollamaEndpoint: 'http://localhost:11434',
+      ollamaModel: 'qwen3-vl:8b',
+      ollamaEnabled: false,
+      ollamaCustomPrompt:
+        '이 이미지에서 보이는 모든 객체와 장면을 한국어로 자세히 설명해주세요.',
+      ollamaPromptMode: 'all' as const,
       setConfidenceThreshold: vi.fn(),
       setBboxColor: vi.fn(),
       resetBboxColors: vi.fn(),
       setModelType: vi.fn(),
+      setOllamaEndpoint: vi.fn(),
+      setOllamaModel: vi.fn(),
+      setOllamaEnabled: vi.fn(),
+      setOllamaCustomPrompt: vi.fn(),
+      setOllamaPromptMode: vi.fn(),
     });
 
     const { useModel } = await import('@/hooks/use-model');
@@ -113,10 +135,21 @@ describe('use-model', () => {
       modelType: 'mediapipe-lite0',
       confidenceThreshold: 0.5,
       bboxColors: {},
+      ollamaEndpoint: 'http://localhost:11434',
+      ollamaModel: 'qwen3-vl:8b',
+      ollamaEnabled: false,
+      ollamaCustomPrompt:
+        '이 이미지에서 보이는 모든 객체와 장면을 한국어로 자세히 설명해주세요.',
+      ollamaPromptMode: 'all' as const,
       setConfidenceThreshold: vi.fn(),
       setBboxColor: vi.fn(),
       resetBboxColors: vi.fn(),
       setModelType: vi.fn(),
+      setOllamaEndpoint: vi.fn(),
+      setOllamaModel: vi.fn(),
+      setOllamaEnabled: vi.fn(),
+      setOllamaCustomPrompt: vi.fn(),
+      setOllamaPromptMode: vi.fn(),
     });
 
     const { useModel } = await import('@/hooks/use-model');
@@ -135,10 +168,21 @@ describe('use-model', () => {
       modelType: 'mediapipe-lite2',
       confidenceThreshold: 0.5,
       bboxColors: {},
+      ollamaEndpoint: 'http://localhost:11434',
+      ollamaModel: 'qwen3-vl:8b',
+      ollamaEnabled: false,
+      ollamaCustomPrompt:
+        '이 이미지에서 보이는 모든 객체와 장면을 한국어로 자세히 설명해주세요.',
+      ollamaPromptMode: 'all' as const,
       setConfidenceThreshold: vi.fn(),
       setBboxColor: vi.fn(),
       resetBboxColors: vi.fn(),
       setModelType: vi.fn(),
+      setOllamaEndpoint: vi.fn(),
+      setOllamaModel: vi.fn(),
+      setOllamaEnabled: vi.fn(),
+      setOllamaCustomPrompt: vi.fn(),
+      setOllamaPromptMode: vi.fn(),
     });
 
     const { useModel } = await import('@/hooks/use-model');
