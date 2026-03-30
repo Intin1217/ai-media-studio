@@ -42,21 +42,20 @@ export function HeroSection() {
       <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-6xl flex-col items-center justify-center px-4 py-20 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
           <h1 className="text-foreground text-4xl font-bold leading-tight tracking-tight md:text-6xl lg:text-7xl">
-            <SplitText text="AI로 영상을 분석하는" delay={0} />
+            <SplitText text="내 컴퓨터에서 실행하는" delay={0} />
             <br />
-            <SplitText text="가장 " delay={400} />
             <SplitText
-              text="스마트한"
-              delay={600}
+              text="프라이빗"
+              delay={400}
               charClassName="from-ai-cyan to-ai-purple bg-gradient-to-r bg-clip-text text-transparent"
             />
-            <SplitText text=" 방법" delay={900} />
+            <SplitText text=" AI 분석" delay={700} />
           </h1>
 
           <p className="hero-subtitle mx-auto mt-6 max-w-2xl text-base leading-relaxed text-gray-400 md:text-lg lg:text-xl dark:text-gray-300">
-            웹캠 하나로 실시간 객체 감지부터 통계 시각화까지,
+            외부 서버 없이, 당신의 데이터는 당신의 컴퓨터에.
             <br className="hidden sm:block" />
-            브라우저에서 모두 해결하세요.
+            웹캠 분석부터 PDF 번역까지 로컬에서.
           </p>
 
           <div
@@ -64,13 +63,13 @@ export function HeroSection() {
             style={{ animationDelay: '1.3s' }}
           >
             <a
-              href="/service"
+              href="#how-it-works"
               className={cn(
                 buttonVariants({ variant: 'default', size: 'lg' }),
                 'w-full px-8 shadow-[0_0_20px_rgba(0,245,255,0.3)] transition-shadow duration-300 hover:shadow-[0_0_40px_rgba(0,245,255,0.5)] sm:w-auto',
               )}
             >
-              지금 시작하기
+              설치 가이드
             </a>
             <a
               href="#features"
@@ -106,7 +105,7 @@ export function HeroSection() {
                 aria-hidden="true"
               />
               <span className="text-muted-foreground ml-3 text-xs">
-                AI Media Studio — 실시간 분석
+                AI Media Studio — 로컬 AI 분석
               </span>
             </div>
             {/* 프레임 내용 */}

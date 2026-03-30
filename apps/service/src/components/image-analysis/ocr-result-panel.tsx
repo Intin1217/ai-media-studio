@@ -73,7 +73,7 @@ export function OcrResultPanel({
           type="button"
           onClick={handleOcrRun}
           disabled={loading}
-          className="flex items-center gap-1.5 rounded-md bg-violet-500/10 px-3 py-1.5 text-xs font-medium text-violet-400 transition-colors hover:bg-violet-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex items-center gap-1.5 rounded-md bg-emerald-500/10 px-3 py-1.5 text-xs font-medium text-emerald-400 transition-colors hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {loading ? (
             <>
@@ -107,7 +107,7 @@ export function OcrResultPanel({
           <button
             type="button"
             onClick={handleCopy}
-            className="rounded-md bg-violet-500/10 px-3 py-1.5 text-xs font-medium text-violet-400 transition-colors hover:bg-violet-500/20"
+            className="rounded-md bg-emerald-500/10 px-3 py-1.5 text-xs font-medium text-emerald-400 transition-colors hover:bg-emerald-500/20"
           >
             {copied ? '복사됨' : '복사'}
           </button>

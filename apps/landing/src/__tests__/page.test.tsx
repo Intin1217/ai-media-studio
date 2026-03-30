@@ -48,7 +48,7 @@ describe('LandingPage', () => {
       render(<LandingPage />);
       const h1 = screen.getByRole('heading', { level: 1 });
       expect(h1).toBeInTheDocument();
-      expect(h1).toHaveTextContent('AI로 영상을 분석하는');
+      expect(h1).toHaveTextContent('내 컴퓨터에서 실행하는');
     });
   });
 
@@ -78,7 +78,7 @@ describe('LandingPage', () => {
       // CtaSection은 id가 없으므로 고유 heading 텍스트로 확인
       expect(
         screen.getByRole('heading', {
-          name: '지금 바로 AI 분석을 경험해 보세요',
+          name: '지금 내 컴퓨터에 설치해 보세요',
         }),
       ).toBeInTheDocument();
     });
@@ -126,9 +126,9 @@ describe('LandingPage', () => {
   });
 
   describe('CTA 버튼 접근성', () => {
-    it('"지금 시작하기" CTA 링크가 존재한다', () => {
+    it('"설치 가이드" CTA 링크가 존재한다', () => {
       render(<LandingPage />);
-      const ctaLinks = screen.getAllByRole('link', { name: /지금 시작하기/i });
+      const ctaLinks = screen.getAllByRole('link', { name: /설치 가이드/i });
       expect(ctaLinks.length).toBeGreaterThanOrEqual(1);
     });
 
@@ -138,10 +138,10 @@ describe('LandingPage', () => {
       expect(link).toHaveAttribute('href', '#features');
     });
 
-    it('"무료로 시작하기" CTA 링크가 존재한다', () => {
+    it('"GitHub에서 설치하기" CTA 링크가 존재한다', () => {
       render(<LandingPage />);
       expect(
-        screen.getByRole('link', { name: '무료로 시작하기' }),
+        screen.getByRole('link', { name: 'GitHub에서 설치하기' }),
       ).toBeInTheDocument();
     });
   });

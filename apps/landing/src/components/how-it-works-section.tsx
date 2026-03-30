@@ -3,21 +3,20 @@ import { ScrollReveal } from './scroll-reveal';
 const STEPS = [
   {
     number: 1,
-    title: '웹캠 연결',
+    title: '설치',
     description:
-      '브라우저에서 카메라 접근을 허용하면 준비 완료. 별도 설치가 필요 없습니다.',
+      'Docker 또는 Node.js로 프로젝트를 설치합니다. 3분이면 충분합니다.',
   },
   {
     number: 2,
-    title: 'AI 분석 시작',
-    description:
-      '시작 버튼을 누르면 TensorFlow.js가 실시간으로 객체를 감지합니다.',
+    title: '실행',
+    description: 'docker compose up 또는 pnpm dev로 로컬 서버를 시작합니다.',
   },
   {
     number: 3,
-    title: '결과 확인',
+    title: '분석',
     description:
-      '감지 결과가 영상 위에 오버레이되고, 실시간 통계 차트로 시각화됩니다.',
+      'localhost:3000에서 웹캠 분석, 이미지 감지, PDF 번역을 시작합니다.',
   },
 ] as const;
 
