@@ -30,6 +30,7 @@ export function ModelLoader() {
   const modelStatus = useDetectionStore((s) => s.modelStatus);
   const modelType = useSettingsStore((s) => s.modelType);
   const setModelType = useSettingsStore((s) => s.setModelType);
+  const ollamaEnabled = useSettingsStore((s) => s.ollamaEnabled);
 
   const selectedOption = MODEL_OPTIONS.find((o) => o.value === modelType) ?? {
     value: 'mediapipe-lite0' as ModelType,
@@ -38,13 +39,16 @@ export function ModelLoader() {
   };
 
   const modelSelector = (
-    <div className="border-border bg-card rounded-lg border p-3">
+    <div
+      className={`border-border bg-card rounded-lg border p-3${ollamaEnabled ? 'pointer-events-none opacity-50' : ''}`}
+    >
       <label className="text-muted-foreground mb-2 block text-xs font-medium">
         브라우저 AI 모델 선택
       </label>
       <select
         value={modelType}
         onChange={(e) => setModelType(e.target.value as ModelType)}
+        disabled={ollamaEnabled}
         className="bg-background border-border text-foreground focus:ring-ring w-full rounded-md border px-3 py-1.5 text-sm focus:outline-none focus:ring-1"
       >
         {MODEL_OPTIONS.map((opt) => (
@@ -56,6 +60,11 @@ export function ModelLoader() {
       <p className="text-muted-foreground mt-1.5 text-xs">
         {selectedOption.description}
       </p>
+      {ollamaEnabled && (
+        <p className="text-muted-foreground text-xs">
+          로컬 AI 사용 중에는 브라우저 모델을 변경할 수 없습니다
+        </p>
+      )}
     </div>
   );
 
