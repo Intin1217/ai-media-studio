@@ -1,4 +1,9 @@
-import { db, type DetectionLog, type SessionInfo } from './db';
+import {
+  db,
+  type DetectionLog,
+  type FaceAnalysisLog,
+  type SessionInfo,
+} from './db';
 
 export async function saveDetectionLog(
   log: Omit<DetectionLog, 'id'>,
@@ -62,4 +67,18 @@ export async function getSessions(limit = 10): Promise<SessionInfo[]> {
 export async function clearAllHistory(): Promise<void> {
   await db.detectionLogs.clear();
   await db.sessions.clear();
+  await db.faceAnalysisLogs.clear();
+}
+
+export async function saveFaceAnalysisLog(log: FaceAnalysisLog): Promise<void> {
+  await db.faceAnalysisLogs.add(log);
+}
+
+export async function getFaceAnalysisLogs(
+  sessionId: string,
+): Promise<FaceAnalysisLog[]> {
+  return db.faceAnalysisLogs
+    .where('sessionId')
+    .equals(sessionId)
+    .sortBy('timestamp');
 }
