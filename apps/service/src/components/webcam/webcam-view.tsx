@@ -36,21 +36,32 @@ export function WebcamView() {
   // ghost overlay가 발생하지 않음. 결과가 없으면 clearRect로 이전 프레임 소거.
   useEffect(() => {
     const faceCanvas = faceCanvasRef.current;
-    const mainCanvas = canvasRef.current;
-    if (!faceCanvas || !mainCanvas) return;
-
-    // face canvas 크기를 메인 canvas에 동기화
-    faceCanvas.width = mainCanvas.width;
-    faceCanvas.height = mainCanvas.height;
+    if (!faceCanvas) return;
 
     const ctx = faceCanvas.getContext('2d');
     if (!ctx) return;
+
+    // mainCanvas가 아직 크기 0이면 video 실제 해상도로 fallback — 버그 2 수정
+    // mainCanvas는 useDetector의 rAF 루프에서 크기가 설정되므로
+    // faceAnalysisResults 변경 시점에 아직 0일 수 있음
+    const mainCanvas = canvasRef.current;
+    const width =
+      (mainCanvas && mainCanvas.width > 0 ? mainCanvas.width : null) ??
+      videoRef.current?.videoWidth ??
+      640;
+    const height =
+      (mainCanvas && mainCanvas.height > 0 ? mainCanvas.height : null) ??
+      videoRef.current?.videoHeight ??
+      480;
+
+    if (faceCanvas.width !== width) faceCanvas.width = width;
+    if (faceCanvas.height !== height) faceCanvas.height = height;
 
     ctx.clearRect(0, 0, faceCanvas.width, faceCanvas.height);
     if (faceAnalysisResults.length > 0) {
       drawFaceOverlay(ctx, faceAnalysisResults);
     }
-  }, [faceAnalysisResults]);
+  }, [faceAnalysisResults, videoRef]);
 
   // VideoControls가 토글할 때 ref를 직접 업데이트
   const handleToggleDetections = useCallback((show: boolean) => {

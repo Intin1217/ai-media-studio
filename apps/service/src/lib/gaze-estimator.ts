@@ -56,8 +56,8 @@ export function estimateHeadPose(
  * 시선이 카메라를 향하고 있는지 판단합니다.
  *
  * @param pose - estimateHeadPose의 반환값
- * @param threshold - yaw/pitch 허용 범위 (도), 기본값 15
+ * @param threshold - yaw/pitch 허용 범위 (도), 기본값 20
  */
-export function isLookingAtCamera(pose: HeadPose, threshold = 15): boolean {
+export function isLookingAtCamera(pose: HeadPose, threshold = 20): boolean {
   return Math.abs(pose.yaw) <= threshold && Math.abs(pose.pitch) <= threshold;
 }
