@@ -67,6 +67,7 @@ export async function getSessions(limit = 10): Promise<SessionInfo[]> {
 export async function clearAllHistory(): Promise<void> {
   await db.detectionLogs.clear();
   await db.sessions.clear();
+  await db.faceAnalysisLogs.clear();
 }
 
 export async function saveFaceAnalysisLog(log: FaceAnalysisLog): Promise<void> {

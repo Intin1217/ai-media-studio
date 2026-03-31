@@ -33,7 +33,7 @@ export function PdfTranslationOverlay({
 
         return (
           <div
-            key={`${block.x}-${block.y}-${block.originalText.slice(0, 20)}`}
+            key={`block-${_index}-${block.x}-${block.y}`}
             className="group pointer-events-auto absolute"
             style={{
               left: block.x * scale,

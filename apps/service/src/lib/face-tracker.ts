@@ -39,15 +39,8 @@ interface TrackState {
 
 const SMOOTHING_WINDOW = 20;
 const STALE_TIMEOUT = 3000;
-const MAX_MISSED_FRAMES = 3;
 const TRACKING_DISTANCE_THRESHOLD = 100;
 const MIN_LANDMARKS_FOR_GAZE = 68;
-
-let idCounter = 0;
-
-function generateId(): string {
-  return `face-${++idCounter}-${Date.now()}`;
-}
 
 function bboxCenter(bbox: {
   x: number;
@@ -89,6 +82,11 @@ function computeIsLooking(landmarks: { x: number; y: number }[]): boolean {
 
 export class FaceTracker {
   private tracks: Map<string, TrackState> = new Map();
+  private idCounter = 0;
+
+  private generateId(): string {
+    return `face-${++this.idCounter}-${Date.now()}`;
+  }
 
   update(faces: RawFaceDetection[], timestamp: number): TrackedFace[] {
     // 1. 기존 stale 트랙 제거 (STALE_TIMEOUT 초과)
@@ -135,17 +133,12 @@ export class FaceTracker {
 
       const isLooking = computeIsLooking(face.landmarks);
 
-      // 응시 시간 누적
-      let gazeTime = track.gazeTime;
-      if (isLooking) {
-        if (track.lastGazeStart === null) {
-          track.lastGazeStart = track.lastSeen;
-        }
-        gazeTime = track.gazeTime + (timestamp - track.lastGazeStart);
-        track.lastGazeStart = timestamp;
-      } else {
-        track.lastGazeStart = null;
-      }
+      // 응시 시간 누적 (track 직접 mutation 없이 새 값으로 계산)
+      const gazeStartForCalc = track.lastGazeStart ?? track.lastSeen;
+      const newGazeTime = isLooking
+        ? track.gazeTime + (timestamp - gazeStartForCalc)
+        : track.gazeTime;
+      const newLastGazeStart = isLooking ? timestamp : null;
 
       // 이동평균 히스토리 업데이트
       const ageHistory = [...track.ageHistory, face.age].slice(
@@ -166,31 +159,20 @@ export class FaceTracker {
         isLooking,
         lastSeen: timestamp,
         missedFrames: 0,
-        gazeTime,
+        gazeTime: newGazeTime,
+        lastGazeStart: newLastGazeStart,
       });
     }
 
-    // 5. 매칭 안 된 기존 트랙 — missedFrames 증가
+    // 5. 매칭 안 된 기존 트랙 — missedFrames 증가 (STALE_TIMEOUT에서 자연 제거됨)
     for (const track of activeTracks) {
       if (!matched.has(track.trackingId)) {
-        const newMissed = track.missedFrames + 1;
-        if (newMissed > MAX_MISSED_FRAMES) {
-          // MAX_MISSED_FRAMES 초과 시 제거 (STALE_TIMEOUT으로도 제거되지만 즉시 처리)
-          // 여기서는 lastSeen을 갱신하지 않아 STALE_TIMEOUT에서 자연 제거됨
-          this.tracks.set(track.trackingId, {
-            ...track,
-            missedFrames: newMissed,
-            isLooking: false,
-            lastGazeStart: null,
-          });
-        } else {
-          this.tracks.set(track.trackingId, {
-            ...track,
-            missedFrames: newMissed,
-            isLooking: false,
-            lastGazeStart: null,
-          });
-        }
+        this.tracks.set(track.trackingId, {
+          ...track,
+          missedFrames: track.missedFrames + 1,
+          isLooking: false,
+          lastGazeStart: null,
+        });
       }
     }
 
@@ -199,7 +181,7 @@ export class FaceTracker {
       if (usedFaceIndices.has(i)) continue;
       const face = faces[i]!;
       const isLooking = computeIsLooking(face.landmarks);
-      const newId = generateId();
+      const newId = this.generateId();
       this.tracks.set(newId, {
         trackingId: newId,
         bbox: face.bbox,

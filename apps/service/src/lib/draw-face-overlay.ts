@@ -1,15 +1,6 @@
-export interface TrackedFace {
-  trackingId: string;
-  bbox: { x: number; y: number; width: number; height: number };
-  age: number;
-  smoothedAge: number;
-  gender: 'male' | 'female';
-  smoothedGender: 'male' | 'female';
-  genderProbability: number;
-  isLooking: boolean;
-  presenceTime: number; // ms
-  gazeTime: number; // ms
-}
+import type { TrackedFace } from './face-tracker';
+
+export type { TrackedFace };
 
 export function formatTime(ms: number): string {
   const totalSeconds = Math.floor(ms / 1000);
@@ -58,7 +49,7 @@ export function drawFaceOverlay(
       PADDING * 2;
     const labelHeight = lines.length * LINE_HEIGHT + PADDING * 2;
     const labelX = x;
-    const labelY = y - labelHeight;
+    const labelY = y >= labelHeight ? y - labelHeight : y + height;
 
     ctx.fillStyle = LABEL_BG;
     ctx.fillRect(labelX, labelY, labelWidth, labelHeight);

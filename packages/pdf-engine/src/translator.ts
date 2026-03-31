@@ -58,14 +58,16 @@ async function translateBatchWithRetry(
 
       const decoder = new TextDecoder();
       let fullResponse = '';
+      let buffer = '';
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
 
-        const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split('\n').filter(Boolean);
-        for (const line of lines) {
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() ?? ''; // 마지막 불완전 라인 보관
+        for (const line of lines.filter(Boolean)) {
           try {
             const parsed = JSON.parse(line) as {
               response?: string;
@@ -75,7 +77,7 @@ async function translateBatchWithRetry(
               fullResponse += parsed.response;
             }
           } catch {
-            // 불완전한 JSON 무시
+            // 실제 불량 JSON만 무시
           }
         }
       }

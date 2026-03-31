@@ -2,19 +2,7 @@
 
 import { create } from 'zustand';
 import type { Detection } from '@ai-media-studio/media-utils';
-
-interface TrackedFace {
-  trackingId: string;
-  bbox: { x: number; y: number; width: number; height: number };
-  age: number;
-  smoothedAge: number;
-  gender: 'male' | 'female';
-  smoothedGender: 'male' | 'female';
-  genderProbability: number;
-  isLooking: boolean;
-  presenceTime: number;
-  gazeTime: number;
-}
+import type { TrackedFace } from '@/lib/face-tracker';
 
 type ModelStatus = 'idle' | 'loading' | 'ready' | 'error';
 type WebcamStatus = 'idle' | 'requesting' | 'active' | 'denied' | 'error';

@@ -3,7 +3,7 @@ import { useSettingsStore } from '@/stores/settings-store';
 import { useDetectionStore } from '@/stores/detection-store';
 import { FaceTracker } from '@/lib/face-tracker';
 import type { RawFaceDetection } from '@/lib/face-tracker';
-import { drawFaceOverlay } from '@/lib/draw-face-overlay';
+import { saveFaceAnalysisLog } from '@/lib/detection-history';
 
 import type * as faceApiType from 'face-api.js';
 type FaceApiModule = typeof faceApiType;
@@ -17,29 +17,32 @@ async function loadFaceApi(): Promise<FaceApiModule> {
   if (loadingPromise) return loadingPromise;
 
   loadingPromise = (async () => {
-    const faceapi = await import('face-api.js');
-    await Promise.all([
-      faceapi.nets.ssdMobilenetv1.loadFromUri('/models/face-api'),
-      faceapi.nets.ageGenderNet.loadFromUri('/models/face-api'),
-      faceapi.nets.faceLandmark68Net.loadFromUri('/models/face-api'),
-    ]);
-    faceApiModule = faceapi;
-    modelsLoaded = true;
-    return faceapi;
+    try {
+      const faceapi = await import('face-api.js');
+      await Promise.all([
+        faceapi.nets.ssdMobilenetv1.loadFromUri('/models/face-api'),
+        faceapi.nets.ageGenderNet.loadFromUri('/models/face-api'),
+        faceapi.nets.faceLandmark68Net.loadFromUri('/models/face-api'),
+      ]);
+      faceApiModule = faceapi;
+      modelsLoaded = true;
+      return faceapi;
+    } catch (error) {
+      loadingPromise = null;
+      throw error;
+    }
   })();
 
   return loadingPromise;
 }
 
+const LOG_INTERVAL_MS = 5000;
+
 interface UseFaceAnalysisOptions {
   videoRef: React.RefObject<HTMLVideoElement | null>;
-  canvasRef: React.RefObject<HTMLCanvasElement | null>;
 }
 
-export function useFaceAnalysis({
-  videoRef,
-  canvasRef,
-}: UseFaceAnalysisOptions): void {
+export function useFaceAnalysis({ videoRef }: UseFaceAnalysisOptions): void {
   const enabled = useSettingsStore((s) => s.faceAnalysisEnabled);
   const setFaceResults = useDetectionStore((s) => s.setFaceAnalysisResults);
 
@@ -47,6 +50,7 @@ export function useFaceAnalysis({
   const rafRef = useRef<number>(0);
   const isRunningRef = useRef(false);
   const faceApiRef = useRef<FaceApiModule | null>(null);
+  const lastLogTimeRef = useRef<number>(0);
 
   const detect = useCallback(async () => {
     if (!isRunningRef.current || !videoRef.current || !faceApiRef.current)
@@ -81,24 +85,45 @@ export function useFaceAnalysis({
         landmarks: d.landmarks.positions.map((p) => ({ x: p.x, y: p.y })),
       }));
 
-      const tracked = trackerRef.current.update(rawFaces, performance.now());
+      const now = performance.now();
+      const tracked = trackerRef.current.update(rawFaces, now);
       setFaceResults(tracked);
 
-      const canvas = canvasRef.current;
-      if (canvas) {
-        const ctx = canvas.getContext('2d');
-        if (ctx) {
-          drawFaceOverlay(ctx, tracked);
-        }
+      // 5초 간격으로 감지된 각 얼굴을 DB 저장
+      if (
+        tracked.length > 0 &&
+        now - lastLogTimeRef.current >= LOG_INTERVAL_MS
+      ) {
+        lastLogTimeRef.current = now;
+        const logTimestamp = Date.now();
+        Promise.all(
+          tracked.map((f) =>
+            saveFaceAnalysisLog({
+              sessionId: 'face-analysis',
+              timestamp: logTimestamp,
+              trackingId: f.trackingId,
+              gender: f.smoothedGender,
+              age: Math.round(f.smoothedAge),
+              presenceTime: f.presenceTime,
+              gazeTime: f.gazeTime,
+            }),
+          ),
+        ).catch((error: unknown) => {
+          if (process.env.NODE_ENV === 'development') {
+            console.warn('[face-analysis] DB 저장 실패:', error);
+          }
+        });
       }
-    } catch {
-      // 추론 실패 시 무시하고 다음 프레임
+    } catch (error) {
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('[face-analysis] 추론 실패:', error);
+      }
     }
 
     if (isRunningRef.current) {
       rafRef.current = requestAnimationFrame(detect);
     }
-  }, [videoRef, canvasRef, setFaceResults]);
+  }, [videoRef, setFaceResults]);
 
   useEffect(() => {
     if (!enabled) {
@@ -111,12 +136,18 @@ export function useFaceAnalysis({
 
     let cancelled = false;
 
-    loadFaceApi().then((faceapi) => {
-      if (cancelled) return;
-      faceApiRef.current = faceapi;
-      isRunningRef.current = true;
-      detect();
-    });
+    loadFaceApi()
+      .then((faceapi) => {
+        if (cancelled) return;
+        faceApiRef.current = faceapi;
+        isRunningRef.current = true;
+        detect();
+      })
+      .catch((error: unknown) => {
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('[face-analysis] 모델 로드 실패:', error);
+        }
+      });
 
     return () => {
       cancelled = true;

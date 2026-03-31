@@ -1,10 +1,11 @@
 'use client';
 
-import { useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useWebcam } from '@/hooks/use-webcam';
 import { useDetector } from '@/hooks/use-detector';
 import { useFaceAnalysis } from '@/hooks/use-face-analysis';
 import { useDetectionStore } from '@/stores/detection-store';
+import { drawFaceOverlay } from '@/lib/draw-face-overlay';
 import { VideoControls } from '@/components/detection/video-controls';
 import { WebcamStatus } from './webcam-status';
 
@@ -15,6 +16,7 @@ export function WebcamView() {
   // useState 대신 useRef를 쓰는 이유: 리렌더링 없이 즉시 반영 (rerender-use-ref-transient-values)
   const showDetectionsRef = useRef<boolean>(true);
   const webcamStatus = useDetectionStore((s) => s.webcamStatus);
+  const faceAnalysisResults = useDetectionStore((s) => s.faceAnalysisResults);
   const { start, stop } = useWebcam(videoRef);
 
   useDetector(
@@ -24,7 +26,17 @@ export function WebcamView() {
     showDetectionsRef,
   );
 
-  useFaceAnalysis({ videoRef, canvasRef });
+  useFaceAnalysis({ videoRef });
+
+  // faceAnalysisResults 변경 시 Canvas에 얼굴 오버레이 그리기
+  // useDetector의 renderLoop과 충돌하지 않도록 별도 useEffect에서 처리
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    drawFaceOverlay(ctx, faceAnalysisResults);
+  }, [faceAnalysisResults]);
 
   // VideoControls가 토글할 때 ref를 직접 업데이트
   const handleToggleDetections = useCallback((show: boolean) => {

@@ -40,7 +40,7 @@ export function ModelLoader() {
 
   const modelSelector = (
     <div
-      className={`border-border bg-card rounded-lg border p-3${ollamaEnabled ? 'pointer-events-none opacity-50' : ''}`}
+      className={`border-border bg-card rounded-lg border p-3 ${ollamaEnabled ? 'pointer-events-none opacity-50' : ''}`}
     >
       <label className="text-muted-foreground mb-2 block text-xs font-medium">
         브라우저 AI 모델 선택
