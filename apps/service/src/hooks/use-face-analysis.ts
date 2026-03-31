@@ -47,7 +47,9 @@ interface UseFaceAnalysisOptions {
 }
 
 export function useFaceAnalysis({ videoRef }: UseFaceAnalysisOptions): void {
-  const enabled = useSettingsStore((s) => s.faceAnalysisEnabled);
+  const faceAnalysisEnabled = useSettingsStore((s) => s.faceAnalysisEnabled);
+  const webcamStatus = useDetectionStore((s) => s.webcamStatus);
+  const enabled = faceAnalysisEnabled && webcamStatus === 'active';
   const setFaceResults = useDetectionStore((s) => s.setFaceAnalysisResults);
 
   const trackerRef = useRef(new FaceTracker());
