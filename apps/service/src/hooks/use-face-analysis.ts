@@ -36,7 +36,6 @@ async function loadFaceApi(): Promise<FaceApiModule> {
   return loadingPromise;
 }
 
-const LOG_INTERVAL_MS = 5000;
 // 초당 5회로 감지 횟수 제한 — face-api.js는 COCO-SSD보다 무거워 rAF마다 실행 시 CPU 과부하
 const DETECTION_INTERVAL_MS = 200;
 // 추론 입력 크기 — 320×240으로 축소해 추론 속도 향상, 좌표는 스케일 복원
@@ -55,7 +54,6 @@ export function useFaceAnalysis({ videoRef }: UseFaceAnalysisOptions): void {
   const rafRef = useRef<number>(0);
   const isRunningRef = useRef(false);
   const faceApiRef = useRef<FaceApiModule | null>(null);
-  const lastLogTimeRef = useRef<number>(0);
   const lastDetectionTimeRef = useRef<number>(0);
   // 리사이즈용 offscreen canvas — 매 프레임마다 생성 방지
   const resizeCanvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -148,29 +146,23 @@ export function useFaceAnalysis({ videoRef }: UseFaceAnalysisOptions): void {
         }));
 
         const timestamp = performance.now();
-        const tracked = trackerRef.current.update(rawFaces, timestamp);
-        setFaceResults(tracked);
+        const { activeFaces, completedFaces } = trackerRef.current.update(
+          rawFaces,
+          timestamp,
+        );
+        setFaceResults(activeFaces);
 
-        // 5초 간격으로 감지된 각 얼굴을 DB 저장
-        if (
-          tracked.length > 0 &&
-          timestamp - lastLogTimeRef.current >= LOG_INTERVAL_MS
-        ) {
-          lastLogTimeRef.current = timestamp;
-          const logTimestamp = Date.now();
-          Promise.all(
-            tracked.map((f) =>
-              saveFaceAnalysisLog({
-                sessionId: sessionIdRef.current,
-                timestamp: logTimestamp,
-                trackingId: f.trackingId,
-                gender: f.smoothedGender,
-                age: Math.round(f.smoothedAge),
-                presenceTime: f.presenceTime,
-                gazeTime: f.gazeTime,
-              }),
-            ),
-          ).catch((error: unknown) => {
+        // 트래킹이 종료된 얼굴만 DB에 저장 (동일 인물 = 1건)
+        for (const face of completedFaces) {
+          saveFaceAnalysisLog({
+            sessionId: sessionIdRef.current,
+            timestamp: Date.now(),
+            trackingId: face.trackingId,
+            gender: face.smoothedGender,
+            age: Math.round(face.smoothedAge),
+            presenceTime: face.presenceTime,
+            gazeTime: face.gazeTime,
+          }).catch((error: unknown) => {
             if (process.env.NODE_ENV === 'development') {
               console.warn('[face-analysis] DB 저장 실패:', error);
             }
@@ -193,7 +185,23 @@ export function useFaceAnalysis({ videoRef }: UseFaceAnalysisOptions): void {
     if (!enabled) {
       isRunningRef.current = false;
       cancelAnimationFrame(rafRef.current);
-      trackerRef.current.reset();
+      // 비활성화 시 현재 활성 트랙을 저장 후 초기화
+      const remaining = trackerRef.current.reset();
+      for (const face of remaining) {
+        saveFaceAnalysisLog({
+          sessionId: sessionIdRef.current,
+          timestamp: Date.now(),
+          trackingId: face.trackingId,
+          gender: face.smoothedGender,
+          age: Math.round(face.smoothedAge),
+          presenceTime: face.presenceTime,
+          gazeTime: face.gazeTime,
+        }).catch((error: unknown) => {
+          if (process.env.NODE_ENV === 'development') {
+            console.warn('[face-analysis] DB 저장 실패(cleanup):', error);
+          }
+        });
+      }
       setFaceResults([]);
       return;
     }
@@ -213,10 +221,32 @@ export function useFaceAnalysis({ videoRef }: UseFaceAnalysisOptions): void {
         }
       });
 
+    // cleanup 내부에서 ref.current를 직접 참조하면 ESLint react-hooks/exhaustive-deps 경고 발생
+    // — effect 실행 시점에 지역 변수로 캡처하여 cleanup에서 안전하게 사용
+    const tracker = trackerRef.current;
+    const sessionId = sessionIdRef.current;
+
     return () => {
       cancelled = true;
       isRunningRef.current = false;
       cancelAnimationFrame(rafRef.current);
+      // unmount 또는 enabled 재설정 시 현재 활성 트랙 저장
+      const remaining = tracker.reset();
+      for (const face of remaining) {
+        saveFaceAnalysisLog({
+          sessionId,
+          timestamp: Date.now(),
+          trackingId: face.trackingId,
+          gender: face.smoothedGender,
+          age: Math.round(face.smoothedAge),
+          presenceTime: face.presenceTime,
+          gazeTime: face.gazeTime,
+        }).catch((error: unknown) => {
+          if (process.env.NODE_ENV === 'development') {
+            console.warn('[face-analysis] DB 저장 실패(cleanup):', error);
+          }
+        });
+      }
     };
   }, [enabled, setFaceResults]);
 }

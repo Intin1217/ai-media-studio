@@ -10,7 +10,7 @@ describe('FaceTracker', () => {
 
   describe('tracking ID 부여', () => {
     it('첫 감지 시 새 ID를 부여한다', () => {
-      const faces = tracker.update(
+      const { activeFaces } = tracker.update(
         [
           {
             bbox: { x: 100, y: 100, width: 50, height: 50 },
@@ -22,8 +22,8 @@ describe('FaceTracker', () => {
         ],
         0,
       );
-      expect(faces).toHaveLength(1);
-      expect(faces[0]!.trackingId).toBeDefined();
+      expect(activeFaces).toHaveLength(1);
+      expect(activeFaces[0]!.trackingId).toBeDefined();
     });
 
     it('비슷한 위치의 얼굴은 같은 ID를 유지한다', () => {
@@ -41,8 +41,8 @@ describe('FaceTracker', () => {
         genderProbability: 0.85,
         landmarks: [],
       };
-      const result1 = tracker.update([face1], 0);
-      const result2 = tracker.update([face2], 100);
+      const { activeFaces: result1 } = tracker.update([face1], 0);
+      const { activeFaces: result2 } = tracker.update([face2], 100);
       expect(result2[0]!.trackingId).toBe(result1[0]!.trackingId);
     });
 
@@ -61,8 +61,8 @@ describe('FaceTracker', () => {
         genderProbability: 0.95,
         landmarks: [],
       };
-      const result1 = tracker.update([face1], 0);
-      const result2 = tracker.update([face2], 100);
+      const { activeFaces: result1 } = tracker.update([face1], 0);
+      const { activeFaces: result2 } = tracker.update([face2], 100);
       expect(result2[0]!.trackingId).not.toBe(result1[0]!.trackingId);
     });
   });
@@ -78,7 +78,10 @@ describe('FaceTracker', () => {
       for (let i = 0; i < 20; i++) {
         tracker.update([{ ...baseFace, age: 25 }], i * 33);
       }
-      const result = tracker.update([{ ...baseFace, age: 35 }], 21 * 33);
+      const { activeFaces: result } = tracker.update(
+        [{ ...baseFace, age: 35 }],
+        21 * 33,
+      );
       expect(result[0]!.smoothedAge).toBeLessThan(28);
       expect(result[0]!.smoothedAge).toBeGreaterThan(24);
     });
@@ -101,7 +104,7 @@ describe('FaceTracker', () => {
           i * 33,
         );
       }
-      const result = tracker.update(
+      const { activeFaces: result } = tracker.update(
         [{ ...baseFace, gender: 'female' as const, genderProbability: 0.6 }],
         20 * 33,
       );
@@ -120,7 +123,7 @@ describe('FaceTracker', () => {
       };
       tracker.update([face], 0);
       tracker.update([face], 500);
-      const result = tracker.update([face], 1000);
+      const { activeFaces: result } = tracker.update([face], 1000);
       expect(result[0]!.presenceTime).toBe(1000);
     });
 
@@ -136,7 +139,7 @@ describe('FaceTracker', () => {
       tracker.update([face], 100);
       tracker.update([], 200);
       tracker.update([], 300);
-      const result = tracker.update([face], 400);
+      const { activeFaces: result } = tracker.update([face], 400);
       expect(result[0]!.presenceTime).toBe(400);
     });
 
@@ -148,11 +151,11 @@ describe('FaceTracker', () => {
         genderProbability: 0.9,
         landmarks: [],
       };
-      const result1 = tracker.update([face], 0);
+      const { activeFaces: result1 } = tracker.update([face], 0);
       for (let t = 1000; t <= 5000; t += 1000) {
         tracker.update([], t);
       }
-      const result2 = tracker.update([face], 6000);
+      const { activeFaces: result2 } = tracker.update([face], 6000);
       expect(result2[0]!.trackingId).not.toBe(result1[0]!.trackingId);
       expect(result2[0]!.presenceTime).toBe(0);
     });
@@ -169,8 +172,67 @@ describe('FaceTracker', () => {
       };
       tracker.update([face], 0);
       tracker.reset();
-      const result = tracker.update([face], 100);
+      const { activeFaces: result } = tracker.update([face], 100);
       expect(result[0]!.presenceTime).toBe(0);
+    });
+
+    it('reset()은 현재 활성 트랙을 반환한다', () => {
+      const face = {
+        bbox: { x: 100, y: 100, width: 50, height: 50 },
+        age: 25,
+        gender: 'male' as const,
+        genderProbability: 0.9,
+        landmarks: [],
+      };
+      tracker.update([face], 0);
+      const remaining = tracker.reset();
+      expect(remaining).toHaveLength(1);
+      expect(remaining[0]!.trackingId).toBeDefined();
+    });
+
+    it('reset() 후 tracker는 빈 상태가 된다', () => {
+      const face = {
+        bbox: { x: 100, y: 100, width: 50, height: 50 },
+        age: 25,
+        gender: 'male' as const,
+        genderProbability: 0.9,
+        landmarks: [],
+      };
+      tracker.update([face], 0);
+      tracker.reset();
+      const { activeFaces } = tracker.update([], 100);
+      expect(activeFaces).toHaveLength(0);
+    });
+  });
+
+  describe('completedFaces', () => {
+    it('stale 판정된 트랙은 completedFaces에 포함된다', () => {
+      const face = {
+        bbox: { x: 100, y: 100, width: 50, height: 50 },
+        age: 25,
+        gender: 'male' as const,
+        genderProbability: 0.9,
+        landmarks: [],
+      };
+      const { activeFaces: initial } = tracker.update([face], 0);
+      const initialId = initial[0]!.trackingId;
+      // STALE_TIMEOUT(3000ms) 초과
+      const { completedFaces } = tracker.update([], 5000);
+      expect(completedFaces).toHaveLength(1);
+      expect(completedFaces[0]!.trackingId).toBe(initialId);
+    });
+
+    it('활성 트랙은 completedFaces에 포함되지 않는다', () => {
+      const face = {
+        bbox: { x: 100, y: 100, width: 50, height: 50 },
+        age: 25,
+        gender: 'male' as const,
+        genderProbability: 0.9,
+        landmarks: [],
+      };
+      tracker.update([face], 0);
+      const { completedFaces } = tracker.update([face], 100);
+      expect(completedFaces).toHaveLength(0);
     });
   });
 });

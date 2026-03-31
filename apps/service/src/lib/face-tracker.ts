@@ -88,10 +88,30 @@ export class FaceTracker {
     return `face-${++this.idCounter}-${Date.now()}`;
   }
 
-  update(faces: RawFaceDetection[], timestamp: number): TrackedFace[] {
-    // 1. 기존 stale 트랙 제거 (STALE_TIMEOUT 초과)
+  private toTrackedFace(track: TrackState): TrackedFace {
+    return {
+      trackingId: track.trackingId,
+      bbox: track.bbox,
+      age: track.age,
+      smoothedAge: computeSmoothedAge(track.ageHistory),
+      gender: track.gender,
+      smoothedGender: computeSmoothedGender(track.genderHistory),
+      genderProbability: track.genderProbability,
+      isLooking: track.isLooking,
+      presenceTime: track.lastSeen - track.firstSeen,
+      gazeTime: track.gazeTime,
+    };
+  }
+
+  update(
+    faces: RawFaceDetection[],
+    timestamp: number,
+  ): { activeFaces: TrackedFace[]; completedFaces: TrackedFace[] } {
+    // 1. 기존 stale 트랙 제거 (STALE_TIMEOUT 초과) — 제거된 트랙은 completedFaces에 수집
+    const completedFaces: TrackedFace[] = [];
     for (const [id, track] of this.tracks) {
       if (timestamp - track.lastSeen > STALE_TIMEOUT) {
+        completedFaces.push(this.toTrackedFace(track));
         this.tracks.delete(id);
       }
     }
@@ -199,29 +219,21 @@ export class FaceTracker {
       });
     }
 
-    // 7. 결과 반환 — 현재 프레임에서 감지된 트랙(missedFrames === 0)만 반환
-    const result: TrackedFace[] = [];
+    // 7. 결과 반환 — 현재 프레임에서 감지된 트랙(missedFrames === 0)만 activeFaces에 포함
+    const activeFaces: TrackedFace[] = [];
     for (const track of this.tracks.values()) {
       if (track.missedFrames !== 0) continue;
-
-      result.push({
-        trackingId: track.trackingId,
-        bbox: track.bbox,
-        age: track.age,
-        smoothedAge: computeSmoothedAge(track.ageHistory),
-        gender: track.gender,
-        smoothedGender: computeSmoothedGender(track.genderHistory),
-        genderProbability: track.genderProbability,
-        isLooking: track.isLooking,
-        presenceTime: track.lastSeen - track.firstSeen,
-        gazeTime: track.gazeTime,
-      });
+      activeFaces.push(this.toTrackedFace(track));
     }
 
-    return result;
+    return { activeFaces, completedFaces };
   }
 
-  reset(): void {
+  reset(): TrackedFace[] {
+    const remaining = Array.from(this.tracks.values()).map((track) =>
+      this.toTrackedFace(track),
+    );
     this.tracks.clear();
+    return remaining;
   }
 }
