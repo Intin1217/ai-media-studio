@@ -1,14 +1,14 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { toast } from 'sonner';
 import { animate } from 'animejs';
 import { useDetectionStore } from '@/stores/detection-store';
 import type { DashboardTab } from '@/stores/detection-store';
 import { useSettingsStore } from '@/stores/settings-store';
-import { checkOllamaConnection, getOllamaModels } from '@/lib/ollama-client';
+import { SidebarBrowserAiTab } from './sidebar-browser-ai-tab';
+import { SidebarLocalAiTab } from './sidebar-local-ai-tab';
 
-type OllamaConnectionStatus = 'idle' | 'checking' | 'connected' | 'failed';
+type SidebarTab = 'general' | 'browser-ai' | 'local-ai';
 
 export const NAV_ITEMS: {
   id: DashboardTab;
@@ -99,28 +99,18 @@ const TAB_INDEX = Object.fromEntries(
 
 const ITEM_HEIGHT = 40;
 
+const SETTINGS_TABS: { key: SidebarTab; label: string }[] = [
+  { key: 'general', label: '일반' },
+  { key: 'browser-ai', label: '브라우저 AI' },
+  { key: 'local-ai', label: '로컬 AI' },
+];
+
 export function Sidebar() {
   const dashboardTab = useDetectionStore((s) => s.dashboardTab);
   const setDashboardTab = useDetectionStore((s) => s.setDashboardTab);
   const modelStatus = useDetectionStore((s) => s.modelStatus);
 
-  const ollamaEnabled = useSettingsStore((s) => s.ollamaEnabled);
-  const setOllamaEnabled = useSettingsStore((s) => s.setOllamaEnabled);
-  const ollamaEndpoint = useSettingsStore((s) => s.ollamaEndpoint);
-  const setOllamaEndpoint = useSettingsStore((s) => s.setOllamaEndpoint);
-  const ollamaModel = useSettingsStore((s) => s.ollamaModel);
-  const setOllamaModel = useSettingsStore((s) => s.setOllamaModel);
-  const ollamaCustomPrompt = useSettingsStore((s) => s.ollamaCustomPrompt);
-  const setOllamaCustomPrompt = useSettingsStore(
-    (s) => s.setOllamaCustomPrompt,
-  );
-  const ollamaPromptMode = useSettingsStore((s) => s.ollamaPromptMode);
-  const setOllamaPromptMode = useSettingsStore((s) => s.setOllamaPromptMode);
-
-  const [ollamaStatus, setOllamaStatus] =
-    useState<OllamaConnectionStatus>('idle');
-  const [availableModels, setAvailableModels] = useState<string[]>([]);
-  const [ollamaOpen, setOllamaOpen] = useState(true);
+  const [sidebarTab, setSidebarTab] = useState<SidebarTab>('general');
 
   const indicatorRef = useRef<HTMLDivElement>(null);
 
@@ -141,49 +131,6 @@ export function Sidebar() {
       });
     }
   }, [dashboardTab]);
-
-  async function handleCheckConnection() {
-    setOllamaStatus('checking');
-    const connected = await checkOllamaConnection(ollamaEndpoint);
-    if (connected) {
-      setOllamaStatus('connected');
-      toast.success('Ollama 연결 성공');
-      const models = await getOllamaModels(ollamaEndpoint);
-      setAvailableModels(models);
-      if (models.length === 0) {
-        toast.warning('설치된 모델이 없습니다', {
-          description: 'ollama pull qwen3-vl:8b 명령으로 모델을 설치해주세요.',
-        });
-      } else if (!models.includes(ollamaModel)) {
-        setOllamaModel(models[0]!);
-      }
-    } else {
-      setOllamaStatus('failed');
-      setAvailableModels([]);
-      toast.error('Ollama에 연결할 수 없습니다', {
-        description: 'Ollama가 실행 중인지 확인해주세요.',
-      });
-    }
-  }
-
-  const statusBadge = {
-    idle: null,
-    checking: (
-      <span className="bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-xs">
-        확인 중...
-      </span>
-    ),
-    connected: (
-      <span className="rounded-full bg-green-500/10 px-2 py-0.5 text-xs text-green-400">
-        연결됨
-      </span>
-    ),
-    failed: (
-      <span className="rounded-full bg-red-500/10 px-2 py-0.5 text-xs text-red-400">
-        연결 안 됨
-      </span>
-    ),
-  }[ollamaStatus];
 
   return (
     <aside className="border-border bg-card hidden w-64 flex-col overflow-y-auto border-r lg:flex">
@@ -224,188 +171,55 @@ export function Sidebar() {
 
         <hr className="border-border my-2" />
 
-        {/* Ollama 설정 섹션 */}
-        <div className="flex flex-col gap-2">
-          <button
-            type="button"
-            aria-expanded={ollamaOpen}
-            aria-controls="sidebar-ollama-section"
-            onClick={() => setOllamaOpen((v) => !v)}
-            className="text-muted-foreground hover:text-foreground flex items-center justify-between px-1 py-1 text-xs font-semibold uppercase tracking-wider transition-colors"
-          >
-            Ollama 설정
-            <svg
-              className={`h-3 w-3 transition-transform ${ollamaOpen ? 'rotate-180' : ''}`}
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <polyline points="6 9 12 15 18 9" />
-            </svg>
-          </button>
+        {/* 설정 3탭 구조 */}
+        <div className="border-border border-t pt-3">
+          {/* 탭 선택 버튼 */}
+          <div className="mb-3 flex gap-1">
+            {SETTINGS_TABS.map(({ key, label }) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setSidebarTab(key)}
+                className={`flex-1 rounded-md px-1.5 py-1 text-xs font-medium transition-colors ${
+                  sidebarTab === key
+                    ? 'bg-emerald-500/20 text-emerald-400'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
 
-          {ollamaOpen && (
-            <div
-              id="sidebar-ollama-section"
-              className="flex flex-col gap-3 px-1"
-            >
-              {/* 토글 스위치 */}
-              <div className="flex items-center justify-between">
-                <span className="text-foreground text-xs">활성화</span>
-                <label className="relative inline-flex cursor-pointer items-center">
-                  <input
-                    type="checkbox"
-                    checked={ollamaEnabled}
-                    onChange={(e) => setOllamaEnabled(e.target.checked)}
-                    className="peer sr-only"
-                    aria-label="Ollama 활성화"
-                  />
-                  <div className="bg-muted peer h-4 w-8 rounded-full transition-colors after:absolute after:left-0.5 after:top-0.5 after:h-3 after:w-3 after:rounded-full after:bg-white after:transition-transform after:content-[''] peer-checked:bg-emerald-500 peer-checked:after:translate-x-4" />
-                </label>
-              </div>
-
-              {/* 엔드포인트 */}
-              <div className="flex flex-col gap-1">
-                <label
-                  htmlFor="sidebar-ollama-endpoint"
-                  className="text-muted-foreground text-xs"
-                >
-                  서버 주소
-                </label>
-                <div className="flex gap-1.5">
-                  <input
-                    id="sidebar-ollama-endpoint"
-                    type="text"
-                    value={ollamaEndpoint}
-                    onChange={(e) => {
-                      setOllamaEndpoint(e.target.value);
-                      setOllamaStatus('idle');
-                      setAvailableModels([]);
-                    }}
-                    placeholder="http://localhost:11434"
-                    className="bg-background border-border text-foreground focus:ring-ring min-w-0 flex-1 rounded-md border px-2 py-1 text-xs focus:outline-none focus:ring-1"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleCheckConnection}
-                    disabled={ollamaStatus === 'checking'}
-                    className="whitespace-nowrap rounded-md bg-emerald-500/10 px-2 py-1 text-xs text-emerald-400 transition-colors hover:bg-emerald-500/20 disabled:opacity-50"
-                  >
-                    확인
-                  </button>
-                </div>
-              </div>
-
-              {/* 연결 상태 */}
-              {statusBadge && (
-                <div className="flex items-center gap-1.5">{statusBadge}</div>
-              )}
-
-              {/* 모델 선택 */}
-              <div className="flex flex-col gap-1">
-                <label
-                  htmlFor="sidebar-ollama-model"
-                  className="text-muted-foreground text-xs"
-                >
-                  Vision 모델
-                </label>
-                {ollamaStatus === 'connected' && availableModels.length > 0 ? (
-                  <select
-                    id="sidebar-ollama-model"
-                    value={ollamaModel}
-                    onChange={(e) => setOllamaModel(e.target.value)}
-                    className="bg-background border-border text-foreground focus:ring-ring w-full rounded-md border px-2 py-1 text-xs focus:outline-none focus:ring-1"
-                  >
-                    {availableModels.map((m) => (
-                      <option key={m} value={m}>
-                        {m}
-                      </option>
-                    ))}
-                  </select>
-                ) : (
-                  <input
-                    id="sidebar-ollama-model"
-                    type="text"
-                    value={ollamaModel}
-                    onChange={(e) => setOllamaModel(e.target.value)}
-                    placeholder="qwen3-vl:8b"
-                    className="bg-background border-border text-foreground focus:ring-ring w-full rounded-md border px-2 py-1 text-xs focus:outline-none focus:ring-1"
-                  />
-                )}
-              </div>
-
-              {/* 커스텀 프롬프트 */}
-              {ollamaEnabled && (
-                <>
-                  <div className="flex flex-col gap-1">
-                    <label
-                      htmlFor="sidebar-ollama-prompt"
-                      className="text-muted-foreground text-xs"
-                    >
-                      분석 프롬프트
-                    </label>
-                    <textarea
-                      id="sidebar-ollama-prompt"
-                      value={ollamaCustomPrompt}
-                      onChange={(e) => setOllamaCustomPrompt(e.target.value)}
-                      rows={3}
-                      className="bg-background border-border text-foreground focus:ring-ring w-full resize-none rounded-md border px-2 py-1 text-xs focus:outline-none focus:ring-1"
-                    />
-                  </div>
-
-                  {/* 적용 모드 라디오 */}
-                  <div className="flex flex-col gap-1">
-                    <p className="text-muted-foreground text-xs">적용 방식</p>
-                    <label className="flex cursor-pointer items-center gap-1.5 text-xs">
-                      <input
-                        type="radio"
-                        name="sidebar-promptMode"
-                        value="all"
-                        checked={ollamaPromptMode === 'all'}
-                        onChange={() => setOllamaPromptMode('all')}
-                      />
-                      전체 이미지에 동일 프롬프트
-                    </label>
-                    <label className="flex cursor-pointer items-center gap-1.5 text-xs">
-                      <input
-                        type="radio"
-                        name="sidebar-promptMode"
-                        value="per-image"
-                        checked={ollamaPromptMode === 'per-image'}
-                        onChange={() => setOllamaPromptMode('per-image')}
-                      />
-                      이미지별 개별 프롬프트
-                    </label>
-                  </div>
-                </>
-              )}
+          {/* 탭 콘텐츠 */}
+          {sidebarTab === 'general' && (
+            <div className="px-1 py-2">
+              <p className="text-muted-foreground mb-1 text-xs">
+                감지 모델 상태
+              </p>
+              <span
+                className={`text-xs font-medium ${
+                  modelStatus === 'ready'
+                    ? 'text-green-400'
+                    : modelStatus === 'error'
+                      ? 'text-red-400'
+                      : 'text-muted-foreground'
+                }`}
+              >
+                {modelStatus === 'ready'
+                  ? '준비됨'
+                  : modelStatus === 'loading'
+                    ? '로딩 중...'
+                    : modelStatus === 'error'
+                      ? '오류'
+                      : '대기 중'}
+              </span>
             </div>
           )}
-        </div>
 
-        <hr className="border-border my-2" />
+          {sidebarTab === 'browser-ai' && <SidebarBrowserAiTab />}
 
-        {/* 모델 상태 */}
-        <div className="px-1 py-2">
-          <p className="text-muted-foreground mb-1 text-xs">감지 모델</p>
-          <span
-            className={`text-xs font-medium ${
-              modelStatus === 'ready'
-                ? 'text-green-400'
-                : modelStatus === 'error'
-                  ? 'text-red-400'
-                  : 'text-muted-foreground'
-            }`}
-          >
-            {modelStatus === 'ready'
-              ? '준비됨'
-              : modelStatus === 'loading'
-                ? '로딩 중...'
-                : modelStatus === 'error'
-                  ? '오류'
-                  : '대기 중'}
-          </span>
+          {sidebarTab === 'local-ai' && <SidebarLocalAiTab />}
         </div>
       </div>
     </aside>
