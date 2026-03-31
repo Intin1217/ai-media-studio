@@ -37,9 +37,9 @@ interface TrackState {
   lastGazeStart: number | null;
 }
 
-const SMOOTHING_WINDOW = 20;
+const SMOOTHING_WINDOW = 30;
 const STALE_TIMEOUT = 3000;
-const TRACKING_DISTANCE_THRESHOLD = 100;
+const TRACKING_DISTANCE_THRESHOLD = 150;
 const MIN_LANDMARKS_FOR_GAZE = 68;
 
 function bboxCenter(bbox: {

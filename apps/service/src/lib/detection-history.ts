@@ -82,3 +82,23 @@ export async function getFaceAnalysisLogs(
     .equals(sessionId)
     .sortBy('timestamp');
 }
+
+export async function getAllFaceAnalysisLogs(
+  options: {
+    since?: number;
+    limit?: number;
+  } = {},
+): Promise<FaceAnalysisLog[]> {
+  if (options.since) {
+    const logs = await db.faceAnalysisLogs
+      .where('timestamp')
+      .aboveOrEqual(options.since)
+      .sortBy('timestamp');
+    return options.limit ? logs.slice(-options.limit) : logs;
+  }
+  const logs = await db.faceAnalysisLogs
+    .orderBy('timestamp')
+    .reverse()
+    .toArray();
+  return options.limit ? logs.slice(0, options.limit) : logs;
+}

@@ -37,6 +37,11 @@ async function loadFaceApi(): Promise<FaceApiModule> {
 }
 
 const LOG_INTERVAL_MS = 5000;
+// 초당 5회로 감지 횟수 제한 — face-api.js는 COCO-SSD보다 무거워 rAF마다 실행 시 CPU 과부하
+const DETECTION_INTERVAL_MS = 200;
+// 추론 입력 크기 — 320×240으로 축소해 추론 속도 향상, 좌표는 스케일 복원
+const RESIZE_WIDTH = 320;
+const RESIZE_HEIGHT = 240;
 
 interface UseFaceAnalysisOptions {
   videoRef: React.RefObject<HTMLVideoElement | null>;
@@ -51,6 +56,9 @@ export function useFaceAnalysis({ videoRef }: UseFaceAnalysisOptions): void {
   const isRunningRef = useRef(false);
   const faceApiRef = useRef<FaceApiModule | null>(null);
   const lastLogTimeRef = useRef<number>(0);
+  const lastDetectionTimeRef = useRef<number>(0);
+  // 리사이즈용 offscreen canvas — 매 프레임마다 생성 방지
+  const resizeCanvasRef = useRef<HTMLCanvasElement | null>(null);
   // 마운트 시 고유 sessionId 생성 — 세션별 DB 조회 가능
   const sessionIdRef = useRef(
     `face-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
@@ -77,12 +85,44 @@ export function useFaceAnalysis({ videoRef }: UseFaceAnalysisOptions): void {
         return;
       }
 
+      // throttle: DETECTION_INTERVAL_MS 미만이면 추론 건너뜀
+      const now = performance.now();
+      if (now - lastDetectionTimeRef.current < DETECTION_INTERVAL_MS) {
+        if (isRunningRef.current) {
+          rafRef.current = requestAnimationFrame(detectRef.current);
+        }
+        return;
+      }
+      lastDetectionTimeRef.current = now;
+
+      // 리사이즈 canvas 초기화 (최초 1회)
+      if (!resizeCanvasRef.current) {
+        resizeCanvasRef.current = document.createElement('canvas');
+        resizeCanvasRef.current.width = RESIZE_WIDTH;
+        resizeCanvasRef.current.height = RESIZE_HEIGHT;
+      }
+      const resizeCanvas = resizeCanvasRef.current;
+      const resizeCtx = resizeCanvas.getContext('2d');
+
       try {
         const faceapi = faceApiRef.current;
+
+        // 추론 입력: 320×240으로 축소한 canvas 사용
+        let inputSource: HTMLVideoElement | HTMLCanvasElement = video;
+        let scaleX = 1;
+        let scaleY = 1;
+
+        if (resizeCtx && video.videoWidth > 0 && video.videoHeight > 0) {
+          resizeCtx.drawImage(video, 0, 0, RESIZE_WIDTH, RESIZE_HEIGHT);
+          inputSource = resizeCanvas;
+          scaleX = video.videoWidth / RESIZE_WIDTH;
+          scaleY = video.videoHeight / RESIZE_HEIGHT;
+        }
+
         const detections = await faceapi
           .detectAllFaces(
-            video,
-            new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }),
+            inputSource,
+            new faceapi.SsdMobilenetv1Options({ minConfidence: 0.4 }),
           )
           .withFaceLandmarks()
           .withAgeAndGender();
@@ -92,27 +132,31 @@ export function useFaceAnalysis({ videoRef }: UseFaceAnalysisOptions): void {
 
         const rawFaces: RawFaceDetection[] = detections.map((d) => ({
           bbox: {
-            x: d.detection.box.x,
-            y: d.detection.box.y,
-            width: d.detection.box.width,
-            height: d.detection.box.height,
+            // 리사이즈 canvas 기준 좌표를 원본 비디오 좌표로 스케일 복원
+            x: d.detection.box.x * scaleX,
+            y: d.detection.box.y * scaleY,
+            width: d.detection.box.width * scaleX,
+            height: d.detection.box.height * scaleY,
           },
           age: d.age,
           gender: d.gender as 'male' | 'female',
           genderProbability: d.genderProbability,
-          landmarks: d.landmarks.positions.map((p) => ({ x: p.x, y: p.y })),
+          landmarks: d.landmarks.positions.map((p) => ({
+            x: p.x * scaleX,
+            y: p.y * scaleY,
+          })),
         }));
 
-        const now = performance.now();
-        const tracked = trackerRef.current.update(rawFaces, now);
+        const timestamp = performance.now();
+        const tracked = trackerRef.current.update(rawFaces, timestamp);
         setFaceResults(tracked);
 
         // 5초 간격으로 감지된 각 얼굴을 DB 저장
         if (
           tracked.length > 0 &&
-          now - lastLogTimeRef.current >= LOG_INTERVAL_MS
+          timestamp - lastLogTimeRef.current >= LOG_INTERVAL_MS
         ) {
-          lastLogTimeRef.current = now;
+          lastLogTimeRef.current = timestamp;
           const logTimestamp = Date.now();
           Promise.all(
             tracked.map((f) =>
