@@ -22,7 +22,7 @@ export function PdfTranslationOverlay({
       className="pointer-events-none absolute inset-0"
       aria-label="번역 오버레이"
     >
-      {translatedBlocks.map((block, index) => {
+      {translatedBlocks.map((block, _index) => {
         const scaledWidth = block.width * scale;
         const scaledOriginalHeight = block.height * scale;
         const scaledFontSize = Math.max(

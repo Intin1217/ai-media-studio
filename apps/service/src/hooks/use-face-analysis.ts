@@ -5,7 +5,8 @@ import { FaceTracker } from '@/lib/face-tracker';
 import type { RawFaceDetection } from '@/lib/face-tracker';
 import { drawFaceOverlay } from '@/lib/draw-face-overlay';
 
-type FaceApiModule = typeof import('face-api.js');
+import type * as faceApiType from 'face-api.js';
+type FaceApiModule = typeof faceApiType;
 
 let faceApiModule: FaceApiModule | null = null;
 let loadingPromise: Promise<FaceApiModule> | null = null;

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { animate } from 'animejs';
 import { useDetectionStore } from '@/stores/detection-store';
 import type { DashboardTab } from '@/stores/detection-store';
-import { useSettingsStore } from '@/stores/settings-store';
+
 import { SidebarBrowserAiTab } from './sidebar-browser-ai-tab';
 import { SidebarLocalAiTab } from './sidebar-local-ai-tab';
 
