@@ -42,8 +42,9 @@ export function useWebcam(videoRef: React.RefObject<HTMLVideoElement | null>) {
       stopWebcam(streamRef.current);
       streamRef.current = null;
     }
+    stopWebcam(null, videoRef.current);
     setWebcamStatus('idle');
-  }, [setWebcamStatus]);
+  }, [videoRef, setWebcamStatus]);
 
   return { start, stop, streamRef };
 }

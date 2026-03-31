@@ -21,6 +21,14 @@ export async function startWebcam(
   return stream;
 }
 
-export function stopWebcam(stream: MediaStream): void {
-  stream.getTracks().forEach((track) => track.stop());
+export function stopWebcam(
+  stream: MediaStream | null,
+  video?: HTMLVideoElement | null,
+): void {
+  if (stream) {
+    stream.getTracks().forEach((track) => track.stop());
+  }
+  if (video) {
+    video.srcObject = null;
+  }
 }

@@ -87,16 +87,16 @@ describe('estimateHeadPose', () => {
 });
 
 describe('isLookingAtCamera', () => {
-  it('yaw/pitch 모두 ±15도 이내면 true', () => {
+  it('yaw/pitch 모두 ±20도 이내면 true', () => {
     expect(isLookingAtCamera({ yaw: 10, pitch: -5 })).toBe(true);
   });
 
-  it('yaw가 ±15도 초과하면 false', () => {
-    expect(isLookingAtCamera({ yaw: 20, pitch: 0 })).toBe(false);
+  it('yaw가 ±20도 초과하면 false', () => {
+    expect(isLookingAtCamera({ yaw: 25, pitch: 0 })).toBe(false);
   });
 
-  it('pitch가 ±15도 초과하면 false', () => {
-    expect(isLookingAtCamera({ yaw: 0, pitch: -20 })).toBe(false);
+  it('pitch가 ±20도 초과하면 false', () => {
+    expect(isLookingAtCamera({ yaw: 0, pitch: -25 })).toBe(false);
   });
 
   it('커스텀 임계값을 적용할 수 있다', () => {
@@ -104,10 +104,10 @@ describe('isLookingAtCamera', () => {
   });
 
   it('경계값 정확히 threshold와 같으면 true', () => {
-    expect(isLookingAtCamera({ yaw: 15, pitch: 15 })).toBe(true);
+    expect(isLookingAtCamera({ yaw: 20, pitch: 20 })).toBe(true);
   });
 
   it('경계값 threshold를 1도 초과하면 false', () => {
-    expect(isLookingAtCamera({ yaw: 15.1, pitch: 0 })).toBe(false);
+    expect(isLookingAtCamera({ yaw: 20.1, pitch: 0 })).toBe(false);
   });
 });

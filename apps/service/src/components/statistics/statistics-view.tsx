@@ -29,7 +29,7 @@ function formatDuration(ms: number): string {
 }
 
 function FaceAnalysisStats({ logs }: { logs: FaceAnalysisLog[] }) {
-  if (logs.length === 0) {
+  if (!logs || logs.length === 0) {
     return (
       <Card>
         <CardHeader className="pb-3">
@@ -227,7 +227,7 @@ export function StatisticsView() {
 
           {/* 얼굴 분석 통계 */}
           <div className="chart-card-enter" style={{ animationDelay: '320ms' }}>
-            <FaceAnalysisStats logs={faceAnalysisLogs} />
+            <FaceAnalysisStats logs={faceAnalysisLogs ?? []} />
           </div>
 
           {/* 설정 + 내보내기 */}
