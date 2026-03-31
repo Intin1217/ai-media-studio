@@ -3,6 +3,7 @@
 import { useCallback, useRef } from 'react';
 import { useWebcam } from '@/hooks/use-webcam';
 import { useDetector } from '@/hooks/use-detector';
+import { useFaceAnalysis } from '@/hooks/use-face-analysis';
 import { useDetectionStore } from '@/stores/detection-store';
 import { VideoControls } from '@/components/detection/video-controls';
 import { WebcamStatus } from './webcam-status';
@@ -22,6 +23,8 @@ export function WebcamView() {
     webcamStatus === 'active',
     showDetectionsRef,
   );
+
+  useFaceAnalysis({ videoRef, canvasRef });
 
   // VideoControls가 토글할 때 ref를 직접 업데이트
   const handleToggleDetections = useCallback((show: boolean) => {
