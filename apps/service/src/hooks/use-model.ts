@@ -140,7 +140,8 @@ export function disposeModelCache(modelType: ModelType): void {
 
 export function useModel() {
   const modelRef = useRef<ModelProvider | null>(null);
-  const { setModelStatus, modelStatus } = useDetectionStore();
+  const setModelStatus = useDetectionStore((s) => s.setModelStatus);
+  const modelStatus = useDetectionStore((s) => s.modelStatus);
 
   const loadModel = useCallback(async (): Promise<ModelProvider | null> => {
     const modelType = useSettingsStore.getState().modelType;

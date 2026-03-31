@@ -83,15 +83,29 @@ export const useDetectionStore = create<DetectionState>((set) => ({
   setModelStatus: (modelStatus) => set({ modelStatus }),
   setWebcamStatus: (webcamStatus) => set({ webcamStatus }),
   setDetections: (detections) =>
-    set((state) => ({
-      previousDetections: state.detections,
-      detections,
-    })),
+    set((state) => {
+      if (detections.length === 0 && state.detections.length === 0) {
+        return {};
+      }
+      return {
+        previousDetections: state.detections,
+        detections,
+      };
+    }),
   setIsDetecting: (isDetecting) => set({ isDetecting }),
   updatePerformance: (metrics) =>
-    set((state) => ({
-      performance: { ...state.performance, ...metrics },
-    })),
+    set((state) => {
+      const prev = state.performance;
+      if (
+        metrics.fps !== undefined &&
+        Math.abs((prev.fps ?? 0) - metrics.fps) < 0.5 &&
+        metrics.inferenceTime !== undefined &&
+        Math.abs((prev.inferenceTime ?? 0) - metrics.inferenceTime) < 1
+      ) {
+        return {};
+      }
+      return { performance: { ...prev, ...metrics } };
+    }),
 
   // 기존 incrementDetectionCounts는 매 프레임 호출되므로 current-frame 모드용으로 유지
   incrementDetectionCounts: (detections) =>
@@ -153,7 +167,16 @@ export const useDetectionStore = create<DetectionState>((set) => ({
       return { imageAnalysisResults: [] };
     }),
 
-  setFaceAnalysisResults: (faceAnalysisResults) => set({ faceAnalysisResults }),
+  setFaceAnalysisResults: (faceAnalysisResults) =>
+    set((state) => {
+      if (
+        faceAnalysisResults.length === 0 &&
+        state.faceAnalysisResults.length === 0
+      ) {
+        return {};
+      }
+      return { faceAnalysisResults };
+    }),
 
   reset: () => set(initialState),
 }));
