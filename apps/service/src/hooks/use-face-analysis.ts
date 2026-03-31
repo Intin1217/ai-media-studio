@@ -51,6 +51,10 @@ export function useFaceAnalysis({ videoRef }: UseFaceAnalysisOptions): void {
   const isRunningRef = useRef(false);
   const faceApiRef = useRef<FaceApiModule | null>(null);
   const lastLogTimeRef = useRef<number>(0);
+  // 마운트 시 고유 sessionId 생성 — 세션별 DB 조회 가능
+  const sessionIdRef = useRef(
+    `face-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+  );
 
   const detect = useCallback(async () => {
     if (!isRunningRef.current || !videoRef.current || !faceApiRef.current)
@@ -99,7 +103,7 @@ export function useFaceAnalysis({ videoRef }: UseFaceAnalysisOptions): void {
         Promise.all(
           tracked.map((f) =>
             saveFaceAnalysisLog({
-              sessionId: 'face-analysis',
+              sessionId: sessionIdRef.current,
               timestamp: logTimestamp,
               trackingId: f.trackingId,
               gender: f.smoothedGender,

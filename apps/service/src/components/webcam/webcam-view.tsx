@@ -12,6 +12,9 @@ import { WebcamStatus } from './webcam-status';
 export function WebcamView() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  // 얼굴 오버레이 전용 캔버스 — useDetector의 renderLoop과 레이어를 분리하여
+  // ghost overlay 없이 독립적으로 clearRect + drawFaceOverlay를 수행
+  const faceCanvasRef = useRef<HTMLCanvasElement>(null);
   // 바운딩 박스 표시 여부 — renderLoop이 rAF 내에서 직접 읽는 transient ref
   // useState 대신 useRef를 쓰는 이유: 리렌더링 없이 즉시 반영 (rerender-use-ref-transient-values)
   const showDetectionsRef = useRef<boolean>(true);
@@ -28,14 +31,25 @@ export function WebcamView() {
 
   useFaceAnalysis({ videoRef });
 
-  // faceAnalysisResults 변경 시 Canvas에 얼굴 오버레이 그리기
-  // useDetector의 renderLoop과 충돌하지 않도록 별도 useEffect에서 처리
+  // faceAnalysisResults 변경 시 전용 face canvas에 오버레이 그리기
+  // useDetector의 renderLoop(메인 canvas)과 완전히 레이어가 분리되므로
+  // ghost overlay가 발생하지 않음. 결과가 없으면 clearRect로 이전 프레임 소거.
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
+    const faceCanvas = faceCanvasRef.current;
+    const mainCanvas = canvasRef.current;
+    if (!faceCanvas || !mainCanvas) return;
+
+    // face canvas 크기를 메인 canvas에 동기화
+    faceCanvas.width = mainCanvas.width;
+    faceCanvas.height = mainCanvas.height;
+
+    const ctx = faceCanvas.getContext('2d');
     if (!ctx) return;
-    drawFaceOverlay(ctx, faceAnalysisResults);
+
+    ctx.clearRect(0, 0, faceCanvas.width, faceCanvas.height);
+    if (faceAnalysisResults.length > 0) {
+      drawFaceOverlay(ctx, faceAnalysisResults);
+    }
   }, [faceAnalysisResults]);
 
   // VideoControls가 토글할 때 ref를 직접 업데이트
@@ -49,12 +63,20 @@ export function WebcamView() {
       <div className="border-border relative aspect-video overflow-hidden rounded-lg border bg-black">
         <video ref={videoRef} autoPlay playsInline muted className="hidden" />
         {webcamStatus === 'active' ? (
-          <canvas
-            ref={canvasRef}
-            className="h-full w-full object-contain"
-            aria-label="실시간 객체 감지 화면"
-            role="img"
-          />
+          <>
+            <canvas
+              ref={canvasRef}
+              className="h-full w-full object-contain"
+              aria-label="실시간 객체 감지 화면"
+              role="img"
+            />
+            {/* 얼굴 분석 오버레이 전용 canvas — pointer-events:none으로 클릭 투과 */}
+            <canvas
+              ref={faceCanvasRef}
+              className="pointer-events-none absolute inset-0 h-full w-full object-contain"
+              aria-hidden="true"
+            />
+          </>
         ) : (
           <WebcamStatus />
         )}
