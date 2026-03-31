@@ -40,6 +40,8 @@ RUN addgroup --system --gid 1001 nodejs \
 COPY --from=builder --chown=nextjs:nodejs /app/apps/service/.next/standalone ./
 # Copy static assets
 COPY --from=builder --chown=nextjs:nodejs /app/apps/service/.next/static ./apps/service/.next/static
+# Copy public assets (face-api models, etc.)
+COPY --from=builder --chown=nextjs:nodejs /app/apps/service/public ./apps/service/public
 
 USER nextjs
 EXPOSE 3000

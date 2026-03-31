@@ -40,11 +40,17 @@ vi.mock('@mediapipe/tasks-vision', () => ({
   },
 }));
 
+const mockSetModelStatus = vi.fn();
+const mockDetectionState = {
+  setModelStatus: mockSetModelStatus,
+  modelStatus: 'idle' as const,
+};
+
 vi.mock('@/stores/detection-store', () => ({
-  useDetectionStore: vi.fn(() => ({
-    setModelStatus: vi.fn(),
-    modelStatus: 'idle',
-  })),
+  useDetectionStore: vi.fn(
+    (selector: (s: typeof mockDetectionState) => unknown) =>
+      selector(mockDetectionState),
+  ),
 }));
 
 vi.mock('@/stores/settings-store', () => ({

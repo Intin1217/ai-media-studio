@@ -15,6 +15,7 @@ interface SettingsState {
   ollamaEnabled: boolean;
   ollamaCustomPrompt: string;
   ollamaPromptMode: 'all' | 'per-image';
+  faceAnalysisEnabled: boolean;
   setConfidenceThreshold: (value: number) => void;
   setBboxColor: (className: string, color: string) => void;
   resetBboxColors: () => void;
@@ -24,6 +25,7 @@ interface SettingsState {
   setOllamaEnabled: (enabled: boolean) => void;
   setOllamaCustomPrompt: (prompt: string) => void;
   setOllamaPromptMode: (mode: 'all' | 'per-image') => void;
+  setFaceAnalysisEnabled: (enabled: boolean) => void;
 }
 
 export const useSettingsStore = create<SettingsState>()(
@@ -38,6 +40,7 @@ export const useSettingsStore = create<SettingsState>()(
       ollamaCustomPrompt:
         '이 이미지에서 보이는 모든 객체와 장면을 한국어로 자세히 설명해주세요.',
       ollamaPromptMode: 'all',
+      faceAnalysisEnabled: false,
       setConfidenceThreshold: (confidenceThreshold) =>
         set({ confidenceThreshold }),
       setBboxColor: (className, color) =>
@@ -64,6 +67,8 @@ export const useSettingsStore = create<SettingsState>()(
       setOllamaCustomPrompt: (ollamaCustomPrompt) =>
         set({ ollamaCustomPrompt }),
       setOllamaPromptMode: (ollamaPromptMode) => set({ ollamaPromptMode }),
+      setFaceAnalysisEnabled: (faceAnalysisEnabled) =>
+        set({ faceAnalysisEnabled }),
     }),
     { name: 'ams-settings' },
   ),

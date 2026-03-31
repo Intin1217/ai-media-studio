@@ -1,11 +1,12 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import type { DetectionLog, SessionInfo } from '@/lib/db';
+import type { DetectionLog, FaceAnalysisLog, SessionInfo } from '@/lib/db';
 import {
   getDetectionLogs,
   getSessions,
   clearAllHistory,
+  getAllFaceAnalysisLogs,
 } from '@/lib/detection-history';
 
 type TimeRange = 'today' | '7days' | 'all';
@@ -25,17 +26,22 @@ function getTimestamp(range: TimeRange): number | undefined {
 export function useDetectionHistory(timeRange: TimeRange = 'today') {
   const [logs, setLogs] = useState<DetectionLog[]>([]);
   const [sessions, setSessions] = useState<SessionInfo[]>([]);
+  const [faceAnalysisLogs, setFaceAnalysisLogs] = useState<FaceAnalysisLog[]>(
+    [],
+  );
   const [isLoading, setIsLoading] = useState(true);
 
   const refresh = useCallback(async () => {
     setIsLoading(true);
     const since = getTimestamp(timeRange);
-    const [logData, sessionData] = await Promise.all([
+    const [logData, sessionData, faceLogData] = await Promise.all([
       getDetectionLogs({ since, limit: 1000 }),
       getSessions(20),
+      getAllFaceAnalysisLogs({ since, limit: 1000 }),
     ]);
     setLogs(logData);
     setSessions(sessionData);
+    setFaceAnalysisLogs(faceLogData);
     setIsLoading(false);
   }, [timeRange]);
 
@@ -48,7 +54,7 @@ export function useDetectionHistory(timeRange: TimeRange = 'today') {
     await refresh();
   }, [refresh]);
 
-  return { logs, sessions, isLoading, refresh, clearHistory };
+  return { logs, sessions, faceAnalysisLogs, isLoading, refresh, clearHistory };
 }
 
 export type { TimeRange };

@@ -5,16 +5,11 @@ import {
   CardHeader,
   CardTitle,
   CardContent,
-  Slider,
   Button,
 } from '@ai-media-studio/ui';
 import { useSettingsStore } from '@/stores/settings-store';
 
 export function SettingsPanel() {
-  const confidenceThreshold = useSettingsStore((s) => s.confidenceThreshold);
-  const setConfidenceThreshold = useSettingsStore(
-    (s) => s.setConfidenceThreshold,
-  );
   const bboxColors = useSettingsStore((s) => s.bboxColors);
   const setBboxColor = useSettingsStore((s) => s.setBboxColor);
   const resetBboxColors = useSettingsStore((s) => s.resetBboxColors);
@@ -34,25 +29,6 @@ export function SettingsPanel() {
         <CardTitle className="text-sm font-medium">설정</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* 신뢰도 임계값 */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <label className="text-muted-foreground text-xs">
-              감지 신뢰도 임계값
-            </label>
-            <span className="text-foreground font-mono text-xs">
-              {Math.round(confidenceThreshold * 100)}%
-            </span>
-          </div>
-          <Slider
-            min={0}
-            max={100}
-            step={5}
-            value={Math.round(confidenceThreshold * 100)}
-            onValueChange={(v) => setConfidenceThreshold(v / 100)}
-          />
-        </div>
-
         {/* 바운딩 박스 색상 */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">

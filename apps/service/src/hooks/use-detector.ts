@@ -71,13 +71,15 @@ export function useDetector(
   const workerPendingRef = useRef<boolean>(false);
   const useWorkerRef = useRef<boolean>(false);
 
-  const {
-    setDetections,
-    setIsDetecting,
-    updatePerformance,
-    updateUniqueDetections,
-    updatePerSecondCounts,
-  } = useDetectionStore();
+  const setDetections = useDetectionStore((s) => s.setDetections);
+  const setIsDetecting = useDetectionStore((s) => s.setIsDetecting);
+  const updatePerformance = useDetectionStore((s) => s.updatePerformance);
+  const updateUniqueDetections = useDetectionStore(
+    (s) => s.updateUniqueDetections,
+  );
+  const updatePerSecondCounts = useDetectionStore(
+    (s) => s.updatePerSecondCounts,
+  );
 
   // 추론 결과 공통 처리 (Worker / 메인 스레드 양쪽에서 사용)
   const handleDetectionResult = useCallback(

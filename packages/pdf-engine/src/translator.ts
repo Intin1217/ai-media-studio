@@ -25,6 +25,82 @@ export interface TranslationOptions {
   onProgress?: (translated: number, total: number) => void;
 }
 
+const MAX_RETRIES = 3;
+const INITIAL_RETRY_DELAY = 2000;
+
+async function translateBatchWithRetry(
+  texts: string[],
+  endpoint: string,
+  model: string,
+  sourceLang: string,
+  targetLang: string,
+): Promise<string[]> {
+  const batchText = texts.join('\n---\n');
+  const prompt = `다음 ${sourceLang} 텍스트를 ${targetLang}로 번역하세요. 각 문단은 ---로 구분됩니다. 번역 결과만 같은 형식으로 반환하세요.\n\n${batchText}`;
+
+  let lastError: Error | null = null;
+
+  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+    try {
+      const response = await fetch(`${endpoint}/api/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model, prompt, stream: true }),
+        signal: AbortSignal.timeout(180_000),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Ollama 응답 오류: ${response.status}`);
+      }
+
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error('응답 스트림을 읽을 수 없습니다');
+
+      const decoder = new TextDecoder();
+      let fullResponse = '';
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() ?? ''; // 마지막 불완전 라인 보관
+        for (const line of lines.filter(Boolean)) {
+          try {
+            const parsed = JSON.parse(line) as {
+              response?: string;
+              done?: boolean;
+            };
+            if (parsed.response) {
+              fullResponse += parsed.response;
+            }
+          } catch {
+            // 실제 불량 JSON만 무시
+          }
+        }
+      }
+
+      const translated = fullResponse.split(/\n---\n/);
+      return texts.map((original, i) => translated[i]?.trim() || original);
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error));
+      if (attempt < MAX_RETRIES - 1) {
+        await new Promise((resolve) =>
+          setTimeout(resolve, INITIAL_RETRY_DELAY * Math.pow(2, attempt)),
+        );
+      }
+    }
+  }
+
+  // 모든 재시도 실패 → 원문 반환
+  console.warn(
+    `번역 배치 실패 (${MAX_RETRIES}회 재시도): ${lastError?.message}`,
+  );
+  return texts;
+}
+
 export async function translateBlocks(
   blocks: TextBlock[],
   options: TranslationOptions,
@@ -34,7 +110,7 @@ export async function translateBlocks(
     model,
     sourceLang,
     targetLang,
-    batchSize = 10,
+    batchSize = 5,
     onProgress,
   } = options;
 
@@ -53,38 +129,22 @@ export async function translateBlocks(
 
   for (let i = 0; i < nonEmptyBlocks.length; i += batchSize) {
     const batch = nonEmptyBlocks.slice(i, i + batchSize);
-    const batchText = batch.map((b) => b.text).join('\n---\n');
-    const prompt = `${sourceLang}를 ${targetLang}로 번역하세요. 원문의 의미를 정확히 보존하세요.\n\n${batchText}`;
+    const texts = batch.map((b) => b.text);
 
-    const response = await fetch(`${endpoint}/api/generate`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model, prompt, stream: false }),
-      signal: AbortSignal.timeout(120_000),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Ollama 응답 오류: ${response.status}`);
-    }
-
-    const data = (await response.json()) as { response: string };
-    const responseText = data.response;
-    const parts = responseText.split('\n---\n');
+    const translatedTexts = await translateBatchWithRetry(
+      texts,
+      endpoint,
+      model,
+      sourceLang,
+      targetLang,
+    );
 
     for (let j = 0; j < batch.length; j++) {
       const block = batch[j]!;
-      const part = parts[j];
-      const translatedText =
-        part !== undefined
-          ? part.trim()
-          : j === 0
-            ? responseText.trim()
-            : block.text;
-
       results.push({
         ...block,
         originalText: block.text,
-        translatedText,
+        translatedText: translatedTexts[j] ?? block.text,
         translatedHeight: 0,
       });
     }

@@ -2,6 +2,7 @@
 
 import { create } from 'zustand';
 import type { Detection } from '@ai-media-studio/media-utils';
+import type { TrackedFace } from '@/lib/face-tracker';
 
 type ModelStatus = 'idle' | 'loading' | 'ready' | 'error';
 type WebcamStatus = 'idle' | 'requesting' | 'active' | 'denied' | 'error';
@@ -38,6 +39,7 @@ interface DetectionState {
   uniqueDetectionCounts: Record<string, number>;
   perSecondCounts: Record<string, number>;
   imageAnalysisResults: ImageAnalysisResult[];
+  faceAnalysisResults: TrackedFace[];
 
   // 기존 액션
   setModelStatus: (status: ModelStatus) => void;
@@ -56,6 +58,7 @@ interface DetectionState {
   addImageAnalysisResult: (result: ImageAnalysisResult) => void;
   removeImageAnalysisResult: (id: string) => void;
   clearImageAnalysisResults: () => void;
+  setFaceAnalysisResults: (faces: TrackedFace[]) => void;
 }
 
 const initialState = {
@@ -71,6 +74,7 @@ const initialState = {
   uniqueDetectionCounts: {} as Record<string, number>,
   perSecondCounts: {} as Record<string, number>,
   imageAnalysisResults: [] as ImageAnalysisResult[],
+  faceAnalysisResults: [] as TrackedFace[],
 };
 
 export const useDetectionStore = create<DetectionState>((set) => ({
@@ -79,15 +83,29 @@ export const useDetectionStore = create<DetectionState>((set) => ({
   setModelStatus: (modelStatus) => set({ modelStatus }),
   setWebcamStatus: (webcamStatus) => set({ webcamStatus }),
   setDetections: (detections) =>
-    set((state) => ({
-      previousDetections: state.detections,
-      detections,
-    })),
+    set((state) => {
+      if (detections.length === 0 && state.detections.length === 0) {
+        return {};
+      }
+      return {
+        previousDetections: state.detections,
+        detections,
+      };
+    }),
   setIsDetecting: (isDetecting) => set({ isDetecting }),
   updatePerformance: (metrics) =>
-    set((state) => ({
-      performance: { ...state.performance, ...metrics },
-    })),
+    set((state) => {
+      const prev = state.performance;
+      if (
+        metrics.fps !== undefined &&
+        Math.abs((prev.fps ?? 0) - metrics.fps) < 0.5 &&
+        metrics.inferenceTime !== undefined &&
+        Math.abs((prev.inferenceTime ?? 0) - metrics.inferenceTime) < 1
+      ) {
+        return {};
+      }
+      return { performance: { ...prev, ...metrics } };
+    }),
 
   // 기존 incrementDetectionCounts는 매 프레임 호출되므로 current-frame 모드용으로 유지
   incrementDetectionCounts: (detections) =>
@@ -149,6 +167,17 @@ export const useDetectionStore = create<DetectionState>((set) => ({
       return { imageAnalysisResults: [] };
     }),
 
+  setFaceAnalysisResults: (faceAnalysisResults) =>
+    set((state) => {
+      if (
+        faceAnalysisResults.length === 0 &&
+        state.faceAnalysisResults.length === 0
+      ) {
+        return {};
+      }
+      return { faceAnalysisResults };
+    }),
+
   reset: () => set(initialState),
 }));
 
@@ -160,4 +189,5 @@ export type {
   StatsMode,
   DashboardTab,
   ImageAnalysisResult,
+  TrackedFace,
 };

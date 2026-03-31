@@ -5,16 +5,13 @@ import { SettingsPanel } from '@/components/statistics/settings-panel';
 
 // useSettingsStore mock — 실제 Zustand persist는 jsdom의 localStorage에 의존하므로
 // 격리된 mock으로 대체한다
-const mockSetConfidenceThreshold = vi.fn();
 const mockSetBboxColor = vi.fn();
 const mockResetBboxColors = vi.fn();
 
 vi.mock('@/stores/settings-store', () => ({
   useSettingsStore: (selector: (s: unknown) => unknown) =>
     selector({
-      confidenceThreshold: 0.5,
       bboxColors: {},
-      setConfidenceThreshold: mockSetConfidenceThreshold,
       setBboxColor: mockSetBboxColor,
       resetBboxColors: mockResetBboxColors,
     }),
@@ -33,24 +30,6 @@ describe('SettingsPanel', () => {
     it('"설정" 타이틀이 렌더링된다', () => {
       render(<SettingsPanel />);
       expect(screen.getByText('설정')).toBeInTheDocument();
-    });
-  });
-
-  describe('슬라이더', () => {
-    it('신뢰도 임계값 레이블이 렌더링된다', () => {
-      render(<SettingsPanel />);
-      expect(screen.getByText('감지 신뢰도 임계값')).toBeInTheDocument();
-    });
-
-    it('현재 임계값(50%)이 표시된다', () => {
-      render(<SettingsPanel />);
-      expect(screen.getByText('50%')).toBeInTheDocument();
-    });
-
-    it('슬라이더 input이 렌더링된다', () => {
-      render(<SettingsPanel />);
-      const slider = screen.getByRole('slider');
-      expect(slider).toBeInTheDocument();
     });
   });
 
