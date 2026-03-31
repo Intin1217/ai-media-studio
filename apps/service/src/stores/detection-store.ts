@@ -3,6 +3,19 @@
 import { create } from 'zustand';
 import type { Detection } from '@ai-media-studio/media-utils';
 
+interface TrackedFace {
+  trackingId: string;
+  bbox: { x: number; y: number; width: number; height: number };
+  age: number;
+  smoothedAge: number;
+  gender: 'male' | 'female';
+  smoothedGender: 'male' | 'female';
+  genderProbability: number;
+  isLooking: boolean;
+  presenceTime: number;
+  gazeTime: number;
+}
+
 type ModelStatus = 'idle' | 'loading' | 'ready' | 'error';
 type WebcamStatus = 'idle' | 'requesting' | 'active' | 'denied' | 'error';
 type StatsMode = 'unique' | 'per-second' | 'current-frame';
@@ -38,6 +51,7 @@ interface DetectionState {
   uniqueDetectionCounts: Record<string, number>;
   perSecondCounts: Record<string, number>;
   imageAnalysisResults: ImageAnalysisResult[];
+  faceAnalysisResults: TrackedFace[];
 
   // 기존 액션
   setModelStatus: (status: ModelStatus) => void;
@@ -56,6 +70,7 @@ interface DetectionState {
   addImageAnalysisResult: (result: ImageAnalysisResult) => void;
   removeImageAnalysisResult: (id: string) => void;
   clearImageAnalysisResults: () => void;
+  setFaceAnalysisResults: (faces: TrackedFace[]) => void;
 }
 
 const initialState = {
@@ -71,6 +86,7 @@ const initialState = {
   uniqueDetectionCounts: {} as Record<string, number>,
   perSecondCounts: {} as Record<string, number>,
   imageAnalysisResults: [] as ImageAnalysisResult[],
+  faceAnalysisResults: [] as TrackedFace[],
 };
 
 export const useDetectionStore = create<DetectionState>((set) => ({
@@ -149,6 +165,8 @@ export const useDetectionStore = create<DetectionState>((set) => ({
       return { imageAnalysisResults: [] };
     }),
 
+  setFaceAnalysisResults: (faceAnalysisResults) => set({ faceAnalysisResults }),
+
   reset: () => set(initialState),
 }));
 
@@ -160,4 +178,5 @@ export type {
   StatsMode,
   DashboardTab,
   ImageAnalysisResult,
+  TrackedFace,
 };

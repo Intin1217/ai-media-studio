@@ -18,12 +18,12 @@ export interface HeadPose {
 export function estimateHeadPose(
   landmarks: { x: number; y: number }[],
 ): HeadPose {
-  const noseTip = landmarks[30];
-  const leftEye = landmarks[36];
-  const rightEye = landmarks[45];
-  const chin = landmarks[8];
-  const leftEar = landmarks[0];
-  const rightEar = landmarks[16];
+  const noseTip = landmarks[30]!;
+  const leftEye = landmarks[36]!;
+  const rightEye = landmarks[45]!;
+  const chin = landmarks[8]!;
+  const leftEar = landmarks[0]!;
+  const rightEar = landmarks[16]!;
 
   // 양눈 중심 계산
   const eyeCenterX = (leftEye.x + rightEye.x) / 2;
