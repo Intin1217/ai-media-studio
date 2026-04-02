@@ -1,14 +1,8 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { animate } from 'animejs';
 import { useDetectionStore } from '@/stores/detection-store';
 import type { DashboardTab } from '@/stores/detection-store';
-
-import { SidebarBrowserAiTab } from './sidebar-browser-ai-tab';
-import { SidebarLocalAiTab } from './sidebar-local-ai-tab';
-
-type SidebarTab = 'general' | 'browser-ai' | 'local-ai';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 export const NAV_ITEMS: {
   id: DashboardTab;
@@ -20,7 +14,7 @@ export const NAV_ITEMS: {
     label: '실시간 감지',
     icon: (
       <svg
-        className="h-4 w-4"
+        className="h-5 w-5"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -39,7 +33,7 @@ export const NAV_ITEMS: {
     label: '이미지 분석',
     icon: (
       <svg
-        className="h-4 w-4"
+        className="h-5 w-5"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -56,7 +50,7 @@ export const NAV_ITEMS: {
     label: '통계',
     icon: (
       <svg
-        className="h-4 w-4"
+        className="h-5 w-5"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -73,7 +67,7 @@ export const NAV_ITEMS: {
     label: 'PDF 번역',
     icon: (
       <svg
-        className="h-4 w-4"
+        className="h-5 w-5"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -93,134 +87,83 @@ export const NAV_ITEMS: {
   },
 ];
 
-const TAB_INDEX = Object.fromEntries(
-  NAV_ITEMS.map((item, i) => [item.id, i]),
-) as Record<DashboardTab, number>;
+interface SidebarProps {
+  onSettingsToggle: () => void;
+}
 
-const ITEM_HEIGHT = 40;
-
-const SETTINGS_TABS: { key: SidebarTab; label: string }[] = [
-  { key: 'general', label: '일반' },
-  { key: 'browser-ai', label: '브라우저 AI' },
-  { key: 'local-ai', label: '로컬 AI' },
-];
-
-export function Sidebar() {
+export function Sidebar({ onSettingsToggle }: SidebarProps) {
   const dashboardTab = useDetectionStore((s) => s.dashboardTab);
   const setDashboardTab = useDetectionStore((s) => s.setDashboardTab);
-  const modelStatus = useDetectionStore((s) => s.modelStatus);
-
-  const [sidebarTab, setSidebarTab] = useState<SidebarTab>('general');
-
-  const indicatorRef = useRef<HTMLDivElement>(null);
-
-  // anime.js 슬라이딩 인디케이터
-  useEffect(() => {
-    if (!indicatorRef.current) return;
-    const index = TAB_INDEX[dashboardTab];
-    const prefersReduced = window.matchMedia(
-      '(prefers-reduced-motion: reduce)',
-    ).matches;
-    if (prefersReduced) {
-      indicatorRef.current.style.transform = `translateY(${index * ITEM_HEIGHT}px)`;
-    } else {
-      animate(indicatorRef.current, {
-        translateY: index * ITEM_HEIGHT,
-        duration: 250,
-        easing: 'easeOutQuart',
-      });
-    }
-  }, [dashboardTab]);
 
   return (
-    <aside className="border-border bg-card hidden w-64 flex-col overflow-y-auto border-r lg:flex">
-      <div className="flex flex-col gap-1 px-3 py-4">
-        {/* 네비게이션 섹션 */}
-        <div className="relative">
-          {/* 슬라이딩 활성 인디케이터 */}
-          <div
-            ref={indicatorRef}
-            className="bg-accent pointer-events-none absolute left-0 top-0 h-10 w-full rounded-md"
-            style={{
-              transform: `translateY(${TAB_INDEX[dashboardTab] * ITEM_HEIGHT}px)`,
-            }}
-          />
-          {NAV_ITEMS.map((item) => {
-            const isActive = dashboardTab === item.id;
-            return (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => setDashboardTab(item.id)}
-                className={`relative z-10 flex h-10 w-full items-center gap-2.5 rounded-md px-3 text-sm font-medium transition-colors ${
-                  isActive
-                    ? 'text-accent-foreground'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                {/* 왼쪽 2px 인디고 바 */}
-                {isActive && (
-                  <span className="absolute bottom-1 left-0 top-1 w-0.5 rounded-full bg-sky-500" />
-                )}
-                {item.icon}
+    <aside className="border-border bg-card hidden w-[52px] flex-col items-center border-r py-3 lg:flex">
+      {/* 로고 */}
+      <div className="mb-4 flex h-9 w-9 items-center justify-center rounded-lg bg-sky-500/15">
+        <span className="text-xs font-bold text-sky-400">AI</span>
+      </div>
+
+      {/* 네비게이션 아이콘 */}
+      <nav
+        className="flex flex-1 flex-col items-center gap-1"
+        aria-label="메인 네비게이션"
+      >
+        {NAV_ITEMS.map((item) => {
+          const isActive = dashboardTab === item.id;
+          return (
+            <button
+              key={item.id}
+              type="button"
+              title={item.label}
+              aria-label={item.label}
+              aria-current={isActive ? 'page' : undefined}
+              onClick={() => setDashboardTab(item.id)}
+              className={`group relative flex h-9 w-9 items-center justify-center rounded-lg transition-colors ${
+                isActive
+                  ? 'bg-sky-500/15 text-sky-400'
+                  : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+              }`}
+            >
+              {item.icon}
+              {/* CSS 기반 툴팁 */}
+              <span className="bg-popover text-popover-foreground pointer-events-none absolute left-full ml-2 whitespace-nowrap rounded-md px-2 py-1 text-xs opacity-0 shadow-md transition-opacity group-hover:opacity-100">
                 {item.label}
-              </button>
-            );
-          })}
-        </div>
-
-        <hr className="border-border my-2" />
-
-        {/* 설정 3탭 구조 */}
-        <div className="border-border border-t pt-3">
-          {/* 탭 선택 버튼 */}
-          <div className="mb-3 flex gap-1">
-            {SETTINGS_TABS.map(({ key, label }) => (
-              <button
-                key={key}
-                type="button"
-                onClick={() => setSidebarTab(key)}
-                className={`flex-1 rounded-md px-1.5 py-1 text-xs font-medium transition-colors ${
-                  sidebarTab === key
-                    ? 'bg-sky-500/20 text-sky-400'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-
-          {/* 탭 콘텐츠 */}
-          {sidebarTab === 'general' && (
-            <div className="px-1 py-2">
-              <p className="text-muted-foreground mb-1 text-xs">
-                감지 모델 상태
-              </p>
-              <span
-                className={`text-xs font-medium ${
-                  modelStatus === 'ready'
-                    ? 'text-green-400'
-                    : modelStatus === 'error'
-                      ? 'text-red-400'
-                      : 'text-muted-foreground'
-                }`}
-              >
-                {modelStatus === 'ready'
-                  ? '준비됨'
-                  : modelStatus === 'loading'
-                    ? '로딩 중...'
-                    : modelStatus === 'error'
-                      ? '오류'
-                      : '대기 중'}
               </span>
-            </div>
-          )}
+            </button>
+          );
+        })}
+      </nav>
 
-          {sidebarTab === 'browser-ai' && <SidebarBrowserAiTab />}
+      {/* 하단 액션 */}
+      <div className="flex flex-col items-center gap-1">
+        {/* 테마 토글 */}
+        <ThemeToggle />
 
-          {sidebarTab === 'local-ai' && <SidebarLocalAiTab />}
-        </div>
+        {/* 설정 아이콘 */}
+        <button
+          type="button"
+          title="설정"
+          aria-label="설정 패널 열기"
+          onClick={onSettingsToggle}
+          className="text-muted-foreground hover:bg-accent hover:text-foreground group relative flex h-9 w-9 items-center justify-center rounded-lg transition-colors"
+        >
+          <svg
+            className="h-5 w-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <circle cx="12" cy="12" r="3" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"
+            />
+          </svg>
+          <span className="bg-popover text-popover-foreground pointer-events-none absolute left-full ml-2 whitespace-nowrap rounded-md px-2 py-1 text-xs opacity-0 shadow-md transition-opacity group-hover:opacity-100">
+            설정
+          </span>
+        </button>
       </div>
     </aside>
   );

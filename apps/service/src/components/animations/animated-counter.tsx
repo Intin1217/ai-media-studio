@@ -1,7 +1,6 @@
 'use client';
 
-import { useRef, useEffect } from 'react';
-import { animate } from 'animejs';
+import { useRef, useEffect, useState } from 'react';
 
 interface AnimatedCounterProps {
   value: number;
@@ -9,37 +8,61 @@ interface AnimatedCounterProps {
   suffix?: string;
 }
 
+// easeOutExpo: 1 - 2^(-10t)
+function easeOutExpo(t: number): number {
+  return t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+}
+
 export function AnimatedCounter({
   value,
   className,
   suffix = '',
 }: AnimatedCounterProps) {
-  const ref = useRef<HTMLSpanElement>(null);
-  const prevValue = useRef(0);
+  const [displayed, setDisplayed] = useState(value);
+  const prevValueRef = useRef(value);
+  const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (!ref.current) return;
-    const obj = { val: prevValue.current };
-    const anim = animate(obj, {
-      val: value,
-      duration: 400,
-      ease: 'outExpo',
-      round: 1,
-      onUpdate: () => {
-        if (ref.current) {
-          ref.current.textContent = `${Math.round(obj.val)}${suffix}`;
-        }
-      },
-    });
-    prevValue.current = value;
+    const prefersReducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)',
+    ).matches;
+
+    const from = prevValueRef.current;
+    const to = value;
+    prevValueRef.current = value;
+
+    if (prefersReducedMotion || from === to) {
+      setDisplayed(to);
+      return;
+    }
+
+    const duration = 400;
+    const startTime = performance.now();
+
+    function tick(now: number) {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = easeOutExpo(progress);
+      const current = Math.round(from + (to - from) * eased);
+      setDisplayed(current);
+
+      if (progress < 1) {
+        rafRef.current = requestAnimationFrame(tick);
+      }
+    }
+
+    rafRef.current = requestAnimationFrame(tick);
+
     return () => {
-      anim?.cancel();
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current);
+      }
     };
-  }, [value, suffix]);
+  }, [value]);
 
   return (
-    <span ref={ref} className={className}>
-      {value}
+    <span className={className}>
+      {displayed}
       {suffix}
     </span>
   );

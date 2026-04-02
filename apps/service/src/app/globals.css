@@ -119,6 +119,17 @@
   }
 }
 
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* dot loading animation */
 @keyframes dotBlink {
   0%,
@@ -148,8 +159,9 @@
 @media (prefers-reduced-motion: reduce) {
   .detection-item-enter,
   .tab-content-fade,
-  .chart-card-enter {
-    animation: none;
+  .chart-card-enter,
+  .image-result-card {
+    animation: none !important;
   }
 
   .dot-loading span {
