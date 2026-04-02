@@ -43,20 +43,18 @@ const TECH_STACK = [
       <svg
         width="20"
         height="20"
-        viewBox="0 0 24 24"
+        viewBox="0 0 400 400"
         fill="currentColor"
         aria-hidden="true"
       >
         <rect
-          width="24"
-          height="24"
-          rx="3"
+          width="400"
+          height="400"
+          rx="50"
           fill="currentColor"
           opacity="0.15"
         />
-        <text x="3" y="17" fontSize="11" fontWeight="bold" fill="currentColor">
-          TS
-        </text>
+        <path d="M87.7 242.3v-17.2h101.5V400H170V242.3H87.7zM296.7 400c-11.6 0-22-1.5-31.3-4.4-9.2-2.9-17.1-7.3-23.5-13-6.5-5.7-11.4-12.9-14.9-21.5-3.5-8.6-5.2-18.6-5.2-30h18.3c0 8.2 1.2 15.3 3.6 21.3 2.4 6 5.8 11 10.1 15 4.3 4 9.5 7 15.6 8.9 6.1 2 12.8 3 20.1 3 6.4 0 12.2-.8 17.5-2.3 5.3-1.5 9.8-3.7 13.5-6.5 3.7-2.8 6.6-6.3 8.6-10.4 2-4.1 3.1-8.8 3.1-14 0-5.4-1-10-3-13.8-2-3.8-4.9-7.1-8.7-9.8-3.8-2.7-8.5-5.1-13.9-7.1-5.5-2-11.7-3.9-18.6-5.8-7.4-2-14.4-4.3-20.8-6.8-6.4-2.5-12-5.6-16.8-9.3-4.7-3.7-8.4-8.3-11.1-13.7-2.7-5.4-4-12-4-19.8 0-8 1.6-15 4.8-21 3.2-6 7.6-11 13.1-15.1 5.5-4.1 11.9-7.1 19.2-9.2 7.2-2 14.9-3.1 22.9-3.1 9.2 0 17.5 1.3 24.9 3.8 7.4 2.5 13.7 6.2 19 11 5.3 4.8 9.3 10.7 12.1 17.6 2.8 6.9 4.3 14.7 4.4 23.3h-18.3c-.3-12.5-3.9-22.1-10.6-28.8-6.8-6.7-16.6-10-29.4-10-5.5 0-10.6.7-15.3 2-4.7 1.3-8.8 3.3-12.2 5.9-3.5 2.6-6.2 5.8-8.2 9.6-2 3.8-3 8.1-3 12.9 0 4.8.9 8.9 2.8 12.2 1.9 3.3 4.6 6.2 8.1 8.7 3.5 2.5 7.8 4.7 12.8 6.6 5 2 10.7 3.9 17.1 5.8 7.8 2.2 15.2 4.6 22.3 7.1 7.1 2.5 13.3 5.7 18.7 9.5 5.4 3.8 9.6 8.6 12.8 14.3 3.2 5.7 4.8 12.8 4.8 21.3 0 9.2-1.7 17.1-5.2 23.8-3.5 6.7-8.2 12.3-14.3 16.7-6 4.4-13.2 7.7-21.4 9.8-8.1 2.1-16.9 3.2-26.2 3.2z" />
       </svg>
     ),
   },
@@ -80,21 +78,6 @@ const TECH_STACK = [
     ),
   },
   {
-    name: 'Tailwind CSS',
-    label: 'Styling',
-    icon: (
-      <svg
-        width="20"
-        height="20"
-        viewBox="0 0 24 24"
-        fill="currentColor"
-        aria-hidden="true"
-      >
-        <path d="M12 6C9.33 6 7.67 7.33 7 10c1-1.33 2.17-1.83 3.5-1.5.76.19 1.31.74 1.91 1.35.98 1 2.09 2.15 4.59 2.15 2.67 0 4.33-1.33 5-4-1 1.33-2.17 1.83-3.5 1.5-.76-.19-1.3-.74-1.91-1.35C15.61 7.15 14.51 6 12 6zM7 14c-2.67 0-4.33 1.33-5 4 1-1.33 2.17-1.83 3.5-1.5.76.19 1.3.74 1.91 1.35C8.39 18.85 9.49 20 12 20c2.67 0 4.33-1.33 5-4-1 1.33-2.17 1.83-3.5 1.5-.76-.19-1.31-.74-1.91-1.35C10.61 15.15 9.51 14 7 14z" />
-      </svg>
-    ),
-  },
-  {
     name: 'WebRTC',
     label: 'Media',
     icon: (
@@ -112,25 +95,6 @@ const TECH_STACK = [
     ),
   },
   {
-    name: 'Canvas API',
-    label: 'Rendering',
-    icon: (
-      <svg
-        width="20"
-        height="20"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        aria-hidden="true"
-      >
-        <rect x="2" y="2" width="20" height="20" rx="2" />
-        <circle cx="8" cy="8" r="2" fill="currentColor" opacity="0.5" />
-        <path d="M2 15l5-5 4 4 3-3 8 8" />
-      </svg>
-    ),
-  },
-  {
     name: 'Turborepo',
     label: 'Build',
     icon: (
@@ -141,11 +105,21 @@ const TECH_STACK = [
         fill="currentColor"
         aria-hidden="true"
       >
-        <path
-          d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
+        <circle
+          cx="12"
+          cy="12"
+          r="10"
+          fill="none"
           stroke="currentColor"
           strokeWidth="1.5"
+        />
+        <circle cx="12" cy="12" r="3.5" fill="currentColor" />
+        <path
+          d="M12 2 L20.5 17.5 L3.5 17.5 Z"
           fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinejoin="round"
         />
       </svg>
     ),
@@ -163,38 +137,16 @@ const TECH_STACK = [
         strokeWidth="1.5"
         aria-hidden="true"
       >
-        <rect x="4" y="4" width="16" height="16" rx="2" />
-        <rect x="9" y="9" width="6" height="6" />
-        <line x1="9" y1="1" x2="9" y2="4" />
-        <line x1="15" y1="1" x2="15" y2="4" />
-        <line x1="9" y1="20" x2="9" y2="23" />
-        <line x1="15" y1="20" x2="15" y2="23" />
-        <line x1="20" y1="9" x2="23" y2="9" />
-        <line x1="20" y1="14" x2="23" y2="14" />
-        <line x1="1" y1="9" x2="4" y2="9" />
-        <line x1="1" y1="14" x2="4" y2="14" />
-      </svg>
-    ),
-  },
-  {
-    name: 'Docker',
-    label: 'Container',
-    icon: (
-      <svg
-        width="20"
-        height="20"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        aria-hidden="true"
-      >
-        <rect x="1" y="10" width="4" height="3" rx="0.5" />
-        <rect x="6" y="10" width="4" height="3" rx="0.5" />
-        <rect x="11" y="10" width="4" height="3" rx="0.5" />
-        <rect x="6" y="6" width="4" height="3" rx="0.5" />
-        <rect x="11" y="6" width="4" height="3" rx="0.5" />
-        <path d="M17.5 12.5c.5-1.5 2-2 3.5-1.5.5 2-1 4-3.5 4H4a3 3 0 0 1-3-3" />
+        {/* 대화 버블 (LLM/채팅 연상) */}
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+        />
+        {/* 내부 점 3개 — 생각 중 표현 */}
+        <circle cx="9" cy="11" r="0.8" fill="currentColor" stroke="none" />
+        <circle cx="12" cy="11" r="0.8" fill="currentColor" stroke="none" />
+        <circle cx="15" cy="11" r="0.8" fill="currentColor" stroke="none" />
       </svg>
     ),
   },
