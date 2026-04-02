@@ -35,7 +35,10 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
 
       {/* 패널 본체 */}
       <aside
+        id="settings-panel"
         aria-label="설정 패널"
+        aria-hidden={!isOpen}
+        {...(!isOpen && { inert: true })}
         className={`border-border bg-card fixed right-0 top-0 z-30 hidden h-full w-[280px] flex-col overflow-y-auto border-l transition-transform lg:flex ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}

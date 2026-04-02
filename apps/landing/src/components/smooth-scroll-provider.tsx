@@ -13,13 +13,16 @@ export function SmoothScrollProvider({
     const lenis = new Lenis({ lerp: 0.1, smoothWheel: true });
     lenisRef.current = lenis;
 
+    let rafId: number;
+
     function raf(time: number) {
       lenis.raf(time);
-      requestAnimationFrame(raf);
+      rafId = requestAnimationFrame(raf);
     }
-    requestAnimationFrame(raf);
+    rafId = requestAnimationFrame(raf);
 
     return () => {
+      cancelAnimationFrame(rafId);
       lenis.destroy();
     };
   }, []);

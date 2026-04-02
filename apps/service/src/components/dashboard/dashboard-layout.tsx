@@ -60,7 +60,10 @@ export function DashboardLayout() {
 
       <div className="flex flex-1 overflow-hidden">
         {/* 52px Icon-only Sidebar */}
-        <Sidebar onSettingsToggle={toggleSettingsPanel} />
+        <Sidebar
+          onSettingsToggle={toggleSettingsPanel}
+          isSettingsPanelOpen={isSettingsPanelOpen}
+        />
 
         {/* Main Content */}
         <main className="flex-1 overflow-y-auto p-6 pb-20 lg:pb-6">

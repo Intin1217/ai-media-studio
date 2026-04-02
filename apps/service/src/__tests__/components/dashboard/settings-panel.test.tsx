@@ -35,9 +35,12 @@ describe('SettingsPanel', () => {
 
   describe('렌더링 — 닫힌 상태', () => {
     it('isOpen=false이면 translate-x-full 클래스를 가진다', () => {
-      render(<SettingsPanel isOpen={false} onClose={mockOnClose} />);
-      const panel = screen.getByRole('complementary', { name: '설정 패널' });
-      expect(panel.className).toContain('translate-x-full');
+      const { container } = render(
+        <SettingsPanel isOpen={false} onClose={mockOnClose} />,
+      );
+      // aria-hidden + inert 상태에서는 getByRole 접근 불가 — id로 직접 조회
+      const panel = container.querySelector('#settings-panel');
+      expect(panel?.className).toContain('translate-x-full');
     });
   });
 

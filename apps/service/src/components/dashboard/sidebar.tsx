@@ -89,9 +89,13 @@ export const NAV_ITEMS: {
 
 interface SidebarProps {
   onSettingsToggle: () => void;
+  isSettingsPanelOpen: boolean;
 }
 
-export function Sidebar({ onSettingsToggle }: SidebarProps) {
+export function Sidebar({
+  onSettingsToggle,
+  isSettingsPanelOpen,
+}: SidebarProps) {
   const dashboardTab = useDetectionStore((s) => s.dashboardTab);
   const setDashboardTab = useDetectionStore((s) => s.setDashboardTab);
 
@@ -143,6 +147,8 @@ export function Sidebar({ onSettingsToggle }: SidebarProps) {
           type="button"
           title="설정"
           aria-label="설정 패널 열기"
+          aria-expanded={isSettingsPanelOpen}
+          aria-controls="settings-panel"
           onClick={onSettingsToggle}
           className="text-muted-foreground hover:bg-accent hover:text-foreground group relative flex h-9 w-9 items-center justify-center rounded-lg transition-colors"
         >

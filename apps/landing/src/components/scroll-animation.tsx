@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'motion/react';
+import { motion, useReducedMotion } from 'motion/react';
 
 interface ScrollAnimationProps {
   children: React.ReactNode;
@@ -15,6 +15,12 @@ export function ScrollAnimation({
   delay = 0,
   className,
 }: ScrollAnimationProps) {
+  const shouldReduce = useReducedMotion();
+
+  if (shouldReduce) {
+    return <div className={className}>{children}</div>;
+  }
+
   const initial = {
     opacity: 0,
     ...(direction === 'up' && { y: 32 }),

@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'motion/react';
+import { motion, useReducedMotion } from 'motion/react';
 
 const FADE_UP_VARIANTS = {
   hidden: { opacity: 0, y: 24, filter: 'blur(4px)' },
@@ -17,6 +17,8 @@ const FADE_UP_VARIANTS = {
 };
 
 export function HeroSection() {
+  const shouldReduce = useReducedMotion();
+
   return (
     <section
       id="hero"
@@ -43,7 +45,7 @@ export function HeroSection() {
             {/* Eyebrow pill */}
             <motion.div
               variants={FADE_UP_VARIANTS}
-              initial="hidden"
+              initial={shouldReduce ? 'visible' : 'hidden'}
               animate="visible"
               custom={0}
             >
@@ -55,7 +57,7 @@ export function HeroSection() {
             {/* h1 */}
             <motion.h1
               variants={FADE_UP_VARIANTS}
-              initial="hidden"
+              initial={shouldReduce ? 'visible' : 'hidden'}
               animate="visible"
               custom={0.08}
               className="break-keep-all text-foreground mb-6 text-4xl font-extrabold leading-snug tracking-tight md:text-5xl lg:text-6xl"
@@ -69,7 +71,7 @@ export function HeroSection() {
             {/* subtitle */}
             <motion.p
               variants={FADE_UP_VARIANTS}
-              initial="hidden"
+              initial={shouldReduce ? 'visible' : 'hidden'}
               animate="visible"
               custom={0.16}
               className="text-muted-foreground break-keep-all mb-10 max-w-[55ch] text-base leading-relaxed md:text-lg"
@@ -81,7 +83,7 @@ export function HeroSection() {
             {/* CTA 버튼 */}
             <motion.div
               variants={FADE_UP_VARIANTS}
-              initial="hidden"
+              initial={shouldReduce ? 'visible' : 'hidden'}
               animate="visible"
               custom={0.24}
               className="flex flex-col gap-4 sm:flex-row"
@@ -246,9 +248,8 @@ export function HeroSection() {
       {/* 스크롤 인디케이터 */}
       <a
         href="#features"
-        className="text-muted-foreground absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce transition-colors duration-200 hover:text-sky-500"
+        className="text-muted-foreground absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce transition-colors duration-300 hover:text-sky-500"
         aria-label="아래로 스크롤"
-        style={{ transition: 'color 0.3s cubic-bezier(0.16, 1, 0.3, 1)' }}
       >
         <svg
           width="24"
