@@ -100,7 +100,7 @@ export function Sidebar({
   const setDashboardTab = useDetectionStore((s) => s.setDashboardTab);
 
   return (
-    <aside className="border-border bg-card hidden w-[52px] flex-col items-center border-r py-3 lg:flex">
+    <aside className="border-border bg-card z-10 hidden w-[52px] flex-col items-center border-r py-3 lg:flex">
       {/* 로고 */}
       <div className="mb-4 flex h-9 w-9 items-center justify-center rounded-lg bg-sky-500/15">
         <span className="text-xs font-bold text-sky-400">AI</span>
