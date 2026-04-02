@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { ThemeProvider } from 'next-themes';
+import { SmoothScrollProvider } from '@/components/smooth-scroll-provider';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -76,7 +77,15 @@ export default function RootLayout({
           crossOrigin="anonymous"
           href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css"
         />
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/geist@1.0.0/dist/fonts/geist-sans/style.css"
+        />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <script
+          src="https://code.iconify.design/iconify-icon/2.3.0/iconify-icon.min.js"
+          async
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -98,7 +107,7 @@ export default function RootLayout({
           enableSystem
           storageKey="ams-theme"
         >
-          {children}
+          <SmoothScrollProvider>{children}</SmoothScrollProvider>
         </ThemeProvider>
       </body>
     </html>

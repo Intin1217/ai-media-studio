@@ -42,66 +42,63 @@ describe('HeroSection', () => {
       expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument();
     });
 
-    it('h1이 "내 컴퓨터에서 실행하는" 텍스트를 포함한다', () => {
+    it('h1이 "브라우저 안에서" 텍스트를 포함한다', () => {
       render(<HeroSection />);
       expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
-        '내 컴퓨터에서 실행하는',
+        '브라우저 안에서',
       );
     });
 
-    it('h1이 "프라이빗" 텍스트를 포함한다', () => {
+    it('h1이 "완결되는 AI" 텍스트를 포함한다', () => {
       render(<HeroSection />);
       expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
-        '프라이빗',
+        '완결되는 AI',
       );
     });
   });
 
   describe('CTA 링크', () => {
-    it('"설치 가이드" 링크가 렌더링된다', () => {
+    it('"무료로 시작하기" 링크가 렌더링된다', () => {
       render(<HeroSection />);
-      expect(
-        screen.getByRole('link', { name: '설치 가이드' }),
-      ).toBeInTheDocument();
+      const links = screen.getAllByRole('link', { name: /무료로 시작하기/ });
+      expect(links.length).toBeGreaterThanOrEqual(1);
     });
 
-    it('"자세히 보기" 링크가 렌더링된다', () => {
+    it('"GitHub" 링크가 렌더링된다', () => {
       render(<HeroSection />);
-      expect(
-        screen.getByRole('link', { name: '자세히 보기' }),
-      ).toBeInTheDocument();
+      const links = screen.getAllByRole('link', { name: /GitHub/ });
+      expect(links.length).toBeGreaterThanOrEqual(1);
     });
 
-    it('"자세히 보기" 링크가 #features를 가리킨다', () => {
+    it('"무료로 시작하기" 링크가 GitHub 레포를 가리킨다', () => {
       render(<HeroSection />);
-      expect(screen.getByRole('link', { name: '자세히 보기' })).toHaveAttribute(
+      const links = screen.getAllByRole('link', { name: /무료로 시작하기/ });
+      expect(links[0]).toHaveAttribute(
         'href',
-        '#features',
+        'https://github.com/Intin1217/ai-media-studio',
       );
-    });
-
-    it('"설치 가이드" 링크가 #how-it-works를 가리킨다', () => {
-      render(<HeroSection />);
-      const link = screen.getByRole('link', { name: '설치 가이드' });
-      expect(link).toHaveAttribute('href', '#how-it-works');
     });
   });
 
   describe('장식 요소 접근성', () => {
-    it('장식용 blob 요소에 aria-hidden="true"가 있다', () => {
+    it('aria-hidden="true"인 장식 요소가 존재한다', () => {
       const { container } = render(<HeroSection />);
-      // aria-hidden="true"인 div 장식 요소들 확인
       const hiddenElements = container.querySelectorAll('[aria-hidden="true"]');
       expect(hiddenElements.length).toBeGreaterThanOrEqual(3);
     });
   });
 
   describe('부가 텍스트', () => {
-    it('서비스 설명 문구가 렌더링된다', () => {
+    it('온프레미스 설명 문구가 렌더링된다', () => {
       render(<HeroSection />);
       expect(
-        screen.getByText(/외부 서버 없이, 당신의 데이터는 당신의 컴퓨터에/),
+        screen.getByText(/웹캠 영상을 서버에 보내지 않습니다/),
       ).toBeInTheDocument();
+    });
+
+    it('Eyebrow pill "온프레미스 AI 분석"이 렌더링된다', () => {
+      render(<HeroSection />);
+      expect(screen.getByText('온프레미스 AI 분석')).toBeInTheDocument();
     });
   });
 });
