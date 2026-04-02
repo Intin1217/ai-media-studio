@@ -21,6 +21,33 @@ const ICONS: Record<string, React.ReactNode> = {
       <path d="M21 19V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2M8.5 13.5l2.5 3.01L14.5 12l4.5 6H5z" />
     </svg>
   ),
+  brain: (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      {/* AI 칩 — 사각형 본체 */}
+      <rect x="7" y="7" width="10" height="10" rx="1.5" />
+      {/* 핀 — 상하 */}
+      <line x1="9.5" y1="4" x2="9.5" y2="7" />
+      <line x1="14.5" y1="4" x2="14.5" y2="7" />
+      <line x1="9.5" y1="17" x2="9.5" y2="20" />
+      <line x1="14.5" y1="17" x2="14.5" y2="20" />
+      {/* 핀 — 좌우 */}
+      <line x1="4" y1="9.5" x2="7" y2="9.5" />
+      <line x1="4" y1="14.5" x2="7" y2="14.5" />
+      <line x1="17" y1="9.5" x2="20" y2="9.5" />
+      <line x1="17" y1="14.5" x2="20" y2="14.5" />
+      {/* 내부 코어 */}
+      <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none" />
+    </svg>
+  ),
 };
 
 interface Feature {
@@ -223,6 +250,69 @@ const FEATURES: Feature[] = [
               <div key={i} className="mb-1 flex items-center gap-1.5">
                 <div className="h-1.5 w-1.5 rounded-full bg-white/20" />
                 <div className="h-1.5 flex-1 rounded bg-white/10" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: 'local-ai',
+    title: '로컬 AI 연동',
+    description:
+      '브라우저 AI의 한계를 넘어서세요. Ollama를 통해 Llama, Gemma 등 로컬 LLM을 연결하면 이미지 심층 분석과 PDF 번역을 고정밀로 수행합니다. 데이터는 내 PC를 벗어나지 않습니다.',
+    icon: 'brain',
+    visual: (
+      <div
+        className="relative aspect-video overflow-hidden rounded-xl"
+        style={{
+          background: 'linear-gradient(135deg, hsl(0 0% 5%), hsl(0 0% 8%))',
+        }}
+      >
+        <div
+          className="absolute inset-3 flex flex-col gap-2"
+          aria-hidden="true"
+        >
+          {/* 상단: 연결 상태 헤더 */}
+          <div className="flex items-center justify-between rounded-lg border border-white/[0.06] bg-white/[0.04] px-3 py-2">
+            <div className="flex items-center gap-2">
+              <div className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
+              <span className="text-[10px] font-medium text-emerald-400">
+                Ollama Connected
+              </span>
+            </div>
+            <span className="text-[9px] text-white/30">localhost:11434</span>
+          </div>
+          {/* 모델 목록 */}
+          <div className="flex flex-col gap-1.5 rounded-lg border border-white/[0.06] bg-white/[0.04] px-3 py-2.5">
+            <div className="mb-1 text-[9px] uppercase tracking-wider text-white/30">
+              사용 가능한 모델
+            </div>
+            {[
+              { name: 'llama3.2', size: '2.0 GB', active: true },
+              { name: 'gemma2', size: '5.5 GB', active: false },
+              { name: 'llava', size: '4.7 GB', active: false },
+            ].map((model) => (
+              <div
+                key={model.name}
+                className={`flex items-center justify-between rounded px-2 py-1 ${
+                  model.active
+                    ? 'border border-sky-500/30 bg-sky-500/10'
+                    : 'border border-transparent'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <div
+                    className={`h-1.5 w-1.5 rounded-full ${model.active ? 'bg-sky-400' : 'bg-white/20'}`}
+                  />
+                  <span
+                    className={`font-mono text-[10px] ${model.active ? 'text-sky-300' : 'text-white/40'}`}
+                  >
+                    {model.name}
+                  </span>
+                </div>
+                <span className="text-[9px] text-white/25">{model.size}</span>
               </div>
             ))}
           </div>

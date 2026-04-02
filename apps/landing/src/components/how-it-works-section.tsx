@@ -4,13 +4,12 @@ const STEPS = [
   {
     number: 1,
     title: '설치',
-    description:
-      'Docker 또는 Node.js로 프로젝트를 설치합니다. 3분이면 충분합니다.',
+    description: 'pnpm으로 프로젝트를 설치합니다. 3분이면 충분합니다.',
   },
   {
     number: 2,
     title: '실행',
-    description: 'docker compose up 또는 pnpm dev로 로컬 서버를 시작합니다.',
+    description: 'pnpm dev로 로컬 서버를 시작합니다.',
   },
   {
     number: 3,
