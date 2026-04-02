@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
-import { animate, stagger } from 'animejs';
 import { Button } from '@ai-media-studio/ui';
 import { useDetectionStore } from '@/stores/detection-store';
 import { useSettingsStore } from '@/stores/settings-store';
@@ -28,9 +27,10 @@ export function ImageResultGallery() {
     total: number;
   } | null>(null);
 
-  const gridRef = useRef<HTMLDivElement>(null);
   const prevLengthRef = useRef(0);
   const abortRef = useRef(false);
+  // 새 카드 인덱스 범위 추적 (stagger CSS 애니메이션용)
+  const [newCardStartIndex, setNewCardStartIndex] = useState(-1);
 
   // 컴포넌트 언마운트 시 진행 중인 일괄 분석 중단
   useEffect(() => {
@@ -39,28 +39,12 @@ export function ImageResultGallery() {
     };
   }, []);
 
-  // 카드 stagger 등장 애니메이션
+  // 새로 추가된 카드 범위 기록 (stagger 등장 CSS 트리거용)
   useEffect(() => {
-    if (!gridRef.current || results.length === 0) return;
-    if (results.length <= prevLengthRef.current) {
-      prevLengthRef.current = results.length;
-      return;
+    if (results.length > prevLengthRef.current) {
+      setNewCardStartIndex(prevLengthRef.current);
     }
     prevLengthRef.current = results.length;
-
-    const prefersReduced = window.matchMedia(
-      '(prefers-reduced-motion: reduce)',
-    ).matches;
-    if (prefersReduced) return;
-
-    const cards = gridRef.current.querySelectorAll('.image-result-card');
-    animate(cards, {
-      opacity: [0, 1],
-      translateY: [20, 0],
-      duration: 400,
-      delay: stagger(80),
-      easing: 'easeOutQuart',
-    });
   }, [results.length]);
 
   async function handleBatchAnalyze() {
@@ -146,15 +130,29 @@ export function ImageResultGallery() {
           </Button>
         </div>
       </div>
-      <div ref={gridRef} className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {results.map((result) => (
-          <div key={result.id} className="image-result-card">
-            <ImageResultCard
-              result={result}
-              externalOllamaResult={batchResults[result.id]}
-            />
-          </div>
-        ))}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        {results.map((result, index) => {
+          const isNew = index >= newCardStartIndex && newCardStartIndex >= 0;
+          const staggerDelay = isNew ? (index - newCardStartIndex) * 80 : 0;
+          return (
+            <div
+              key={result.id}
+              className="image-result-card"
+              style={
+                isNew
+                  ? {
+                      animation: `fadeInUp 400ms cubic-bezier(0.16, 1, 0.3, 1) ${staggerDelay}ms both`,
+                    }
+                  : undefined
+              }
+            >
+              <ImageResultCard
+                result={result}
+                externalOllamaResult={batchResults[result.id]}
+              />
+            </div>
+          );
+        })}
       </div>
     </div>
   );
