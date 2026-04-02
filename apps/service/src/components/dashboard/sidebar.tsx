@@ -160,7 +160,7 @@ export function Sidebar() {
               >
                 {/* 왼쪽 2px 인디고 바 */}
                 {isActive && (
-                  <span className="absolute bottom-1 left-0 top-1 w-0.5 rounded-full bg-indigo-500" />
+                  <span className="absolute bottom-1 left-0 top-1 w-0.5 rounded-full bg-sky-500" />
                 )}
                 {item.icon}
                 {item.label}
@@ -182,7 +182,7 @@ export function Sidebar() {
                 onClick={() => setSidebarTab(key)}
                 className={`flex-1 rounded-md px-1.5 py-1 text-xs font-medium transition-colors ${
                   sidebarTab === key
-                    ? 'bg-emerald-500/20 text-emerald-400'
+                    ? 'bg-sky-500/20 text-sky-400'
                     : 'text-muted-foreground hover:text-foreground'
                 }`}
               >

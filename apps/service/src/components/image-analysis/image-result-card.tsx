@@ -223,7 +223,7 @@ export function ImageResultCard({
                 type="button"
                 onClick={handleOllamaAnalyze}
                 disabled={ollamaLoading}
-                className="flex items-center gap-1.5 rounded-md bg-emerald-500/10 px-3 py-1.5 text-xs font-medium text-emerald-400 transition-colors hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex items-center gap-1.5 rounded-md bg-sky-500/10 px-3 py-1.5 text-xs font-medium text-sky-400 transition-colors hover:bg-sky-500/20 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {ollamaLoading ? (
                   <>
@@ -269,8 +269,8 @@ export function ImageResultCard({
                 }}
                 className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
                   regionSelectMode
-                    ? 'bg-emerald-500/30 text-emerald-300 hover:bg-emerald-500/40'
-                    : 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20'
+                    ? 'bg-sky-500/30 text-sky-300 hover:bg-sky-500/40'
+                    : 'bg-sky-500/10 text-sky-400 hover:bg-sky-500/20'
                 }`}
                 aria-pressed={regionSelectMode}
               >
