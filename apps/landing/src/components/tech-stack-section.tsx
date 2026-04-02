@@ -1,4 +1,4 @@
-import { ScrollReveal } from './scroll-reveal';
+import { ScrollAnimation } from './scroll-animation';
 
 const TECH_STACK = [
   {
@@ -205,29 +205,30 @@ export function TechStackSection() {
     <section
       id="tech-stack"
       aria-labelledby="tech-heading"
-      className="bg-muted/50 py-20 md:py-28 lg:py-32"
+      className="bg-muted/30 py-24 md:py-32"
     >
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* 섹션 헤더 */}
-        <ScrollReveal className="mb-12 text-center md:mb-16">
-          <p className="text-ai-cyan mb-3 text-sm font-medium uppercase tracking-widest">
+        <ScrollAnimation className="mb-12 text-center md:mb-16">
+          <span className="mb-6 inline-flex items-center rounded-full bg-sky-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.15em] text-sky-500">
             기술 스택
-          </p>
+          </span>
           <h2
             id="tech-heading"
-            className="text-foreground text-2xl font-bold tracking-tight md:text-3xl lg:text-4xl"
+            className="text-foreground text-2xl font-bold leading-snug tracking-tight md:text-3xl lg:text-4xl"
           >
             검증된 최신 기술로 구축
           </h2>
-        </ScrollReveal>
+        </ScrollAnimation>
 
         {/* 기술 뱃지 */}
-        <ScrollReveal>
+        <ScrollAnimation>
           <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4">
             {TECH_STACK.map((tech) => (
               <div
                 key={tech.name}
-                className="border-border bg-card text-foreground hover:border-ai-cyan/40 hover:bg-ai-cyan/5 inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-all duration-200 hover:scale-105 hover:shadow-sm md:px-5 md:py-2.5"
+                className="border-border bg-card text-foreground hover:border-ai-cyan/40 hover:bg-ai-cyan/5 inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium hover:scale-105 hover:shadow-sm md:px-5 md:py-2.5"
+                style={{ transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)' }}
               >
                 <span className="text-ai-cyan flex-shrink-0">{tech.icon}</span>
                 <span>{tech.name}</span>
@@ -237,7 +238,7 @@ export function TechStackSection() {
               </div>
             ))}
           </div>
-        </ScrollReveal>
+        </ScrollAnimation>
       </div>
     </section>
   );

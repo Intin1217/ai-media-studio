@@ -1,6 +1,7 @@
 'use client';
 
-import { useScrollReveal } from '../hooks/use-scroll-reveal';
+// scroll-reveal.tsx — ScrollAnimation을 re-export하는 호환 래퍼
+import { ScrollAnimation } from './scroll-animation';
 
 interface ScrollRevealProps {
   children: React.ReactNode;
@@ -11,17 +12,14 @@ interface ScrollRevealProps {
 export function ScrollReveal({
   children,
   delay,
-  className = '',
+  className,
 }: ScrollRevealProps) {
-  const ref = useScrollReveal<HTMLDivElement>();
+  // delay는 기존 코드에서 CSS delay string ('0ms', '150ms' 등)으로 전달됨
+  const delaySeconds = delay ? parseInt(delay, 10) / 1000 : 0;
 
   return (
-    <div
-      ref={ref}
-      className={`scroll-reveal ${className}`}
-      style={delay ? { transitionDelay: delay } : undefined}
-    >
+    <ScrollAnimation delay={delaySeconds} className={className}>
       {children}
-    </div>
+    </ScrollAnimation>
   );
 }

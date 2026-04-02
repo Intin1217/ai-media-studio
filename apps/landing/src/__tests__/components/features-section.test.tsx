@@ -50,73 +50,63 @@ describe('FeaturesSection', () => {
     it('h2 heading이 올바른 텍스트를 갖는다', () => {
       render(<FeaturesSection />);
       expect(
-        screen.getByRole('heading', { name: '강력하고 직관적인 AI 분석' }),
+        screen.getByRole('heading', {
+          name: '브라우저에서 완결되는 AI 분석',
+        }),
       ).toBeInTheDocument();
     });
 
-    it('"주요 기능" 레이블 텍스트가 렌더링된다', () => {
+    it('"핵심 기능" Eyebrow 텍스트가 렌더링된다', () => {
       render(<FeaturesSection />);
-      expect(screen.getByText('주요 기능')).toBeInTheDocument();
+      expect(screen.getByText('핵심 기능')).toBeInTheDocument();
     });
   });
 
-  describe('기능 카드', () => {
-    it('4개의 기능 카드 heading(h3)이 렌더링된다', () => {
+  describe('기능 항목', () => {
+    it('4개의 기능 heading(h3)이 렌더링된다', () => {
       render(<FeaturesSection />);
       const h3Elements = screen.getAllByRole('heading', { level: 3 });
       expect(h3Elements).toHaveLength(4);
     });
 
-    it('"완전한 프라이버시" 카드가 렌더링된다', () => {
+    it('"실시간 객체 감지" 기능이 렌더링된다', () => {
       render(<FeaturesSection />);
       expect(
-        screen.getByRole('heading', { name: '완전한 프라이버시' }),
+        screen.getByRole('heading', { name: '실시간 객체 감지' }),
       ).toBeInTheDocument();
     });
 
-    it('"로컬 AI 엔진" 카드가 렌더링된다', () => {
+    it('"얼굴 분석" 기능이 렌더링된다', () => {
       render(<FeaturesSection />);
       expect(
-        screen.getByRole('heading', { name: '로컬 AI 엔진' }),
+        screen.getByRole('heading', { name: '얼굴 분석' }),
       ).toBeInTheDocument();
     });
 
-    it('"오프라인 동작" 카드가 렌더링된다', () => {
+    it('"PDF 번역" 기능이 렌더링된다', () => {
       render(<FeaturesSection />);
       expect(
-        screen.getByRole('heading', { name: '오프라인 동작' }),
+        screen.getByRole('heading', { name: 'PDF 번역' }),
       ).toBeInTheDocument();
     });
 
-    it('"간편한 설치" 카드가 렌더링된다', () => {
+    it('"이미지 분석 OCR" 기능이 렌더링된다', () => {
       render(<FeaturesSection />);
       expect(
-        screen.getByRole('heading', { name: '간편한 설치' }),
+        screen.getByRole('heading', { name: '이미지 분석 OCR' }),
       ).toBeInTheDocument();
     });
 
-    it('각 카드의 설명 텍스트가 렌더링된다', () => {
+    it('각 기능의 설명 텍스트가 렌더링된다', () => {
       render(<FeaturesSection />);
       expect(
-        screen.getByText(/모든 데이터가 내 컴퓨터에서만 처리됩니다/),
+        screen.getByText(/80종 이상의 객체를 30fps로/),
       ).toBeInTheDocument();
-      expect(screen.getByText(/Ollama 기반 Vision 모델로/)).toBeInTheDocument();
+      expect(screen.getByText(/성별·나이 추정, 시선 추적/)).toBeInTheDocument();
+      expect(screen.getByText(/레이아웃을 보존하면서/)).toBeInTheDocument();
       expect(
-        screen.getByText(/인터넷 연결 없이도 핵심 기능이 동작합니다/),
+        screen.getByText(/이미지에서 텍스트를 추출하고/),
       ).toBeInTheDocument();
-      expect(
-        screen.getByText(/Docker 한 줄 또는 Node\.js로 즉시 실행/),
-      ).toBeInTheDocument();
-    });
-  });
-
-  describe('아이콘 접근성', () => {
-    it('기능 카드 SVG 아이콘에 aria-hidden="true"가 있다', () => {
-      const { container } = render(<FeaturesSection />);
-      // 기능 아이콘 SVG들은 모두 aria-hidden="true" 여야 함
-      const svgElements = container.querySelectorAll('svg[aria-hidden="true"]');
-      // 4개 카드 각각 1개 아이콘
-      expect(svgElements.length).toBeGreaterThanOrEqual(4);
     });
   });
 });

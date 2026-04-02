@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
-import { animate } from 'animejs';
 import { Card, CardContent, Badge } from '@ai-media-studio/ui';
 import { drawDetections } from '@ai-media-studio/media-utils';
 import type { ImageAnalysisResult } from '@/stores/detection-store';
@@ -26,7 +25,6 @@ export function ImageResultCard({
 }: ImageResultCardProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const canvasContainerRef = useRef<HTMLDivElement>(null);
-  const resultRef = useRef<HTMLDivElement>(null);
 
   const [regionSelectMode, setRegionSelectMode] = useState(false);
 
@@ -58,18 +56,13 @@ export function ImageResultCard({
     }
   }, [ollamaCustomPrompt, hasEdited]);
 
-  // 분석 결과 fade-in 애니메이션
+  // 분석 결과 fade-in 애니메이션 (CSS transition 기반)
+  const [resultVisible, setResultVisible] = useState(false);
   useEffect(() => {
-    if (resultRef.current && ollamaResult) {
-      const prefersReduced = window.matchMedia(
-        '(prefers-reduced-motion: reduce)',
-      ).matches;
-      if (prefersReduced) return;
-      animate(resultRef.current, {
-        opacity: [0, 1],
-        duration: 400,
-        easing: 'easeOutQuart',
-      });
+    if (ollamaResult) {
+      setResultVisible(false);
+      const id = requestAnimationFrame(() => setResultVisible(true));
+      return () => cancelAnimationFrame(id);
     }
   }, [ollamaResult]);
 
@@ -223,7 +216,7 @@ export function ImageResultCard({
                 type="button"
                 onClick={handleOllamaAnalyze}
                 disabled={ollamaLoading}
-                className="flex items-center gap-1.5 rounded-md bg-emerald-500/10 px-3 py-1.5 text-xs font-medium text-emerald-400 transition-colors hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex items-center gap-1.5 rounded-md bg-sky-500/10 px-3 py-1.5 text-xs font-medium text-sky-400 transition-colors hover:bg-sky-500/20 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {ollamaLoading ? (
                   <>
@@ -269,8 +262,8 @@ export function ImageResultCard({
                 }}
                 className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
                   regionSelectMode
-                    ? 'bg-emerald-500/30 text-emerald-300 hover:bg-emerald-500/40'
-                    : 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20'
+                    ? 'bg-sky-500/30 text-sky-300 hover:bg-sky-500/40'
+                    : 'bg-sky-500/10 text-sky-400 hover:bg-sky-500/20'
                 }`}
                 aria-pressed={regionSelectMode}
               >
@@ -293,7 +286,10 @@ export function ImageResultCard({
             )}
 
             {displayResult && !ollamaError && (
-              <div ref={resultRef} className="bg-muted/50 mt-2 rounded-md p-2">
+              <div
+                className="bg-muted/50 mt-2 rounded-md p-2 transition-opacity duration-300"
+                style={{ opacity: resultVisible ? 1 : 0 }}
+              >
                 <MarkdownRenderer content={displayResult} />
               </div>
             )}

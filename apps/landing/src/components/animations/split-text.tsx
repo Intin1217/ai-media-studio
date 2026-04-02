@@ -1,7 +1,6 @@
 'use client';
 
-import { useRef, useEffect } from 'react';
-import { animate, stagger } from 'animejs';
+import { motion } from 'motion/react';
 
 interface SplitTextProps {
   text: string;
@@ -10,52 +9,53 @@ interface SplitTextProps {
   charClassName?: string;
 }
 
+const containerVariants = {
+  hidden: {},
+  visible: (delay: number) => ({
+    transition: {
+      staggerChildren: 0.03,
+      delayChildren: delay / 1000,
+    },
+  }),
+};
+
+const charVariants = {
+  hidden: { opacity: 0, y: 40 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5,
+      ease: [0.16, 1, 0.3, 1] as [number, number, number, number],
+    },
+  },
+};
+
 export function SplitText({
   text,
   className,
   delay = 0,
   charClassName,
 }: SplitTextProps) {
-  const containerRef = useRef<HTMLSpanElement>(null);
-
-  useEffect(() => {
-    if (!containerRef.current) return;
-
-    const prefersReducedMotion = window.matchMedia(
-      '(prefers-reduced-motion: reduce)',
-    ).matches;
-    const chars =
-      containerRef.current.querySelectorAll<HTMLElement>('.split-char');
-
-    if (prefersReducedMotion) {
-      chars.forEach((c) => {
-        c.style.opacity = '1';
-        c.style.transform = 'none';
-      });
-      return;
-    }
-
-    animate(chars, {
-      opacity: [0, 1],
-      translateY: [40, 0],
-      duration: 800,
-      delay: stagger(30, { start: delay }),
-      ease: 'outExpo',
-    });
-  }, [text, delay]);
-
   return (
-    <span ref={containerRef} className={className} aria-label={text}>
+    <motion.span
+      className={className}
+      aria-label={text}
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      custom={delay}
+    >
       {text.split('').map((char, i) => (
-        <span
+        <motion.span
           key={`${char}-${i}`}
-          className={`split-char inline-block${charClassName ? ` ${charClassName}` : ''}`}
-          style={{ opacity: 0 }}
+          className={`inline-block${charClassName ? ` ${charClassName}` : ''}`}
+          variants={charVariants}
           aria-hidden="true"
         >
           {char === ' ' ? '\u00A0' : char}
-        </span>
+        </motion.span>
       ))}
-    </span>
+    </motion.span>
   );
 }

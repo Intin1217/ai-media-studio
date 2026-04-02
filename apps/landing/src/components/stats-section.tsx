@@ -1,139 +1,102 @@
 'use client';
 
-import { useRef, useEffect } from 'react';
-import { animate } from 'animejs';
-import { useScrollReveal } from '../hooks/use-scroll-reveal';
-import { ScrollReveal } from './scroll-reveal';
+import { useRef } from 'react';
+import { useInView, useMotionValue, animate, motion } from 'motion/react';
+import { useEffect } from 'react';
 
 interface StatItem {
   id: string;
   value: number;
+  prefix: string;
   suffix: string;
   label: string;
   description: string;
-  color: 'cyan' | 'purple' | 'amber';
 }
 
 const STATS: StatItem[] = [
   {
-    id: 'external-transfer',
-    value: 0,
-    suffix: '건',
-    label: '외부 데이터 전송',
-    description: '모든 처리가 로컬에서 완결',
-    color: 'cyan',
-  },
-  {
-    id: 'classes',
+    id: 'objects',
     value: 80,
+    prefix: '',
     suffix: '+',
     label: '감지 가능 객체',
-    description: 'COCO-SSD, MediaPipe로 정확한 인식',
-    color: 'purple',
+    description: 'COCO-SSD, MediaPipe',
+  },
+  {
+    id: 'fps',
+    value: 30,
+    prefix: '',
+    suffix: 'fps',
+    label: '실시간 처리',
+    description: '브라우저 AI 엔진',
   },
   {
     id: 'cost',
     value: 0,
+    prefix: '',
     suffix: '원',
     label: 'API 비용',
-    description: '로컬 실행으로 완전 무료',
-    color: 'amber',
+    description: '로컬 실행, 완전 무료',
+  },
+  {
+    id: 'privacy',
+    value: 100,
+    prefix: '',
+    suffix: '%',
+    label: '프라이버시',
+    description: '서버 전송 없음',
   },
 ];
 
-const COLOR_MAP = {
-  cyan: {
-    text: 'text-ai-cyan',
-    border: 'border-ai-cyan/20',
-    glow: 'hover:shadow-[0_0_20px_rgba(0,245,255,0.08)]',
-    bg: 'from-ai-cyan/5',
-  },
-  purple: {
-    text: 'text-ai-purple',
-    border: 'border-ai-purple/20',
-    glow: 'hover:shadow-[0_0_20px_rgba(139,92,246,0.08)]',
-    bg: 'from-ai-purple/5',
-  },
-  amber: {
-    text: 'text-ai-amber',
-    border: 'border-ai-amber/20',
-    glow: 'hover:shadow-[0_0_20px_rgba(245,158,11,0.08)]',
-    bg: 'from-ai-amber/5',
-  },
-} as const;
-
-interface StatCardProps {
-  stat: StatItem;
-}
-
-function StatCard({ stat }: StatCardProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const numberRef = useRef<HTMLSpanElement>(null);
-  const revealRef = useScrollReveal<HTMLDivElement>();
-  const colors = COLOR_MAP[stat.color];
+function CountingNumber({
+  value,
+  suffix,
+  prefix,
+}: {
+  value: number;
+  suffix: string;
+  prefix: string;
+}) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const motionValue = useMotionValue(0);
+  const isInView = useInView(ref, { once: true, amount: 0.5 });
 
   useEffect(() => {
-    if (!containerRef.current || !numberRef.current) return;
+    if (!isInView) return;
 
     const prefersReducedMotion = window.matchMedia(
       '(prefers-reduced-motion: reduce)',
     ).matches;
-
     if (prefersReducedMotion) {
-      if (numberRef.current) {
-        numberRef.current.textContent = String(stat.value);
-      }
+      if (ref.current) ref.current.textContent = `${prefix}${value}${suffix}`;
       return;
     }
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const target = { value: 0 };
-            animate(target, {
-              value: stat.value,
-              duration: 1800,
-              ease: 'outExpo',
-              onUpdate: () => {
-                if (numberRef.current) {
-                  numberRef.current.textContent = String(
-                    Math.round(target.value),
-                  );
-                }
-              },
-            });
-            observer.disconnect();
-          }
-        });
-      },
-      { threshold: 0.5 },
-    );
+    const controls = animate(motionValue, value, {
+      duration: 1.8,
+      ease: [0.16, 1, 0.3, 1],
+    });
 
-    observer.observe(containerRef.current);
-    return () => observer.disconnect();
-  }, [stat.value]);
+    const unsubscribe = motionValue.on('change', (latest) => {
+      if (ref.current) {
+        ref.current.textContent = `${prefix}${Math.round(latest)}${suffix}`;
+      }
+    });
+
+    return () => {
+      controls.stop();
+      unsubscribe();
+    };
+  }, [isInView, value, suffix, prefix, motionValue]);
 
   return (
-    <div ref={revealRef} className="scroll-reveal">
-      <div
-        ref={containerRef}
-        className={`border-border bg-card bg-gradient-to-b ${colors.bg} rounded-2xl border to-transparent p-8 text-center transition-all duration-300 ${colors.border} ${colors.glow} hover:border-opacity-50`}
-      >
-        <div
-          className={`text-5xl font-bold tabular-nums md:text-6xl ${colors.text}`}
-        >
-          <span ref={numberRef} aria-live="polite">
-            {stat.value === 0 ? '0' : '0'}
-          </span>
-          <span>{stat.suffix}</span>
-        </div>
-        <p className="text-foreground mt-3 text-lg font-semibold">
-          {stat.label}
-        </p>
-        <p className="text-muted-foreground mt-1 text-sm">{stat.description}</p>
-      </div>
-    </div>
+    <span
+      ref={ref}
+      aria-live="polite"
+      className="font-extrabold tabular-nums text-sky-500"
+    >
+      {prefix}0{suffix}
+    </span>
   );
 }
 
@@ -142,29 +105,44 @@ export function StatsSection() {
     <section
       id="stats"
       aria-labelledby="stats-heading"
-      className="bg-background py-20 md:py-28 lg:py-32"
+      className="border-y border-white/[0.06] py-16 md:py-20"
     >
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        {/* 섹션 헤더 */}
-        <ScrollReveal className="mb-12 text-center md:mb-16">
-          <p className="text-ai-cyan mb-3 text-sm font-medium uppercase tracking-widest">
-            성능 지표
-          </p>
-          <h2
-            id="stats-heading"
-            className="text-foreground text-2xl font-bold tracking-tight md:text-3xl lg:text-4xl"
-          >
-            숫자로 증명하는 성능
-          </h2>
-          <p className="mt-4 text-sm text-gray-400 md:text-base lg:text-lg dark:text-gray-300">
-            온프레미스로 이 모든 것이 가능합니다
-          </p>
-        </ScrollReveal>
-
-        {/* 통계 카드 그리드 */}
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
-          {STATS.map((stat) => (
-            <StatCard key={stat.id} stat={stat} />
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <h2 id="stats-heading" className="sr-only">
+          성능 지표
+        </h2>
+        <div className="grid grid-cols-2 gap-0 lg:grid-cols-4">
+          {STATS.map((stat, index) => (
+            <motion.div
+              key={stat.id}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{
+                duration: 0.5,
+                ease: [0.16, 1, 0.3, 1],
+                delay: index * 0.1,
+              }}
+              className={`px-6 py-8 text-center ${
+                index < STATS.length - 1
+                  ? 'border-b border-r-0 border-white/[0.06] lg:border-b-0 lg:border-r'
+                  : ''
+              } ${index % 2 === 0 && index < STATS.length - 1 ? 'border-r border-r-white/[0.06] lg:border-r-0' : ''}`}
+            >
+              <div className="mb-2 text-4xl leading-none md:text-5xl">
+                <CountingNumber
+                  value={stat.value}
+                  suffix={stat.suffix}
+                  prefix={stat.prefix}
+                />
+              </div>
+              <p className="text-foreground mt-1 text-sm font-semibold md:text-base">
+                {stat.label}
+              </p>
+              <p className="text-muted-foreground mt-0.5 text-xs md:text-sm">
+                {stat.description}
+              </p>
+            </motion.div>
           ))}
         </div>
       </div>

@@ -48,7 +48,7 @@ describe('RegionSelectOverlay', () => {
     });
   });
 
-  it('선택 완료(isSelecting=false) 시 dim 오버레이와 emerald 테두리가 렌더링된다', () => {
+  it('선택 완료(isSelecting=false) 시 dim 오버레이와 sky 테두리가 렌더링된다', () => {
     const containerRef = makeContainerRef(400, 300);
     const { container } = render(
       <RegionSelectOverlay
@@ -62,9 +62,9 @@ describe('RegionSelectOverlay', () => {
     const dimElements = container.querySelectorAll('.bg-black\\/40');
     expect(dimElements.length).toBeGreaterThan(0);
 
-    // emerald 테두리 (실선)
+    // sky 테두리 (실선)
     const border = container.querySelector(
-      '.border-emerald-400:not(.border-dashed)',
+      '.border-sky-400:not(.border-dashed)',
     );
     expect(border).not.toBeNull();
     expect(border).toHaveStyle({

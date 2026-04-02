@@ -81,7 +81,7 @@ export function SidebarBrowserAiTab() {
             className="peer sr-only"
             aria-label="얼굴 분석 활성화"
           />
-          <div className="bg-secondary peer h-4 w-8 rounded-full transition-colors after:absolute after:left-0.5 after:top-0.5 after:h-3 after:w-3 after:rounded-full after:bg-white after:transition-transform after:content-[''] peer-checked:bg-emerald-500 peer-checked:after:translate-x-4" />
+          <div className="bg-secondary peer h-4 w-8 rounded-full transition-colors after:absolute after:left-0.5 after:top-0.5 after:h-3 after:w-3 after:rounded-full after:bg-white after:transition-transform after:content-[''] peer-checked:bg-sky-500 peer-checked:after:translate-x-4" />
         </label>
       </div>
     </div>

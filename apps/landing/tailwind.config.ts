@@ -16,12 +16,12 @@ const config: Config = {
       colors: {
         ...baseColors,
         'ai-cyan': 'hsl(var(--ai-cyan))',
-        'ai-blue': 'hsl(var(--ai-blue))',
-        'ai-purple': 'hsl(var(--ai-purple))',
+        'ai-cyan-muted': 'hsl(var(--ai-cyan-muted))',
         'ai-amber': 'hsl(var(--ai-amber))',
       },
       fontFamily: {
         sans: [
+          'Geist',
           'var(--font-pretendard)',
           'Pretendard',
           '-apple-system',
@@ -35,16 +35,10 @@ const config: Config = {
           '0%': { opacity: '0', transform: 'translateY(24px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
-        blob: {
-          '0%, 100%': { transform: 'translate(0, 0) scale(1)' },
-          '33%': { transform: 'translate(20px, -30px) scale(1.05)' },
-          '66%': { transform: 'translate(-15px, 15px) scale(0.95)' },
-        },
       },
       animation: {
         ...((baseExtend.animation ?? {}) as Record<string, unknown>),
         'fade-in-up': 'fade-in-up 0.6s ease-out forwards',
-        blob: 'blob 8s ease-in-out infinite',
       },
     },
   },

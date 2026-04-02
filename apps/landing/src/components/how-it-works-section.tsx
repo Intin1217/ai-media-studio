@@ -1,4 +1,4 @@
-import { ScrollReveal } from './scroll-reveal';
+import { ScrollAnimation } from './scroll-animation';
 
 const STEPS = [
   {
@@ -20,42 +20,41 @@ const STEPS = [
   },
 ] as const;
 
-const STEP_DELAYS = ['0ms', '150ms', '300ms'];
-
 export function HowItWorksSection() {
   return (
     <section
       id="how-it-works"
       aria-labelledby="how-heading"
-      className="bg-background py-20 md:py-28 lg:py-32"
+      className="bg-muted/30 py-24 md:py-32"
     >
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* 섹션 헤더 */}
-        <ScrollReveal className="mb-12 text-center md:mb-16">
-          <p className="text-ai-cyan mb-3 text-sm font-medium uppercase tracking-widest">
+        <ScrollAnimation className="mb-16 text-center md:mb-20">
+          <span className="mb-6 inline-flex items-center rounded-full bg-sky-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.15em] text-sky-500">
             사용 방법
-          </p>
+          </span>
           <h2
             id="how-heading"
-            className="text-foreground text-2xl font-bold tracking-tight md:text-3xl lg:text-4xl"
+            className="text-foreground text-2xl font-bold leading-snug tracking-tight md:text-3xl lg:text-4xl"
+            style={{ textWrap: 'balance' } as React.CSSProperties}
           >
             3단계로 시작하는 AI 분석
           </h2>
-        </ScrollReveal>
+        </ScrollAnimation>
 
-        {/* 스텝 - 데스크톱: 가로, 모바일: 세로 */}
+        {/* 스텝 */}
         <ol className="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between lg:gap-8">
           {STEPS.map((step, index) => {
             const isLast = index === STEPS.length - 1;
             return (
               <li key={step.number} className="relative flex-1">
-                <ScrollReveal delay={STEP_DELAYS[index]}>
+                <ScrollAnimation delay={index * 0.15}>
                   {/* 모바일: 가로 배치 (번호 + 텍스트) */}
                   <div className="flex items-start gap-4 lg:flex-col lg:items-center lg:text-center">
                     {/* 번호 + 세로 연결선 (모바일) */}
                     <div className="relative flex-shrink-0">
                       <div
-                        className="from-ai-cyan to-ai-blue shadow-ai-cyan/25 flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br text-lg font-bold text-white shadow-lg md:h-12 md:w-12 md:text-xl"
+                        className="flex h-10 w-10 items-center justify-center rounded-full bg-sky-500 text-lg font-bold text-white shadow-lg shadow-sky-500/25 md:h-12 md:w-12 md:text-xl"
                         aria-label={`${step.number}단계`}
                       >
                         {step.number}
@@ -80,7 +79,7 @@ export function HowItWorksSection() {
                       </p>
                     </div>
                   </div>
-                </ScrollReveal>
+                </ScrollAnimation>
 
                 {/* 데스크톱 수평 연결선 */}
                 {!isLast && (
