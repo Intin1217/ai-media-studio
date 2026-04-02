@@ -1,5 +1,28 @@
 import { ScrollAnimation } from './scroll-animation';
 
+const ICONS: Record<string, React.ReactNode> = {
+  eye: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5M12 17a5 5 0 1 1 0-10 5 5 0 0 1 0 10m0-8a3 3 0 1 0 0 6 3 3 0 0 0 0-6" />
+    </svg>
+  ),
+  user: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4m0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4" />
+    </svg>
+  ),
+  document: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zm4 18H6V4h7v5h5zM8 15h8v2H8zm0-4h8v2H8z" />
+    </svg>
+  ),
+  gallery: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M21 19V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2M8.5 13.5l2.5 3.01L14.5 12l4.5 6H5z" />
+    </svg>
+  ),
+};
+
 interface Feature {
   id: string;
   title: string;
@@ -14,7 +37,7 @@ const FEATURES: Feature[] = [
     title: '실시간 객체 감지',
     description:
       '80종 이상의 객체를 30fps로 실시간 감지합니다. TensorFlow.js COCO-SSD 모델이 브라우저에서 직접 실행되어 서버 전송 없이 즉각적인 분석이 가능합니다.',
-    icon: 'solar:eye-bold',
+    icon: 'eye',
     visual: (
       <div
         className="relative aspect-video overflow-hidden rounded-xl"
@@ -62,7 +85,7 @@ const FEATURES: Feature[] = [
     title: '얼굴 분석',
     description:
       '성별·나이 추정, 시선 추적, 감정 분석까지. MediaPipe Face Mesh 기반으로 468개 랜드마크를 실시간으로 분석합니다.',
-    icon: 'solar:user-check-bold',
+    icon: 'user',
     visual: (
       <div
         className="relative aspect-video overflow-hidden rounded-xl"
@@ -111,7 +134,7 @@ const FEATURES: Feature[] = [
     title: 'PDF 번역',
     description:
       '레이아웃을 보존하면서 AI가 PDF를 번역합니다. Ollama Vision 모델로 표·도형·이미지가 포함된 복잡한 문서도 정확하게 번역합니다.',
-    icon: 'solar:document-text-bold',
+    icon: 'document',
     visual: (
       <div
         className="relative aspect-video overflow-hidden rounded-xl"
@@ -165,7 +188,7 @@ const FEATURES: Feature[] = [
     title: '이미지 분석 OCR',
     description:
       '이미지에서 텍스트를 추출하고 Ollama로 심층 분석합니다. 스크린샷, 문서 사진, 명함 등 다양한 이미지에서 정확하게 텍스트를 인식합니다.',
-    icon: 'solar:gallery-bold',
+    icon: 'gallery',
     visual: (
       <div
         className="relative aspect-video overflow-hidden rounded-xl"
@@ -253,12 +276,7 @@ export function FeaturesSection() {
                 >
                   <div className="mb-4 flex items-center gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-500/10 text-sky-500">
-                      <iconify-icon
-                        icon={feature.icon}
-                        width="20"
-                        height="20"
-                        aria-hidden="true"
-                      />
+                      <span aria-hidden="true">{ICONS[feature.icon]}</span>
                     </div>
                     <h3 className="text-foreground text-xl font-bold md:text-2xl">
                       {feature.title}

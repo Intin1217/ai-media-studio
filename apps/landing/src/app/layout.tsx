@@ -83,10 +83,6 @@ export default function RootLayout({
         />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <script
-          src="https://code.iconify.design/iconify-icon/2.3.0/iconify-icon.min.js"
-          async
-        />
-        <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
